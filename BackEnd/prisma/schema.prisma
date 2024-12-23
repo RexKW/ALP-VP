@@ -20,18 +20,128 @@ model User{
   password String @db.VarChar(100)
   token String? @db.VarChar(100)
 
-  todos Todo[]
 
+  ItinenaryUsers Itinenary_Users[]
 }
 
-model Todo{
-  id Int @id @default(autoincrement())
-  title String @db.VarChar(100)
-  description String @db.Text
-  priority String @db.VarChar(10)
-  due_date String @db.VarChar(100)
-  status String @db.VarChar(20)
+
+model Budget{
+  id Int @id  @default(autoincrement())
+  itinenary_id Int
+  estimated_budget Decimal @default(0)
+  actual_budget Decimal @default(0)
+  type String @db.VarChar(20)
+
+  itinenary Itinenary @relation(fields: [itinenary_id], references: [id])
+}
+
+model Itinenary_Users{
+  id Int @id  @default(autoincrement())
   user_id Int
-  
-  user User @relation(fields:[user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  itinenary_id Int
+  role String @db.VarChar(20)
+
+  user User @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  itinenary Itinenary @relation(fields: [itinenary_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
+
+model Itinenary{
+  id Int @id  @default(autoincrement())
+  name String @db.VarChar(100)
+  created_date DateTime
+  updated_date DateTime
+
+  Itinenary_Destinations Itinenary_Destinations[]
+  ItinenaryUsers Itinenary_Users[]
+
+  Budget Budget[]
+}
+
+model Itinenary_Destinations{
+  id Int @id  @default(autoincrement())
+  itinenary_id Int
+  destination_id Int
+  accomodation_id Int?
+  start_date DateTime
+  end_date DateTime
+
+  destination Destination @relation(fields:[destination_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  itinenary Itinenary @relation(fields: [itinenary_id],references: [id],onDelete: Cascade,onUpdate: Cascade)
+  Schedule_Per_Day Schedule_Per_Day[]
+  accomodation Accomodation? @relation(fields: [accomodation_id], references: [id])
+
+  Ticket Ticket[]
+}
+
+model Accomodation{
+  id Int @id  @default(autoincrement())
+  name String @db.VarChar(100)
+  address String @db.VarChar(150)
+  description String @db.Text
+  rating Int @db.SmallInt
+  cost Decimal
+  type String @db.VarChar(30) 
+
+
+  Itinenary_Destinations Itinenary_Destinations[]
+}
+
+model Destination{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  province String @db.VarChar(100)
+
+  Itinenary_Destinations Itinenary_Destinations[]
+}
+
+model Schedule_Per_Day{
+  id Int @id @default(autoincrement())
+  itinenary_destination_id Int
+  date DateTime @unique
+
+  Itinenary Itinenary_Destinations @relation(fields: [itinenary_destination_id], references: [id])
+  Activity Activity[]
+}
+
+
+
+model Activity{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  description String @db.Text
+  start_time DateTime
+  end_time DateTime
+  type String @db.VarChar(20)
+  cost Decimal
+  day_id Int
+  location_id Int
+
+  schedulePerDay Schedule_Per_Day @relation(fields: [day_id], references: [id])
+  location Location @relation(fields: [location_id], references: [id])
+
+}
+
+model Location{
+  id Int @id @default(autoincrement())
+  name String @db.VarChar(100)
+  address String @db.VarChar(150)
+  description String @db.Text
+  location_image String @db.VarChar(2083)
+
+  Activity Activity[]
+}
+
+model Ticket{
+  id Int @id @default(autoincrement())
+  itinenary_destination_id Int
+  ticket_image String @db.VarChar(2083)
+  type String @db.VarChar(20)
+
+  itinenaryDestination Itinenary_Destinations @relation(fields: [itinenary_destination_id], references: [id])
+}
+
+
+
+
+
+
