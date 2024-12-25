@@ -6,7 +6,7 @@ plugins {
 
 android {
     namespace = "com.example.alp_visualprogramming"
-    compileSdk = 34
+    compileSdk = 35
 
     defaultConfig {
         applicationId = "com.example.alp_visualprogramming"
@@ -40,7 +40,8 @@ android {
 }
 
 dependencies {
-    implementation("androidx.compose.material:material:1.5.1")
+    implementation("androidx.compose.material3:material3:1.2.0")
+    implementation("androidx.compose.ui:ui-text-google-fonts:1.5.4")
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)

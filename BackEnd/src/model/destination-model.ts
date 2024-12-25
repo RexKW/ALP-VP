@@ -18,3 +18,15 @@ export function toDestinationResponse(destination: Destination): DestinationResp
     province: destination.province,
   };
 }
+
+export function toActivityResponseList(prismaTodo: Destination[]): DestinationResponse[] {
+  const result = prismaTodo.map((destination) => {
+    return {
+      id: destination.id,
+      name: destination.name,
+      province: destination.province,
+    };
+  })
+
+  return result
+}

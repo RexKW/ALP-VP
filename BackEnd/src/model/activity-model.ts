@@ -20,6 +20,7 @@ export interface ActivityResponse {
   end_time: Date;
   type: string;
   cost: Decimal;
+  location_id: number;
 }
 
 export function toActivityResponse(activity: Activity): ActivityResponse {
@@ -31,5 +32,23 @@ export function toActivityResponse(activity: Activity): ActivityResponse {
     end_time: activity.end_time,
     type: activity.type,
     cost: activity.cost,
+    location_id: activity.location_id
   };
+}
+
+export function toActivityResponseList(prismaTodo: Activity[]): ActivityResponse[] {
+  const result = prismaTodo.map((activity) => {
+      return {
+        id: activity.id,
+        name: activity.name,
+        description: activity.description,
+        start_time: activity.start_time,
+        end_time: activity.end_time,
+        type: activity.type,
+        cost: activity.cost,
+        location_id: activity.location_id
+      }
+  })
+
+  return result
 }
