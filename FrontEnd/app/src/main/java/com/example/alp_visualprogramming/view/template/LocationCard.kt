@@ -31,6 +31,7 @@ import com.example.alp_visualprogramming.R
 
 @Composable
 fun LocationCard(
+    onCardClick: () -> Unit = {}
 ){
     Card (modifier = Modifier
         .width(180.75716.dp)

@@ -10,4 +10,15 @@ export class ActivityValidation{
         cost: z.number().nonnegative(),
         location_id: z.number().int()
     })
+
+    static readonly UPDATE: ZodType = z.object({
+        id: z.number().positive(),
+        name: z.string().min(1).max(100),
+        description:z.string(),
+        type:z.string().min(1).max(20),
+        startTime: z.date(),
+        endTime: z.date(),
+        cost: z.number().nonnegative(),
+        location_id: z.number().int()
+    })
 }

@@ -19,7 +19,7 @@ export function toDestinationResponse(destination: Destination): DestinationResp
   };
 }
 
-export function toActivityResponseList(prismaTodo: Destination[]): DestinationResponse[] {
+export function toDestinationResponseList(prismaTodo: Destination[]): DestinationResponse[] {
   const result = prismaTodo.map((destination) => {
     return {
       id: destination.id,

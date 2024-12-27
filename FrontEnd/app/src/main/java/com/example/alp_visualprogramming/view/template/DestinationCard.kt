@@ -5,7 +5,9 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
@@ -29,40 +31,55 @@ import com.example.alp_visualprogramming.R
 
 @Composable
 fun DestinationCard(
+    name: String,
+    province: String,
+    onCardClick: () -> Unit = {}
 ){
     Card (modifier = Modifier
-        .width(372.42453.dp)
-        .height(230.85965.dp),
+        .width(180.75716.dp)
+        .height(112.04829.dp),
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF5FEEDB),
         ),
         shape = RoundedCornerShape(20.dp),
 
-    ){
+        ){
         Box(
             modifier = Modifier
                 .fillMaxSize(),
-            contentAlignment = Alignment.Center
+            contentAlignment = Alignment.CenterStart
         ) {
             Image(
-                painter = painterResource(R.drawable.cardbg),
+                painter = painterResource(R.drawable.bglocation),
                 contentDescription = "contentDescription",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
-                    .fillMaxSize()
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter)
             )
+            Column(modifier = Modifier.padding(bottom = 25.dp)) {
+                Text(
+                    text = name,
+                    modifier = Modifier.padding(start = 20.dp),
+                    style = TextStyle(
+                        fontSize = 30.sp,
+                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFFFBF7E7),
 
-            Text(
-                text = "Bali",
-                        style = TextStyle(
-                        fontSize = 78.41.sp,
-                fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                fontWeight = FontWeight(400),
-                color = Color(0xFFFBF7E7),
+                        textAlign = TextAlign.Center,
+                    )
+                )
+                Text(text = province,
+                    modifier = Modifier.padding(start = 20.dp),
+                    style = TextStyle(
+                        fontSize = 15.sp,
+                        fontFamily = FontFamily(Font(R.font.tajawal_bold)),
+                        fontWeight = FontWeight(500),
+                        color = Color(0xFF440215),
 
-                textAlign = TextAlign.Center,
-            )
-            )
+                        ))
+            }
 
         }
     }
@@ -71,5 +88,5 @@ fun DestinationCard(
 @Preview(showBackground = true)
 @Composable
 fun DestinationCardPreview() {
-    DestinationCard()
+    DestinationCard("Samarinda", "East Kalimantan")
 }

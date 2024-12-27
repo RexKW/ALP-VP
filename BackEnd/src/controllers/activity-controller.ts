@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { LoginUserRequest, RegisterUserRequest, UserResponse } from "../model/user-model";
 import { UserService } from "../services/auth-service";
 
-export class AuthController{
+export class ActivityController{
     static async register(req: Request, res: Response, next: NextFunction){
         try{
             const request: RegisterUserRequest = req.body as RegisterUserRequest

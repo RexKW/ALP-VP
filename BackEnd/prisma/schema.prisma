@@ -21,52 +21,54 @@ model User{
   token String? @db.VarChar(100)
 
 
-  ItinenaryUsers Itinenary_Users[]
+  ItineraryUsers Itinerary_Users[]
 }
 
 
 model Budget{
   id Int @id  @default(autoincrement())
-  itinenary_id Int
+  itinerary_id Int
   estimated_budget Decimal @default(0)
   actual_budget Decimal @default(0)
   type String @db.VarChar(20)
 
-  itinenary Itinenary @relation(fields: [itinenary_id], references: [id])
+  itinerary Itinerary @relation(fields: [itinerary_id], references: [id])
 }
 
-model Itinenary_Users{
+model Itinerary_Users{
   id Int @id  @default(autoincrement())
   user_id Int
-  itinenary_id Int
+  itinerary_id Int
   role String @db.VarChar(20)
 
   user User @relation(fields: [user_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  itinenary Itinenary @relation(fields: [itinenary_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+  itinerary Itinerary @relation(fields: [itinerary_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
+
+  @@unique([user_id, itinerary_id], name: "user_id_itinerary_id_unique")
 }
 
-model Itinenary{
+model Itinerary{
   id Int @id  @default(autoincrement())
   name String @db.VarChar(100)
   created_date DateTime
   updated_date DateTime
 
-  Itinenary_Destinations Itinenary_Destinations[]
-  ItinenaryUsers Itinenary_Users[]
+  Itinerary_Destinations Itinerary_Destinations[]
+  ItineraryUsers Itinerary_Users[]
 
   Budget Budget[]
 }
 
-model Itinenary_Destinations{
+model Itinerary_Destinations{
   id Int @id  @default(autoincrement())
-  itinenary_id Int
+  itinerary_id Int
   destination_id Int
   accomodation_id Int?
   start_date DateTime
   end_date DateTime
 
   destination Destination @relation(fields:[destination_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
-  itinenary Itinenary @relation(fields: [itinenary_id],references: [id],onDelete: Cascade,onUpdate: Cascade)
+  itinerary Itinerary @relation(fields: [itinerary_id],references: [id],onDelete: Cascade,onUpdate: Cascade)
   Schedule_Per_Day Schedule_Per_Day[]
   accomodation Accomodation? @relation(fields: [accomodation_id], references: [id])
 
@@ -83,7 +85,7 @@ model Accomodation{
   type String @db.VarChar(30) 
 
 
-  Itinenary_Destinations Itinenary_Destinations[]
+  Itinerary_Destinations Itinerary_Destinations[]
 }
 
 model Destination{
@@ -91,15 +93,15 @@ model Destination{
   name String @db.VarChar(100)
   province String @db.VarChar(100)
 
-  Itinenary_Destinations Itinenary_Destinations[]
+  Itinerary_Destinations Itinerary_Destinations[]
 }
 
 model Schedule_Per_Day{
   id Int @id @default(autoincrement())
-  itinenary_destination_id Int
+  itinerary_destination_id Int
   date DateTime @unique
 
-  Itinenary Itinenary_Destinations @relation(fields: [itinenary_destination_id], references: [id])
+  Itinerary Itinerary_Destinations @relation(fields: [itinerary_destination_id], references: [id])
   Activity Activity[]
 }
 
@@ -133,11 +135,11 @@ model Location{
 
 model Ticket{
   id Int @id @default(autoincrement())
-  itinenary_destination_id Int
+  itinerary_destination_id Int
   ticket_image String @db.VarChar(2083)
   type String @db.VarChar(20)
 
-  itinenaryDestination Itinenary_Destinations @relation(fields: [itinenary_destination_id], references: [id])
+  itineraryDestination Itinerary_Destinations @relation(fields: [itinerary_destination_id], references: [id])
 }
 
 

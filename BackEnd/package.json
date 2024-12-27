@@ -14,8 +14,9 @@
   "description": "",
   "dependencies": {
     "@prisma/client": "^5.22.0",
+    "axios": "^1.7.9",
     "bcrypt": "^5.1.1",
-    "express": "^4.21.1",
+    "express": "^4.21.2",
     "uuid": "^11.0.3",
     "winston": "^3.17.0",
     "zod": "^3.23.8"
