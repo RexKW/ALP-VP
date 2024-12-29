@@ -30,6 +30,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.tooling.preview.Preview
 import com.example.alp_visualprogramming.ui.theme.ALP_VisualProgrammingTheme
+import com.example.alp_visualprogramming.view.ItineraryApp
 
 data class BottomNavigationItem(
     val title: String,
@@ -45,58 +46,8 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ALP_VisualProgrammingTheme {
-                val bottomNavigationItems = listOf(
-                    BottomNavigationItem(
-                        title = "Home",
-                        icon = Icons.Filled.Home,
-                        unselectedIcon = Icons.Outlined.Home,
-                    ),
-                    BottomNavigationItem(
-                        title = "Search",
-                        icon = Icons.Filled.Search,
-                        unselectedIcon = Icons.Outlined.Search,
-                    ),
-                    BottomNavigationItem(
-                        title = "Settings",
-                        icon = Icons.Filled.Settings,
-                        unselectedIcon = Icons.Outlined.Settings,
-                    ),
-                )
-                Surface (modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+                ItineraryApp()
 
-                    var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
-                    Scaffold(modifier = Modifier.fillMaxSize(),
-                        bottomBar = {
-                            NavigationBar {
-                                bottomNavigationItems.forEachIndexed { index, item ->
-                                    NavigationBarItem(
-                                        selected = selectedItemIndex == index,
-                                        onClick = {
-                                            selectedItemIndex = index
-//                                        navController.navigate(item.title)
-                                        },
-                                        label = {
-                                            Text(text = item.title)
-                                        },
-                                        icon = {
-                                            Icon(
-                                                imageVector = if (index == selectedItemIndex) {
-                                                    item.icon
-                                                } else item.unselectedIcon,
-                                                contentDescription = item.title
-                                            )
-                                        }
-                                    )
-                                }
-                            }
-                        }
-                    ) { innerPadding ->
-                        Greeting(
-                            name = "Android",
-                            modifier = Modifier.padding(innerPadding)
-                        )
-                    }
-                }
             }
         }
     }

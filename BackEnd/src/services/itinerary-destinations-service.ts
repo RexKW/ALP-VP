@@ -1,9 +1,10 @@
-import { ItineraryDestinationResponse, toItineraryDestinationResponse, AddItineraryDestinationRequest, toItineraryDestinationResponseList } from "../model/itinerary-destinations-model";
+import { ItineraryDestinationResponse, ItineraryDestinationUpdateRequest, toItineraryDestinationResponse, AddItineraryDestinationRequest, toItineraryDestinationResponseList } from "../model/itinerary-destinations-model";
 import { Validation } from "../validation/validation";
 import { Activity, Itinerary, Itinerary_Destinations, Schedule_Per_Day } from "@prisma/client"
 import { prismaClient } from "../application/database"
 import { ResponseError } from "../error/response-error"
-import { ActivityValidation } from "../validation/activity-validation";
+import { ItineraryDestinationValidation } from "../validation/itinerary-destination-validation";
+import { logger } from "../application/logging"
 
 export class ItineraryDestinationService{
     static async getAllItinenaryDestination(itinerary: Itinerary): Promise<ItineraryDestinationResponse[]> {
@@ -45,7 +46,7 @@ export class ItineraryDestinationService{
         req: AddItineraryDestinationRequest
     ): Promise<string> {
         // validate request
-        const itinerary_Destinations_Request = Validation.validate(ActivityValidation.CREATE, req)
+        const itinerary_Destinations_Request = Validation.validate(ItineraryDestinationValidation.CREATE, req)
 
         const itinerary_Destinations = await prismaClient.itinerary_Destinations.create({
             data: {
@@ -75,8 +76,19 @@ export class ItineraryDestinationService{
     }
 
 
-    static async updateItineraryDestination(){
+    static async updateItineraryDestination(req: ItineraryDestinationUpdateRequest){
+        const itinerary_destination = Validation.validate(ItineraryDestinationValidation.UPDATE, req)
         
+                await this.checkItineraryDestination(itinerary_destination.id)
+        
+                const itineraryDestinationUpdate = await prismaClient.itinerary_Destinations.update({
+                    where: {
+                        id: itinerary_destination.id,
+                    },
+                    data: itinerary_destination,
+                })
+
+                logger.info("UPDATE RESULT: " + itineraryDestinationUpdate)
     }
 
 }

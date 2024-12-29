@@ -1,5 +1,5 @@
 
-import { toItineraryResponseList, ItineraryResponse, toItineraryResponse, CreateItinenaryRequest, ItineraryUpdateRequest } from "../model/itinerary-model";
+import { toItineraryResponseList, ItineraryResponse, toItineraryResponse, CreateItineraryRequest, ItineraryUpdateRequest } from "../model/itinerary-model";
 import { Validation } from "../validation/validation";
 import { Activity, Itinerary, Itinerary_Destinations, Schedule_Per_Day, User } from "@prisma/client"
 import { prismaClient } from "../application/database"
@@ -9,27 +9,84 @@ import { logger } from "../application/logging"
 
 export class ItineraryService{
     static async getAllItinerary(user: User): Promise<ItineraryResponse[]> {
-        const itinerary_users = await prismaClient.itinerary_Users.findMany({
+        const itinerariesOwned = await prismaClient.itinerary_Users.findMany({
             where: {
                 user_id: user.id,
                 role: 'owner'
             },
         })
 
-        const itineraryIds = itinerary_users.map((item) => item.itinerary_id);
-
+        const itineraryIds = itinerariesOwned.map((item) => item.itinerary_id);
         const itineraries = await prismaClient.itinerary.findMany({
             where:{
                 id: { in: itineraryIds }
             }
         })
 
-        return toItineraryResponseList(itineraries)
+        const itinerariesWithUserCount = [];
+        for(const itinerary of itineraries){
+            const userCount = await prismaClient.itinerary_Users.count({
+                where:{
+                    itinerary_id : itinerary.id
+                }
+            })
+
+            const dateRange = await prismaClient.itinerary_Destinations.aggregate({
+                where: {
+                    itinerary_id: itinerary.id,
+                },
+                _min: {
+                    start_date: true,
+                },
+                _max: {
+                    end_date: true,
+                },
+            });
+
+            const start_date = dateRange._min.start_date ?? new Date(0)
+            const end_date = dateRange._max.end_date ?? new Date(0)
+
+            const itinerariesWithUser = {
+                id: itinerary.id,
+                name: itinerary.name,
+                travellers: userCount,
+                from: start_date,
+                to: end_date
+            }
+
+            itinerariesWithUserCount.push(itinerariesWithUser)
+
+        }
+        
+
+        return toItineraryResponseList(itinerariesWithUserCount)
     }
 
     static async getItinerary(itinerary_id: number): Promise<ItineraryResponse> {
         const itinerary = await this.checkItinerary(itinerary_id);
-        return toItineraryResponse(itinerary)
+        const userCount = await prismaClient.itinerary_Users.count({
+            where:{
+                itinerary_id : itinerary.id
+            }
+        })
+
+        const dateRange = await prismaClient.itinerary_Destinations.aggregate({
+            where: {
+                itinerary_id: itinerary.id,
+            },
+            _min: {
+                start_date: true,
+            },
+            _max: {
+                end_date: true,
+            },
+        });
+
+        const start_date = dateRange._min.start_date ?? new Date(0)
+        const end_date = dateRange._max.end_date ?? new Date(0)
+
+
+        return toItineraryResponse(itinerary, userCount, start_date, end_date)
     }
 
     static async checkItinerary(
@@ -53,7 +110,8 @@ export class ItineraryService{
 
 
     static async createItinerary(
-        req: CreateItinenaryRequest
+        req: CreateItineraryRequest,
+        user: User
     ): Promise<string> {
         // validate request
         const itinerary_Request = Validation.validate(ItineraryValidation.CREATE, req)
@@ -61,14 +119,14 @@ export class ItineraryService{
         const itinerary1 = await prismaClient.itinerary.create({
             data: {
                 name: itinerary_Request.name,
-                created_date: Date.now().toString(),
-                updated_date: Date.now().toString()
+                created_date: new Date().toISOString(),
+                updated_date: new Date().toISOString()
             },
         })
 
         const owner = await prismaClient.itinerary_Users.create({
             data:{
-                user_id: itinerary_Request.user_id,
+                user_id: user.id,
                 itinerary_id: itinerary1.id,
                 role: "owner"
             }
@@ -84,14 +142,14 @@ export class ItineraryService{
 
         await this.checkItinerary(itinerary.id)
 
-        const todoUpdate = await prismaClient.itinerary.update({
+        const itineraryUpdate = await prismaClient.itinerary.update({
             where: {
                 id: itinerary.id,
             },
-            data: ItineraryValidation,
+            data: itinerary,
         })
 
-        logger.info("UPDATE RESULT: " + todoUpdate)
+        logger.info("UPDATE RESULT: " + itineraryUpdate)
 
         return "Data update was successful!"
     }

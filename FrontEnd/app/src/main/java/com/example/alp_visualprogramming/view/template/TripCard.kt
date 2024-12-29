@@ -1,6 +1,7 @@
 package com.example.alp_visualprogramming.view.template
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,6 +14,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -24,24 +26,37 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.alp_visualprogramming.R
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
 
 val OswaldRegular = FontFamily(Font(R.font.oswald_regular))
 
 
 @Composable
-fun TripCard(title: String, travellers: Int, startDate: String, endDate: String, modifier: Modifier, onCardClick: () -> Unit){
+fun TripCard(title: String, travellers: Int, startDate: String?, endDate: String?, modifier: Modifier, onCardClick: () -> Unit, navController: NavHostController = rememberNavController()){
+
+    val defaultStartDate = startDate ?: "No Start Date"
+    val defaultEndDate = endDate ?: "No End Date"
+
     Card(modifier = Modifier
         .width(334.dp)
         .height(206.dp)
+        .clickable {
+                onCardClick()
+        }
         ,
+
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF5FEEDB),
         ),
         shape = RoundedCornerShape(20.dp),
-        onClick = onCardClick
 
     ) {
+
+
         Row(modifier =Modifier.fillMaxSize()) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
@@ -51,7 +66,7 @@ fun TripCard(title: String, travellers: Int, startDate: String, endDate: String,
                     color = Color(0xFFFBF7E7),
                     modifier = Modifier.padding(start = 16.dp, top = 16.dp)
                 )
-                Text(text = "From: " + startDate,
+                Text(text = "From: " + defaultStartDate,
                     style = TextStyle(
                         fontSize = 10.29.sp,
                         fontFamily = FontFamily(Font(R.font.tajawal_bold)),
@@ -62,7 +77,7 @@ fun TripCard(title: String, travellers: Int, startDate: String, endDate: String,
                     modifier = Modifier.padding(start = 16.dp, top = 5.dp)
 
                 )
-                Text(text = "To: " + endDate,
+                Text(text = "To: " + defaultEndDate,
                     style = TextStyle(
                         fontSize = 10.29.sp,
                         fontFamily = FontFamily(Font(R.font.tajawal_bold)),

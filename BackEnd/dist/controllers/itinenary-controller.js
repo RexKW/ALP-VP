@@ -10,27 +10,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ItineraryController = void 0;
-const auth_service_1 = require("../services/auth-service");
+const itinerary_service_1 = require("../services/itinerary-service");
 class ItineraryController {
-    static getItinenrary(req, res, next) {
+    static getItinerary(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const request = req.body;
-                const response = yield auth_service_1.UserService.register(request);
-                res.status(200).json({
-                    data: response
-                });
-            }
-            catch (error) {
-                next(error);
-            }
-        });
-    }
-    static createNewItinenerary(req, res, next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const request = req.body;
-                const response = yield auth_service_1.UserService.login(request);
+                const response = yield itinerary_service_1.ItineraryService.getItinerary(Number(req.params.todoId));
                 res.status(200).json({
                     data: response,
                 });
@@ -40,11 +25,10 @@ class ItineraryController {
             }
         });
     }
-    static deleteItinenerary(req, res, next) {
+    static getAllItinerary(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const request = req.body;
-                const response = yield auth_service_1.UserService.login(request);
+                const response = yield itinerary_service_1.ItineraryService.getAllItinerary(req.user);
                 res.status(200).json({
                     data: response,
                 });
@@ -54,12 +38,40 @@ class ItineraryController {
             }
         });
     }
-    static updateItinenerary(req, res, next) {
+    static createNewItinerary(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const request = req.body;
-                const response = yield auth_service_1.UserService.login(request);
+                const response = yield itinerary_service_1.ItineraryService.createItinerary(request, req.user);
+                res.status(201).json({
+                    data: response,
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    static deleteItinerary(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield itinerary_service_1.ItineraryService.deleteItinerary(Number(req.params.todoId));
                 res.status(200).json({
+                    data: response,
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    static updateItinerary(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const request = req.body;
+                request.id = Number(req.params.itineraryId);
+                const response = yield itinerary_service_1.ItineraryService.updateItinerary(request);
+                res.status(201).json({
                     data: response,
                 });
             }

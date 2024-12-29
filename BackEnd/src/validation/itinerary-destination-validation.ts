@@ -4,7 +4,7 @@ export class ItineraryDestinationValidation{
     static readonly CREATE: ZodType = z.object({
         itinerary_id: z.number().positive(),
         destination_id: z.number().positive(),
-        accomodation_id: z.number().positive() || null,
+        accomodation_id: z.number().positive().nullable(),
         start_date: z.date(),
         end_date: z.date()
     })
@@ -13,7 +13,7 @@ export class ItineraryDestinationValidation{
         id: z.number().positive(),
         itinerary_id: z.number().positive(),
         destination_id: z.number().positive(),
-        accomodation_id: z.number().positive() || null,
+        accomodation_id: z.number().positive().nullable(),
         start_date: z.date(),
         end_date: z.date()
     })

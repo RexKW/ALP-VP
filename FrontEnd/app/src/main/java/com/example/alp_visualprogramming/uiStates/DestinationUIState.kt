@@ -1,4 +1,4 @@
-package com.example.alp_visualprogramming.view.uiState
+package com.example.alp_visualprogramming.uiStates
 
 import com.example.alp_visualprogramming.models.DestinationModel
 

@@ -8,7 +8,9 @@ export interface RegisterUserRequest{
 
 export interface UserResponse{
     token?: string
+    email: string
     username: string
+    password: string
 
 }
 
@@ -20,6 +22,8 @@ export interface LoginUserRequest {
 export function toUserResponse (user: User):UserResponse {
     return{
         token: user.token ?? "",
-        username: user.username
+        email: user.email,
+        username: user.username,
+        password: user.password
     }
 }

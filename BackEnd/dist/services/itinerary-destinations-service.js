@@ -14,7 +14,8 @@ const itinerary_destinations_model_1 = require("../model/itinerary-destinations-
 const validation_1 = require("../validation/validation");
 const database_1 = require("../application/database");
 const response_error_1 = require("../error/response-error");
-const activity_validation_1 = require("../validation/activity-validation");
+const itinerary_destination_validation_1 = require("../validation/itinerary-destination-validation");
+const logging_1 = require("../application/logging");
 class ItineraryDestinationService {
     static getAllItinenaryDestination(itinerary) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -48,7 +49,7 @@ class ItineraryDestinationService {
     static createItineraryDestination(req) {
         return __awaiter(this, void 0, void 0, function* () {
             // validate request
-            const itinerary_Destinations_Request = validation_1.Validation.validate(activity_validation_1.ActivityValidation.CREATE, req);
+            const itinerary_Destinations_Request = validation_1.Validation.validate(itinerary_destination_validation_1.ItineraryDestinationValidation.CREATE, req);
             const itinerary_Destinations = yield database_1.prismaClient.itinerary_Destinations.create({
                 data: {
                     itinerary_id: itinerary_Destinations_Request.itinerary_id,
@@ -73,8 +74,17 @@ class ItineraryDestinationService {
             return "Data created successfully!";
         });
     }
-    static updateItineraryDestination() {
+    static updateItineraryDestination(req) {
         return __awaiter(this, void 0, void 0, function* () {
+            const itinerary_destination = validation_1.Validation.validate(itinerary_destination_validation_1.ItineraryDestinationValidation.UPDATE, req);
+            yield this.checkItineraryDestination(itinerary_destination.id);
+            const itineraryDestinationUpdate = yield database_1.prismaClient.itinerary_Destinations.update({
+                where: {
+                    id: itinerary_destination.id,
+                },
+                data: itinerary_destination,
+            });
+            logging_1.logger.info("UPDATE RESULT: " + itineraryDestinationUpdate);
         });
     }
 }

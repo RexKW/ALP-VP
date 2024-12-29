@@ -1,58 +1,77 @@
 import { NextFunction, Request, Response } from "express";
-import { LoginUserRequest, RegisterUserRequest, UserResponse } from "../model/user-model";
-import { UserService } from "../services/auth-service";
+import { CreateItineraryRequest, ItineraryResponse, GetItineraryRequest, ItineraryUpdateRequest } from "../model/itinerary-model";
+import { ItineraryService } from "../services/itinerary-service";
+import { UserRequest } from "../type/user-request";
 
 export class ItineraryController{
-    static async getItinenrary(req: Request, res: Response, next: NextFunction){
-        try{
-            const request: RegisterUserRequest = req.body as RegisterUserRequest
-            const response: UserResponse = await UserService.register(request)
+    static async getItinerary(req: UserRequest, res: Response, next: NextFunction){
+        try {
+			const response = await ItineraryService.getItinerary(
+				Number(req.params.todoId)
+			)
 
-            res.status(200).json({
-                data: response
-            })
-        } catch (error){
-            next(error)
-        }
+			res.status(200).json({
+				data: response,
+			})
+		} catch (error) {
+			next(error)
+		}
     }
 
-    static async createNewItinenerary(req: Request, res: Response, next: NextFunction) {
+    static async getAllItinerary(req: UserRequest, res: Response, next: NextFunction){
         try {
-            const request = req.body as LoginUserRequest
-            const response = await UserService.login(request)
+			const response = await ItineraryService.getAllItinerary(
+				req.user!
+			)
 
-            res.status(200).json({
-                data: response,
-            })
-        } catch (error) {
-            next(error)
-        }
+			res.status(200).json({
+				data: response,
+			})
+		} catch (error) {
+			next(error)
+		}
     }
 
-    static async deleteItinenerary(req: Request, res: Response, next: NextFunction) {
+    static async createNewItinerary(req: UserRequest, res: Response, next: NextFunction) {
         try {
-            const request = req.body as LoginUserRequest
-            const response = await UserService.login(request)
+			const request = req.body as CreateItineraryRequest
+			const response = await ItineraryService.createItinerary(request, req.user! )
 
-            res.status(200).json({
-                data: response,
-            })
-        } catch (error) {
-            next(error)
-        }
+			res.status(201).json({
+				data: response,
+			})
+		} catch (error) {
+			next(error)
+		}
+	}
+    
+
+    static async deleteItinerary(req: UserRequest, res: Response, next: NextFunction) {
+        try {
+			const response = await ItineraryService.deleteItinerary(
+				Number(req.params.todoId)
+			)
+
+			res.status(200).json({
+				data: response,
+			})
+		} catch (error) {
+			next(error)
+		}
     }
 
-    static async updateItinenerary(req: Request, res: Response, next: NextFunction) {
+    static async updateItinerary(req: Request, res: Response, next: NextFunction) {
         try {
-            const request = req.body as LoginUserRequest
-            const response = await UserService.login(request)
+			const request = req.body as ItineraryUpdateRequest
+			request.id = Number(req.params.itineraryId)
+			const response = await ItineraryService.updateItinerary(request)
 
-            res.status(200).json({
-                data: response,
-            })
-        } catch (error) {
-            next(error)
-        }
+			res.status(201).json({
+				data: response,
+			})
+		} catch (error) {
+			next(error)
+		}
     }
 
 

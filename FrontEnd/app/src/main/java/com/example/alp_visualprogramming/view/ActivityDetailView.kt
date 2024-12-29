@@ -37,7 +37,7 @@ import com.example.alp_visualprogramming.R
 import com.example.alp_visualprogramming.view.template.TripCard
 
 @Composable
-fun ActivityDetailView(){
+fun ActivityDetailView(modifier: Modifier = Modifier){
 
         Column(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF7E7))) {
             Box(modifier = Modifier.fillMaxWidth()) {

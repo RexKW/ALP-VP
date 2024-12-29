@@ -33,8 +33,8 @@ class DestinationService {
             const provinces = yield this.getAllProvinces();
             const allCities = [];
             for (const province of provinces) {
-                const regencies = yield this.getAllCitiesInProvince(province.id);
-                const cityWithProvince = regencies.map(({ id, name }) => ({
+                const cities = yield this.getAllCitiesInProvince(province.id);
+                const cityWithProvince = cities.map(({ id, name }) => ({
                     id,
                     name,
                     province: province.name

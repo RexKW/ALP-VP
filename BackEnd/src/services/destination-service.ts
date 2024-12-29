@@ -26,8 +26,8 @@ export class DestinationService{
         const provinces = await this.getAllProvinces();
         const allCities = [];
         for (const province of provinces) { 
-            const regencies = await this.getAllCitiesInProvince(province.id); 
-            const cityWithProvince = regencies.map(({ id ,name }: Destination) =>({
+            const cities = await this.getAllCitiesInProvince(province.id); 
+            const cityWithProvince = cities.map(({ id ,name }: Destination) =>({
                 id,
                 name,
                 province: province.name

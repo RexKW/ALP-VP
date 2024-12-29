@@ -5,12 +5,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.alp_visualprogramming.models.DestinationModel
 import com.example.alp_visualprogramming.repository.DestinationRepositories
-import com.example.alp_visualprogramming.view.uiState.DestinationDataStatusUIState
-import com.example.alp_visualprogramming.view.uiState.DestinationUIState
+import com.example.alp_visualprogramming.uiStates.DestinationDataStatusUIState
+import com.example.alp_visualprogramming.uiStates.DestinationUIState
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class DestinationViewModel(private val destinationDBRepositories: DestinationRepositories) : ViewModel() {

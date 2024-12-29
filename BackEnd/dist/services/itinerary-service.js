@@ -19,25 +19,74 @@ const logging_1 = require("../application/logging");
 class ItineraryService {
     static getAllItinerary(user) {
         return __awaiter(this, void 0, void 0, function* () {
-            const itinerary_users = yield database_1.prismaClient.itinerary_Users.findMany({
+            var _a, _b;
+            const itinerariesOwned = yield database_1.prismaClient.itinerary_Users.findMany({
                 where: {
                     user_id: user.id,
                     role: 'owner'
                 },
             });
-            const itineraryIds = itinerary_users.map((item) => item.itinerary_id);
+            const itineraryIds = itinerariesOwned.map((item) => item.itinerary_id);
             const itineraries = yield database_1.prismaClient.itinerary.findMany({
                 where: {
                     id: { in: itineraryIds }
                 }
             });
-            return (0, itinerary_model_1.toItineraryResponseList)(itineraries);
+            const itinerariesWithUserCount = [];
+            for (const itinerary of itineraries) {
+                const userCount = yield database_1.prismaClient.itinerary_Users.count({
+                    where: {
+                        itinerary_id: itinerary.id
+                    }
+                });
+                const dateRange = yield database_1.prismaClient.itinerary_Destinations.aggregate({
+                    where: {
+                        itinerary_id: itinerary.id,
+                    },
+                    _min: {
+                        start_date: true,
+                    },
+                    _max: {
+                        end_date: true,
+                    },
+                });
+                const start_date = (_a = dateRange._min.start_date) !== null && _a !== void 0 ? _a : new Date(0);
+                const end_date = (_b = dateRange._max.end_date) !== null && _b !== void 0 ? _b : new Date(0);
+                const itinerariesWithUser = {
+                    id: itinerary.id,
+                    name: itinerary.name,
+                    travellers: userCount,
+                    from: start_date,
+                    to: end_date
+                };
+                itinerariesWithUserCount.push(itinerariesWithUser);
+            }
+            return (0, itinerary_model_1.toItineraryResponseList)(itinerariesWithUserCount);
         });
     }
     static getItinerary(itinerary_id) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
             const itinerary = yield this.checkItinerary(itinerary_id);
-            return (0, itinerary_model_1.toItineraryResponse)(itinerary);
+            const userCount = yield database_1.prismaClient.itinerary_Users.count({
+                where: {
+                    itinerary_id: itinerary.id
+                }
+            });
+            const dateRange = yield database_1.prismaClient.itinerary_Destinations.aggregate({
+                where: {
+                    itinerary_id: itinerary.id,
+                },
+                _min: {
+                    start_date: true,
+                },
+                _max: {
+                    end_date: true,
+                },
+            });
+            const start_date = (_a = dateRange._min.start_date) !== null && _a !== void 0 ? _a : new Date(0);
+            const end_date = (_b = dateRange._max.end_date) !== null && _b !== void 0 ? _b : new Date(0);
+            return (0, itinerary_model_1.toItineraryResponse)(itinerary, userCount, start_date, end_date);
         });
     }
     static checkItinerary(itinerary_id) {
@@ -53,20 +102,20 @@ class ItineraryService {
             return itinerary;
         });
     }
-    static createItinerary(req) {
+    static createItinerary(req, user) {
         return __awaiter(this, void 0, void 0, function* () {
             // validate request
             const itinerary_Request = validation_1.Validation.validate(itinerary_validation_1.ItineraryValidation.CREATE, req);
             const itinerary1 = yield database_1.prismaClient.itinerary.create({
                 data: {
                     name: itinerary_Request.name,
-                    created_date: Date.now().toString(),
-                    updated_date: Date.now().toString()
+                    created_date: new Date().toISOString(),
+                    updated_date: new Date().toISOString()
                 },
             });
             const owner = yield database_1.prismaClient.itinerary_Users.create({
                 data: {
-                    user_id: itinerary_Request.user_id,
+                    user_id: user.id,
                     itinerary_id: itinerary1.id,
                     role: "owner"
                 }
@@ -78,13 +127,13 @@ class ItineraryService {
         return __awaiter(this, void 0, void 0, function* () {
             const itinerary = validation_1.Validation.validate(itinerary_validation_1.ItineraryValidation.UPDATE, req);
             yield this.checkItinerary(itinerary.id);
-            const todoUpdate = yield database_1.prismaClient.itinerary.update({
+            const itineraryUpdate = yield database_1.prismaClient.itinerary.update({
                 where: {
                     id: itinerary.id,
                 },
-                data: itinerary_validation_1.ItineraryValidation,
+                data: itinerary,
             });
-            logging_1.logger.info("UPDATE RESULT: " + todoUpdate);
+            logging_1.logger.info("UPDATE RESULT: " + itineraryUpdate);
             return "Data update was successful!";
         });
     }

@@ -16,7 +16,7 @@ export interface ItineraryDestinationResponse {
   end_date: Date;
 }
 
-export interface ItineraryUpdateRequest {
+export interface ItineraryDestinationUpdateRequest {
   id: number;
   destination_id: number;
   accomodation_id?: number | null;

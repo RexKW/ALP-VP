@@ -5,6 +5,7 @@ import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,6 +13,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.shape.CircleShape
@@ -37,12 +39,15 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.rememberNavController
 import com.example.alp_visualprogramming.R
 import com.example.alp_visualprogramming.view.template.ActivityCardView
+import com.example.alp_visualprogramming.view.template.DateCardView
 import com.example.alp_visualprogramming.view.template.DestinationCard
 
 @Composable
-fun ActivitiesView(){
+fun ActivitiesView(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController()){
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF7E7))) {
         Box(modifier = Modifier.fillMaxWidth()) {
 
@@ -65,6 +70,13 @@ fun ActivitiesView(){
                     contentDescription = "Back",
                     tint = Color.White // Set the icon color (adjust as needed for contrast)
                 )
+            }
+
+            LazyRow(horizontalArrangement = Arrangement.spacedBy(16.dp), modifier = Modifier.padding( top = 60.dp), contentPadding = PaddingValues(start = 32.dp, end = 32.dp)) {
+                items(5){
+                    DateCardView()
+                }
+
             }
         }
         Column(modifier = Modifier.padding(start = 32.dp, end = 32.dp)) {
@@ -99,7 +111,9 @@ fun ActivitiesView(){
                 verticalArrangement = Arrangement.spacedBy(-5.dp)
             ) {
                 items(8) {
-                    ActivityCardView("Shopping", "15:00 - 18:00", onCardClick = {})
+                    ActivityCardView("Shopping", "15:00 - 18:00", onCardClick = {
+                        navController.navigate("Activities")
+                    })
                 }
                 item {
                     Box(

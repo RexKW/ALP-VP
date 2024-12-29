@@ -1,5 +1,5 @@
 
-import {  ItineraryResponse, toItineraryResponse, CreateItinenaryRequest, ItineraryUpdateRequest } from "../model/itinerary-model";
+import {  ItineraryResponse, toItineraryResponse, CreateItineraryRequest, ItineraryUpdateRequest } from "../model/itinerary-model";
 import { Validation } from "../validation/validation";
 import { ItineraryUserResponse, toItineraryUserResponseList,toItineraryUserResponse, AddItineraryUserRequest } from "../model/itinerary-users-model";
 import { Activity, Itinerary, Itinerary_Destinations, Schedule_Per_Day, User } from "@prisma/client"
@@ -26,7 +26,7 @@ export class ItineraryUserService{
         const itinerary_user_request = Validation.validate(ItineraryUserValidation.CREATE, req) 
         const checkUserItinerary = await prismaClient.itinerary_Users.findUnique({
             where: {
-                user_id_itinerary_id: {
+                user_id_itinerary_id_unique: {
                     user_id: itinerary_user_request.user_id,
                     itinerary_id: itinerary_user_request.itinerary_id,
                 },
@@ -46,7 +46,7 @@ export class ItineraryUserService{
     static async kickUser(itinerary: Itinerary, user:User): Promise<String> {
         const getUser = await prismaClient.itinerary_Users.findUnique({
             where: {
-                user_id_itinerary_id: {
+                user_id_itinerary_id_unique: {
                     user_id: user.id,
                     itinerary_id: itinerary.id,
                 },
@@ -56,7 +56,7 @@ export class ItineraryUserService{
         if(getUser?.role === "owner"){
             await prismaClient.itinerary_Users.delete({
                 where: {
-                    user_id_itinerary_id: {
+                    user_id_itinerary_id_unique: {
                         user_id: user.id,
                         itinerary_id: itinerary.id,
                     },
@@ -68,42 +68,6 @@ export class ItineraryUserService{
     }
 
 
-    static async checkItinerary(
-        itinerary_id: number
-    ): Promise<Itinerary> {
-        const itinerary = await prismaClient.itinerary.findUnique({
-            where: {
-                id: itinerary_id
-            },
-        })
-
-        if (!itinerary) {
-            throw new ResponseError(400, "Itinerary not found!")
-        }
-
-        return itinerary
-    }
-
-
-
-
-
-    static async createItineraryDestination(
-        req: CreateItinenaryRequest
-    ): Promise<string> {
-        // validate request
-        const itinerary_Request = Validation.validate(ItineraryUserValidation.CREATE, req)
-
-        const itinerary1 = await prismaClient.itinerary.create({
-            data: {
-                name: itinerary_Request.name,
-                created_date: Date.now().toString(),
-                updated_date: Date.now().toString()
-            },
-        })
-
-        return "Data created successfully!"
-    }
 
 
     static async updateUserRole(
@@ -113,7 +77,7 @@ export class ItineraryUserService{
     ): Promise<string> {
         const userChanger = await prismaClient.itinerary_Users.findUnique({
             where: {
-                user_id_itinerary_id: {
+                user_id_itinerary_id_unique: {
                     user_id: changer.id,
                     itinerary_id: itinerary.id,
                 },
@@ -123,8 +87,8 @@ export class ItineraryUserService{
         if(userChanger?.role == "owner" || userChanger?.role == "admin"){
             const userChanged = await prismaClient.itinerary_Users.findUnique({
                 where: {
-                    user_id_itinerary_id: {
-                        user_id: changer.id,
+                    user_id_itinerary_id_unique: {
+                        user_id: changed.id,
                         itinerary_id: itinerary.id,
                     },
                 }
@@ -133,7 +97,7 @@ export class ItineraryUserService{
             if(userChanged?.role=="admin"){
                 const userUpdate = await prismaClient.itinerary_Users.update({
                     where: {
-                        user_id_itinerary_id: {
+                        user_id_itinerary_id_unique: {
                             user_id: userChanged.id,
                             itinerary_id: itinerary.id,
                         },
@@ -145,7 +109,7 @@ export class ItineraryUserService{
             }else if(userChanged?.role=="member"){
                 const userUpdate = await prismaClient.itinerary_Users.update({
                     where: {
-                        user_id_itinerary_id: {
+                        user_id_itinerary_id_unique: {
                             user_id: userChanged.id,
                             itinerary_id: itinerary.id,
                         },
