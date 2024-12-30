@@ -15,6 +15,7 @@ const validation_1 = require("../validation/validation");
 const database_1 = require("../application/database");
 const response_error_1 = require("../error/response-error");
 const activity_validation_1 = require("../validation/activity-validation");
+const logging_1 = require("../application/logging");
 class ActivityService {
     static getAllActivity(day) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -26,18 +27,17 @@ class ActivityService {
             return (0, activity_model_1.toActivityResponseList)(activity);
         });
     }
-    static getActivity(day, activity_id) {
+    static getActivity(activity_id) {
         return __awaiter(this, void 0, void 0, function* () {
-            const todo = yield this.checkActivity(day.id, activity_id);
+            const todo = yield this.checkActivity(activity_id);
             return (0, activity_model_1.toActivityResponse)(todo);
         });
     }
-    static checkActivity(day_id, activity_id) {
+    static checkActivity(activity_id) {
         return __awaiter(this, void 0, void 0, function* () {
             const activity = yield database_1.prismaClient.activity.findUnique({
                 where: {
                     id: activity_id,
-                    day_id: day_id,
                 },
             });
             if (!activity) {
@@ -48,7 +48,6 @@ class ActivityService {
     }
     static createActivity(day, req) {
         return __awaiter(this, void 0, void 0, function* () {
-            // validate request
             const activityRequest = validation_1.Validation.validate(activity_validation_1.ActivityValidation.CREATE, req);
             const activity = yield database_1.prismaClient.activity.create({
                 data: {
@@ -65,8 +64,29 @@ class ActivityService {
             return "Data created successfully!";
         });
     }
-    static updateActivity() {
+    static updateActivity(req) {
         return __awaiter(this, void 0, void 0, function* () {
+            const activity = validation_1.Validation.validate(activity_validation_1.ActivityValidation.UPDATE, req);
+            yield this.checkActivity(activity.id);
+            const itineraryUpdate = yield database_1.prismaClient.itinerary.update({
+                where: {
+                    id: activity.id,
+                },
+                data: activity,
+            });
+            logging_1.logger.info("UPDATE RESULT: " + itineraryUpdate);
+            return "Data update was successful!";
+        });
+    }
+    static deleteActivity(aId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            yield this.checkActivity(aId);
+            yield database_1.prismaClient.activity.delete({
+                where: {
+                    id: aId,
+                },
+            });
+            return "Data deletion successful!";
         });
     }
 }

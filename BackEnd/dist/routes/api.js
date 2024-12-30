@@ -11,3 +11,4 @@ exports.apiRouter = express_1.default.Router();
 exports.apiRouter.use(auth_middleware_1.authMiddleware);
 exports.apiRouter.post("/itinerary/create", itinenary_controller_1.ItineraryController.createNewItinerary);
 exports.apiRouter.get("/itinerary/ownedTrips", itinenary_controller_1.ItineraryController.getAllItinerary);
+exports.apiRouter.put("/itinerary/updateTrip/:itineraryId(\\d+)", itinenary_controller_1.ItineraryController.updateItinerary);

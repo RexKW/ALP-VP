@@ -1,7 +1,9 @@
 import { NextFunction, Request, Response } from "express";
 import { CreateItineraryRequest, ItineraryResponse, GetItineraryRequest, ItineraryUpdateRequest } from "../model/itinerary-model";
+import { AddItineraryDestinationRequest } from "../model/itinerary-destinations-model";
 import { ItineraryService } from "../services/itinerary-service";
 import { UserRequest } from "../type/user-request";
+import { ItineraryDestinationService } from "../services/itinerary-destinations-service";
 
 export class ItineraryController{
     static async getItinerary(req: UserRequest, res: Response, next: NextFunction){
@@ -17,6 +19,16 @@ export class ItineraryController{
 			next(error)
 		}
     }
+
+	static async selectDestination(req: UserRequest, res: Response, next: NextFunction){
+		try{
+			const request = req.body as AddItineraryDestinationRequest
+			request.destination_id = Number(req.params.todoId)
+			const response = await ItineraryDestinationService.createItineraryDestination(request)
+		}catch (error){
+			next(error)
+		}
+	}
 
     static async getAllItinerary(req: UserRequest, res: Response, next: NextFunction){
         try {

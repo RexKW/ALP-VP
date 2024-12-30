@@ -12,6 +12,17 @@ export interface CreateActivityRequest {
   location_id: number;
 }
 
+export interface ActivityUpdateRequest {
+  id: number;
+  name: string;
+  description: string;
+  start_time: Date;
+  end_time: Date;
+  type: string;
+  cost: Decimal;
+  location_id: number;
+}
+
 export interface ActivityResponse {
   id: number;
   name: string;

@@ -19,6 +19,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -26,6 +27,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -34,10 +36,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.alp_visualprogramming.R
+import com.example.alp_visualprogramming.view.template.FormTextField
+import com.example.alp_visualprogramming.viewModel.TripNameViewModel
 
 @Composable
-fun TripNameView() {
+fun TripNameView(tripNameViewModel: TripNameViewModel) {
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF7E7))) {
         Box(modifier = Modifier.fillMaxWidth()) {
 
@@ -85,6 +90,20 @@ fun TripNameView() {
                 )
             )
 
+            FormTextField(
+                inputValue = tripNameViewModel.titleInput,
+                onValueChange = {
+                    tripNameViewModel.changeTitleInput(it)
+                    tripNameViewModel.checkNullFormValues()
+                },
+                modifier = Modifier
+                    .fillMaxWidth(),
+                labelText = stringResource(R.string.name_text),
+                placeholderText = stringResource(R.string.name_text),
+                minLine = 1,
+                maxLine = 1
+            )
+
 
             Button(modifier = Modifier
                 .width(372.dp)
@@ -113,5 +132,7 @@ fun TripNameView() {
 @Preview(showSystemUi = true, showBackground = true)
 @Composable
 fun TripNamePreview() {
-    TripNameView()
+    TripNameView(
+        tripNameViewModel = viewModel(factory = TripNameViewModel.Factory),
+    )
 }

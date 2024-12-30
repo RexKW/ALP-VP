@@ -1,9 +1,10 @@
-import { ActivityResponse, CreateActivityRequest, toActivityResponse, toActivityResponseList } from "../model/activity-model";
+import { ActivityResponse, ActivityUpdateRequest, CreateActivityRequest, toActivityResponse, toActivityResponseList } from "../model/activity-model";
 import { Validation } from "../validation/validation";
 import { Activity, Schedule_Per_Day } from "@prisma/client"
 import { prismaClient } from "../application/database"
 import { ResponseError } from "../error/response-error"
 import { ActivityValidation } from "../validation/activity-validation";
+import { logger } from "../application/logging"
 
 export class ActivityService{
     static async getAllActivity(day: Schedule_Per_Day): Promise<ActivityResponse[]> {
@@ -16,20 +17,18 @@ export class ActivityService{
         return toActivityResponseList(activity)
     }
 
-    static async getActivity(day: Schedule_Per_Day, activity_id: number): Promise<ActivityResponse> {
-        const todo = await this.checkActivity(day.id, activity_id)
+    static async getActivity(activity_id: number): Promise<ActivityResponse> {
+        const todo = await this.checkActivity(activity_id)
 
         return toActivityResponse(todo)
     }
 
     static async checkActivity(
-        day_id: number,
         activity_id: number
     ): Promise<Activity> {
         const activity = await prismaClient.activity.findUnique({
             where: {
                 id: activity_id,
-                day_id: day_id,
             },
         })
 
@@ -45,7 +44,6 @@ export class ActivityService{
         day: Schedule_Per_Day,
         req: CreateActivityRequest
     ): Promise<string> {
-        // validate request
         const activityRequest = Validation.validate(ActivityValidation.CREATE, req)
 
         const activity = await prismaClient.activity.create({
@@ -65,8 +63,36 @@ export class ActivityService{
     }
 
 
-    static async updateActivity(){
-        
-    }
+    static async updateActivity(
+            req: ActivityUpdateRequest
+        ): Promise<string> {
+            const activity = Validation.validate(ActivityValidation.UPDATE, req)
+    
+            await this.checkActivity(activity.id)
+    
+            const itineraryUpdate = await prismaClient.itinerary.update({
+                where: {
+                    id: activity.id,
+                },
+                data: activity,
+            })
+    
+            logger.info("UPDATE RESULT: " + itineraryUpdate)
+    
+            return "Data update was successful!"
+        }
+        static async deleteActivity(aId: number,): Promise<String> {
+            await this.checkActivity(aId)
+    
+            await prismaClient.activity.delete({
+                where: {
+                    id: aId,
+                },
+            })
+
+            return "Data deletion successful!"
+        }
+    
+          
 
 }
