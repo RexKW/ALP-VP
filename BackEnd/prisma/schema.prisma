@@ -92,6 +92,7 @@ model Destination{
   id Int @id @default(autoincrement())
   name String @db.VarChar(100)
   province String @db.VarChar(100)
+  destination_api_id Int @unique
 
   Itinerary_Destinations Itinerary_Destinations[]
 }
@@ -99,9 +100,9 @@ model Destination{
 model Schedule_Per_Day{
   id Int @id @default(autoincrement())
   itinerary_destination_id Int
-  date DateTime @unique
+  date DateTime 
 
-  Itinerary Itinerary_Destinations @relation(fields: [itinerary_destination_id], references: [id])
+  Itinerary Itinerary_Destinations @relation(fields: [itinerary_destination_id], references: [id], onDelete: Cascade)
   Activity Activity[]
 }
 

@@ -8,6 +8,13 @@ export interface CreateItineraryRequest {
   updated_date: Date;
 }
 
+export interface ItineraryModel {
+  id: number
+  name: string;
+  created_date: Date;
+  updated_date: Date;
+}
+
 export interface GetItineraryRequest{
   id: number;
   user_id: number;
@@ -19,6 +26,12 @@ export interface ItineraryResponse {
   travellers : number;
   from: Date,
   to: Date
+}
+
+export interface ItineraryExploreResponse{
+  id: number;
+  name: string;
+  destinations: number;
 }
 
 export interface ItineraryUpdateRequest {
@@ -34,6 +47,26 @@ export function toItineraryResponse(itinerary: Itinerary, travellerNumber: numbe
     from: start_date,
     to: end_date
   };
+}
+
+export async function toItineraryExploreResponseList(prismaItinerary: ItineraryModel[]): Promise<ItineraryExploreResponse[]> {
+  const result: ItineraryExploreResponse[] = []
+
+  for (const itinerary of prismaItinerary){
+    const destinations = await prismaClient.itinerary_Destinations.count({
+      where:{
+          itinerary_id: itinerary.id
+      }
+    })
+
+    result.push({
+      id: itinerary.id,
+      name: itinerary.name,
+      destinations: destinations
+    })
+  }
+
+  return result
 }
 
 export async function toItineraryResponseList(prismaitinerary: ItineraryResponse[]): Promise<ItineraryResponse[]> {

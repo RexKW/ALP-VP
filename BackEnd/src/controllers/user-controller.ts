@@ -1,6 +1,7 @@
 import { NextFunction, Request, Response } from "express";
 import { LoginUserRequest, RegisterUserRequest, UserResponse } from "../model/user-model";
 import { UserService } from "../services/auth-service";
+import { ItineraryUserService } from "../services/itinerary-users-service";
 
 export class AuthController{
     static async register(req: Request, res: Response, next: NextFunction){
@@ -28,4 +29,16 @@ export class AuthController{
             next(error)
         }
     }
+
+    static async allUsers(req: Request, res: Response, next: NextFunction){
+        try{
+            const response = await ItineraryUserService.getAllUsers()
+
+            res.status(200).json({
+                data: response
+            })
+        }catch (error){
+            next(error)
+        }
+    }   
 }

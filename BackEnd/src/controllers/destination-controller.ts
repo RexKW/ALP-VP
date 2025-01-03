@@ -16,6 +16,20 @@ export class DestinationController{
         }
     }
 
+    static async getDestination(req: Request, res: Response, next: NextFunction){
+        try{
+            console.log(req.params);
+            const destinationId = Number(req.params.destinationId);
+            const response = await DestinationService.getDestinationDBbyID(destinationId)
+            res.status(200).json({
+                data: JSON.parse(JSON.stringify(response))
+            })
+        }catch(error){
+            next(error)
+        }
+    }
+
+
     static async deleteItinenerary(req: Request, res: Response, next: NextFunction) {
         try {
             const request = req.body as LoginUserRequest

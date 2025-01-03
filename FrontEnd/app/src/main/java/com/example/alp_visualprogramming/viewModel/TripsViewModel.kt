@@ -73,6 +73,44 @@ class TripsViewModel(
         }
     }
 
+    fun getAllInvitedItineraries(token: String) {
+        viewModelScope.launch {
+            Log.d("token-home", "TOKEN AT HOME: ${token}")
+
+            dataStatus = TripDataStatusUIState.Loading
+
+            try {
+                val call = itineraryRepository.getAllItineraries(token)
+                call.enqueue(object : Callback<GetAllItineraryResponse> {
+                    override fun onResponse(
+                        call: Call<GetAllItineraryResponse>,
+                        res: Response<GetAllItineraryResponse>
+                    ) {
+                        if (res.isSuccessful) {
+                            dataStatus = TripDataStatusUIState.Success(res.body()!!.data)
+
+                            Log.d("data-result", "TODO LIST DATA: ${dataStatus}")
+                        } else {
+                            val errorMessage = Gson().fromJson(
+                                res.errorBody()!!.charStream(),
+                                ErrorModel::class.java
+                            )
+
+                            dataStatus = TripDataStatusUIState.Failed(errorMessage.errors)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<GetAllItineraryResponse>, t: Throwable) {
+                        dataStatus = TripDataStatusUIState.Failed(t.localizedMessage)
+                    }
+
+                })
+            } catch (error: IOException) {
+                dataStatus = TripDataStatusUIState.Failed(error.localizedMessage)
+            }
+        }
+    }
+
     companion object {
         val Factory: ViewModelProvider.Factory = viewModelFactory {
             initializer {
@@ -89,14 +127,19 @@ class TripsViewModel(
     }
 
     fun formatDate(dateString: String?): String {
+        Log.d("DateFormat", "Received date string: $dateString")
+        if (dateString.isNullOrEmpty()) {
+            return "Invalid Date"
+        }
+
         return try {
             val defaultDate = dateString ?: "No Date"
             val format = SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'Z'", Locale.getDefault())
             val date = format.parse(defaultDate)
-            val outputFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault()) // You can adjust the format as needed
+            val outputFormat = SimpleDateFormat("dd MMM yyyy", Locale.getDefault())
             outputFormat.format(date ?: Date())
         } catch (e: Exception) {
-            "Invalid Date" // Handle cases where the date is not valid
+            "Invalid Date"
         }
     }
 

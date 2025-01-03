@@ -11,6 +11,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.AuthController = void 0;
 const auth_service_1 = require("../services/auth-service");
+const itinerary_users_service_1 = require("../services/itinerary-users-service");
 class AuthController {
     static register(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -33,6 +34,19 @@ class AuthController {
                 const response = yield auth_service_1.UserService.login(request);
                 res.status(200).json({
                     data: response,
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    static allUsers(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield itinerary_users_service_1.ItineraryUserService.getAllUsers();
+                res.status(200).json({
+                    data: response
                 });
             }
             catch (error) {

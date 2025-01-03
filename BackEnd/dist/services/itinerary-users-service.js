@@ -25,6 +25,12 @@ class ItineraryUserService {
             return (0, itinerary_users_model_1.toItineraryUserResponseList)(itinerary_users);
         });
     }
+    static getAllUsers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const users = yield database_1.prismaClient.user.findMany();
+            return users;
+        });
+    }
     static addItineraryUser(req) {
         return __awaiter(this, void 0, void 0, function* () {
             const itinerary_user_request = validation_1.Validation.validate(itinerary_user_validation_1.ItineraryUserValidation.CREATE, req);

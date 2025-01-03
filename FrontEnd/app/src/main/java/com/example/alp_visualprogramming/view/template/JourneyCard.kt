@@ -1,7 +1,7 @@
 package com.example.alp_visualprogramming.view.template
 
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -37,8 +37,9 @@ import androidx.compose.ui.unit.sp
 import com.example.alp_visualprogramming.R
 
 @Composable
-fun DestinationsTripCardView(
-    destination: String,
+fun JourneyCardView(
+    modifier: Modifier,
+    name: String?,
     startDate: String,
     endDate: String,
     onCardClick: () -> Unit = {}
@@ -46,7 +47,9 @@ fun DestinationsTripCardView(
     Column(modifier = Modifier.width(342.dp)) {
         Card(modifier = Modifier
             .width(342.dp)
-            .height(235.42712.dp),
+            .height(235.42712.dp).clickable {
+                onCardClick()
+            },
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF5FEEDB),
             ),
@@ -64,9 +67,9 @@ fun DestinationsTripCardView(
                         tint = Color.White
 
                     )
-                    Text(text = destination,
+                    Text(text = name ?: "Unknown",
                         style = TextStyle(
-                            fontSize = 64.sp,
+                            fontSize = 56.sp,
                             fontFamily = FontFamily(Font(R.font.oswald_regular)),
                             fontWeight = FontWeight(400),
                             color = Color(0xFFFBF7E7),
@@ -128,7 +131,7 @@ fun DestinationsTripCardView(
             ), shape = RoundedCornerShape(size = 10.dp)){
                 Icon(
                     imageVector = Icons.Default.Face,
-                    modifier = Modifier.padding(10.dp),
+                    modifier = Modifier.padding(20.dp),
                     contentDescription = null,
                     tint = Color.White
                 )
@@ -138,7 +141,7 @@ fun DestinationsTripCardView(
             ), shape = RoundedCornerShape(size = 10.dp)) {
                 Icon(
                     imageVector = Icons.Default.Face,
-                    modifier = Modifier.padding(10.dp),
+                    modifier = Modifier.padding(20.dp),
                     contentDescription = null,
                     tint = Color.White
                 )
@@ -148,7 +151,7 @@ fun DestinationsTripCardView(
             ), shape = RoundedCornerShape(size = 10.dp)) {
                 Icon(
                     imageVector = Icons.Default.Home,
-                    modifier = Modifier.padding(10.dp),
+                    modifier = Modifier.padding(20.dp),
                     contentDescription = null,
                     tint = Color.White
                 )
@@ -161,5 +164,5 @@ fun DestinationsTripCardView(
 @Preview
 @Composable
 fun DestinationsTripCardPreview(){
-    DestinationsTripCardView("Denpasar", "22 Sep 2024", "24 Sep 2024")
+    JourneyCardView(modifier = Modifier,"Aceh Singkil", "22 Sep 2024", "24 Sep 2024")
 }

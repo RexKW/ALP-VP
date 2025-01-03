@@ -6,10 +6,22 @@ data class ItineraryModel(
     val id: Int,
     val name : String,
     val travellers: Int,
-    val startDate: String,
-    val endDate: String,
+    val from: String,
+    val to: String,
 
 
+)
+
+data class createdItineraryModel(
+    val id: Int,
+    val name : String,
+    val createdDate: Int,
+    val updatedDate: String,
+
+)
+
+data class GetCreatedItineraryResponse(
+    val data: createdItineraryModel
 )
 
 data class GetAllItineraryResponse(
@@ -22,7 +34,5 @@ data class GetItineraryResponse(
 
 
 data class ItineraryRequest(
-    val name : String,
-
-
-    )
+    val name : String
+)

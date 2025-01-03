@@ -8,7 +8,6 @@ exports.ItineraryDestinationValidation = ItineraryDestinationValidation;
 ItineraryDestinationValidation.CREATE = zod_1.z.object({
     itinerary_id: zod_1.z.number().positive(),
     destination_id: zod_1.z.number().positive(),
-    accomodation_id: zod_1.z.number().positive().nullable(),
     start_date: zod_1.z.date(),
     end_date: zod_1.z.date()
 });

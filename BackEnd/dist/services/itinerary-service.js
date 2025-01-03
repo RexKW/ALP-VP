@@ -120,7 +120,7 @@ class ItineraryService {
                     role: "owner"
                 }
             });
-            return "Itinerary created successfully!";
+            return itinerary1;
         });
     }
     static updateItinerary(req) {

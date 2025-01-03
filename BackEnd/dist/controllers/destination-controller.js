@@ -26,13 +26,14 @@ class DestinationController {
             }
         });
     }
-    static createNewItinenerary(req, res, next) {
+    static getDestination(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const request = req.body;
-                const response = yield auth_service_1.UserService.login(request);
+                console.log(req.params);
+                const destinationId = Number(req.params.destinationId);
+                const response = yield destination_service_1.DestinationService.getDestinationDBbyID(destinationId);
                 res.status(200).json({
-                    data: response,
+                    data: JSON.parse(JSON.stringify(response))
                 });
             }
             catch (error) {

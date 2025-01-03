@@ -21,6 +21,11 @@ export class ItineraryUserService{
         return toItineraryUserResponseList(itinerary_users)
     }
 
+    static async getAllUsers(){
+        const users = await prismaClient.user.findMany()
+        return users
+    }
+
 
     static async addItineraryUser(req: AddItineraryUserRequest ){
         const itinerary_user_request = Validation.validate(ItineraryUserValidation.CREATE, req) 

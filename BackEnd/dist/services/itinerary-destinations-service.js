@@ -16,12 +16,13 @@ const database_1 = require("../application/database");
 const response_error_1 = require("../error/response-error");
 const itinerary_destination_validation_1 = require("../validation/itinerary-destination-validation");
 const logging_1 = require("../application/logging");
+const destination_service_1 = require("./destination-service");
 class ItineraryDestinationService {
-    static getAllItinenaryDestination(itinerary) {
+    static getAllItinenaryDestination(itinerary_id) {
         return __awaiter(this, void 0, void 0, function* () {
             const itinerary_destinations = yield database_1.prismaClient.itinerary_Destinations.findMany({
                 where: {
-                    itinerary_id: itinerary.id,
+                    itinerary_id: itinerary_id,
                 },
             });
             return (0, itinerary_destinations_model_1.toItineraryDestinationResponseList)(itinerary_destinations);
@@ -46,32 +47,64 @@ class ItineraryDestinationService {
             return itinerary;
         });
     }
-    static createItineraryDestination(req) {
+    static createItineraryDestination(req, user) {
         return __awaiter(this, void 0, void 0, function* () {
             // validate request
             const itinerary_Destinations_Request = validation_1.Validation.validate(itinerary_destination_validation_1.ItineraryDestinationValidation.CREATE, req);
-            const itinerary_Destinations = yield database_1.prismaClient.itinerary_Destinations.create({
-                data: {
-                    itinerary_id: itinerary_Destinations_Request.itinerary_id,
-                    destination_id: itinerary_Destinations_Request.destination_id,
-                    accomodation_id: itinerary_Destinations_Request.accomodation_id,
-                    start_date: itinerary_Destinations_Request.start_date,
-                    end_date: itinerary_Destinations_Request.end_date
+            const authentication = yield database_1.prismaClient.itinerary_Users.findUnique({
+                where: {
+                    user_id_itinerary_id_unique: {
+                        user_id: user.id,
+                        itinerary_id: req.itinerary_id,
+                    },
                 },
             });
-            const startDate = itinerary_Destinations.start_date;
-            const endDate = itinerary_Destinations.end_date;
-            const currentDate = startDate;
-            while (currentDate <= endDate) {
-                const Schedule_Per_Day = yield database_1.prismaClient.schedule_Per_Day.create({
-                    data: {
-                        itinerary_destination_id: itinerary_Destinations.id,
-                        date: currentDate
-                    }
+            if ((authentication === null || authentication === void 0 ? void 0 : authentication.role) == "admin" || (authentication === null || authentication === void 0 ? void 0 : authentication.role) == "owner") {
+                let destination = yield database_1.prismaClient.destination.findUnique({
+                    where: {
+                        destination_api_id: req.destination_id,
+                    },
                 });
-                currentDate.setDate(currentDate.getDate() + 1);
+                if (!destination) {
+                    destination = yield destination_service_1.DestinationService.addDestination(req.destination_id);
+                }
+                const itinerary_Destinations = yield database_1.prismaClient.itinerary_Destinations.create({
+                    data: {
+                        itinerary_id: itinerary_Destinations_Request.itinerary_id,
+                        destination_id: destination.id,
+                        accomodation_id: null,
+                        start_date: itinerary_Destinations_Request.start_date,
+                        end_date: itinerary_Destinations_Request.end_date
+                    },
+                });
+                const startDate = itinerary_Destinations.start_date;
+                const endDate = itinerary_Destinations.end_date;
+                const currentDate = startDate;
+                const BATCH_SIZE = 20;
+                const datesToInsert = [];
+                let batchCounter = 0;
+                while (currentDate <= endDate) {
+                    datesToInsert.push({
+                        itinerary_destination_id: itinerary_Destinations.id,
+                        date: currentDate,
+                    });
+                    currentDate.setDate(currentDate.getDate() + 1);
+                    if (datesToInsert.length >= BATCH_SIZE) {
+                        yield database_1.prismaClient.schedule_Per_Day.createMany({
+                            data: datesToInsert,
+                        });
+                        datesToInsert.length = 0;
+                        batchCounter++;
+                    }
+                }
+                yield database_1.prismaClient.schedule_Per_Day.createMany({
+                    data: datesToInsert,
+                });
+                return "Data created successfully!";
             }
-            return "Data created successfully!";
+            else {
+                return "Unauthorized Access";
+            }
         });
     }
     static updateItineraryDestination(req) {

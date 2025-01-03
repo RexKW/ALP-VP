@@ -17,11 +17,11 @@ const response_error_1 = require("../error/response-error");
 const activity_validation_1 = require("../validation/activity-validation");
 const logging_1 = require("../application/logging");
 class ActivityService {
-    static getAllActivity(day) {
+    static getAllActivity(day_id) {
         return __awaiter(this, void 0, void 0, function* () {
             const activity = yield database_1.prismaClient.activity.findMany({
                 where: {
-                    day_id: day.id,
+                    day_id: day_id,
                 },
             });
             return (0, activity_model_1.toActivityResponseList)(activity);
@@ -46,7 +46,7 @@ class ActivityService {
             return activity;
         });
     }
-    static createActivity(day, req) {
+    static createActivity(day_id, req) {
         return __awaiter(this, void 0, void 0, function* () {
             const activityRequest = validation_1.Validation.validate(activity_validation_1.ActivityValidation.CREATE, req);
             const activity = yield database_1.prismaClient.activity.create({
@@ -58,7 +58,7 @@ class ActivityService {
                     cost: activityRequest.cost,
                     type: activityRequest.type,
                     location_id: activityRequest.location_id,
-                    day_id: day.id,
+                    day_id: day_id,
                 },
             });
             return "Data created successfully!";

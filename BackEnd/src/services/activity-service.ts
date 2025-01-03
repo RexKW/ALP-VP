@@ -7,10 +7,10 @@ import { ActivityValidation } from "../validation/activity-validation";
 import { logger } from "../application/logging"
 
 export class ActivityService{
-    static async getAllActivity(day: Schedule_Per_Day): Promise<ActivityResponse[]> {
+    static async getAllActivity(day_id: number): Promise<ActivityResponse[]> {
         const activity = await prismaClient.activity.findMany({
             where: {
-                day_id: day.id,
+                day_id: day_id,
             },
         })
 
@@ -41,7 +41,7 @@ export class ActivityService{
 
 
     static async createActivity(
-        day: Schedule_Per_Day,
+        day_id: number,
         req: CreateActivityRequest
     ): Promise<string> {
         const activityRequest = Validation.validate(ActivityValidation.CREATE, req)
@@ -55,7 +55,7 @@ export class ActivityService{
                 cost: activityRequest.cost,
                 type: activityRequest.type,
                 location_id: activityRequest.location_id,
-                day_id: day.id,
+                day_id: day_id,
             },
         })
 

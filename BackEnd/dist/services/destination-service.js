@@ -14,6 +14,29 @@ const database_1 = require("../application/database");
 const response_error_1 = require("../error/response-error");
 const destination_model_1 = require("../model/destination-model");
 class DestinationService {
+    static addDestination(api_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const axios = require('axios');
+            const destination = yield database_1.prismaClient.destination.findUnique({
+                where: {
+                    destination_api_id: api_id
+                }
+            });
+            if (destination) {
+                return destination;
+            }
+            const destinations = yield this.getAllDestination();
+            const destinationDB = destinations.find(destination => destination.id === String(api_id));
+            const dbDestination = yield database_1.prismaClient.destination.create({
+                data: {
+                    name: destinationDB.name,
+                    province: destinationDB.province,
+                    destination_api_id: parseInt(destinationDB.id, 10)
+                }
+            });
+            return dbDestination;
+        });
+    }
     static getAllProvinces() {
         return __awaiter(this, void 0, void 0, function* () {
             const axios = require('axios');
@@ -31,16 +54,15 @@ class DestinationService {
     static getAllDestination() {
         return __awaiter(this, void 0, void 0, function* () {
             const provinces = yield this.getAllProvinces();
-            const allCities = [];
-            for (const province of provinces) {
+            const allCitiesPromises = provinces.map((province) => __awaiter(this, void 0, void 0, function* () {
                 const cities = yield this.getAllCitiesInProvince(province.id);
-                const cityWithProvince = cities.map(({ id, name }) => ({
+                return cities.map(({ id, name }) => ({
                     id,
-                    name,
+                    name: name.replace(/\b(KOTA |KABUPATEN )\b\s*/gi, ""),
                     province: province.name
                 }));
-                allCities.push(...cityWithProvince);
-            }
+            }));
+            const allCities = (yield Promise.all(allCitiesPromises)).flat();
             return allCities;
         });
     }
@@ -48,6 +70,19 @@ class DestinationService {
         return __awaiter(this, void 0, void 0, function* () {
             const axios = require('axios');
             const destination = yield axios.get(`https://emsifa.github.io/api-wilayah-indonesia/api/regency/${destinationId}.json`);
+            return destination;
+        });
+    }
+    static getDestinationDBbyID(destination_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const destination = yield database_1.prismaClient.destination.findUnique({
+                where: {
+                    id: destination_id
+                }
+            });
+            if (!destination) {
+                throw new Error('Destination not found');
+            }
             return destination;
         });
     }

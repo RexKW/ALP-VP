@@ -6,6 +6,7 @@ import { UserValidation } from "../validation/user-validation";
 import { Validation } from "../validation/validation";
 import {v4 as uuid} from "uuid"
 import bcrypt from "bcrypt"
+import { PrismaClient } from "@prisma/client";
 
 export class UserService{
     static async register(req: RegisterUserRequest): Promise<UserResponse>{
@@ -72,5 +73,15 @@ export class UserService{
         const response = toUserResponse(user)
 
         return response
+    }
+
+
+    static async getAllUsers(){
+        const userList = await prismaClient.user.findMany()
+
+
+        return userList
+
+
     }
 }

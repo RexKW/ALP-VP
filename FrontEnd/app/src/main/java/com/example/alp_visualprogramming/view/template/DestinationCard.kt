@@ -2,6 +2,7 @@ package com.example.alp_visualprogramming.view.template
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -37,7 +38,11 @@ fun DestinationCard(
 ){
     Card (modifier = Modifier
         .width(180.75716.dp)
-        .height(112.04829.dp),
+        .height(112.04829.dp)
+        .clickable {
+            onCardClick()
+        }
+        ,
         colors = CardDefaults.cardColors(
             containerColor = Color(0xFF5FEEDB),
         ),
@@ -57,23 +62,23 @@ fun DestinationCard(
                     .fillMaxWidth()
                     .align(Alignment.BottomCenter)
             )
-            Column(modifier = Modifier.padding(bottom = 25.dp)) {
+            Column(modifier = Modifier.padding(bottom = 8.dp)) {
                 Text(
                     text = name,
-                    modifier = Modifier.padding(start = 20.dp),
+                    modifier = Modifier.padding(start = 10.dp),
                     style = TextStyle(
-                        fontSize = 30.sp,
+                        fontSize = 25.sp,
                         fontFamily = FontFamily(Font(R.font.oswald_regular)),
                         fontWeight = FontWeight(400),
                         color = Color(0xFFFBF7E7),
 
-                        textAlign = TextAlign.Center,
+                        textAlign = TextAlign.Start,
                     )
                 )
                 Text(text = province,
-                    modifier = Modifier.padding(start = 20.dp),
+                    modifier = Modifier.padding(start = 10.dp),
                     style = TextStyle(
-                        fontSize = 15.sp,
+                        fontSize = 12.sp,
                         fontFamily = FontFamily(Font(R.font.tajawal_bold)),
                         fontWeight = FontWeight(500),
                         color = Color(0xFF440215),

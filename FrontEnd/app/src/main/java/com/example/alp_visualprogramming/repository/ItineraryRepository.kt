@@ -2,6 +2,7 @@ package com.example.alp_visualprogramming.repository
 
 import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetAllItineraryResponse
+import com.example.alp_visualprogramming.models.GetCreatedItineraryResponse
 import com.example.alp_visualprogramming.models.GetItineraryResponse
 import com.example.alp_visualprogramming.models.ItineraryRequest
 import com.example.alp_visualprogramming.service.ItineraryAPIService
@@ -10,7 +11,7 @@ import retrofit2.Call
 interface ItineraryRepository {
     fun getAllItineraries(token: String): Call<GetAllItineraryResponse>
 
-    fun createItinerary(token: String, title: String): Call<GeneralResponseModel>
+    fun createItinerary(token: String, title: String): Call<GetCreatedItineraryResponse>
 
     fun getItinerary(token: String, todoId: Int): Call<GetItineraryResponse>
 
@@ -29,7 +30,7 @@ class NetworkItineraryRepository(
     override fun createItinerary(
         token: String,
         title: String,
-    ): Call<GeneralResponseModel> {
+    ): Call<GetCreatedItineraryResponse> {
         return itineraryAPIService.createItinerary(
             token,
             ItineraryRequest(title)

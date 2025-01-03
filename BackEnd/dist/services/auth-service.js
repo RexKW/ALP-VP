@@ -73,5 +73,11 @@ class UserService {
             return response;
         });
     }
+    static getAllUsers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userList = yield database_1.prismaClient.user.findMany();
+            return userList;
+        });
+    }
 }
 exports.UserService = UserService;

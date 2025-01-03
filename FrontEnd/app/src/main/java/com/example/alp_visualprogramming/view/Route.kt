@@ -1,5 +1,6 @@
 package com.example.alp_visualprogramming.view
 
+import android.util.Log
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -30,12 +31,24 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_visualprogramming.BottomNavigationItem
+import com.example.alp_visualprogramming.viewModel.ActivitiesViewModel
+import com.example.alp_visualprogramming.viewModel.ActivityDetailViewModel
+import com.example.alp_visualprogramming.viewModel.DestinationViewModel
+import com.example.alp_visualprogramming.viewModel.JourneyFormViewModel
+import com.example.alp_visualprogramming.viewModel.JourneyViewModel
+import com.example.alp_visualprogramming.viewModel.TripNameViewModel
 import com.example.alp_visualprogramming.viewModel.TripsViewModel
 
 @Composable
 fun ItineraryApp (
     navController: NavHostController = rememberNavController(),
-    tripsViewModel: TripsViewModel =  viewModel(factory = TripsViewModel.Factory)
+    tripsViewModel: TripsViewModel =  viewModel(factory = TripsViewModel.Factory),
+    journeyViewModel: JourneyViewModel = viewModel(factory = JourneyViewModel.Factory),
+    journeyFormViewModel: JourneyFormViewModel = viewModel(factory = JourneyFormViewModel.Factory),
+    tripNameViewModel: TripNameViewModel = viewModel(factory = TripNameViewModel.Factory),
+    destinationViewModel: DestinationViewModel = viewModel(factory = DestinationViewModel.Factory),
+    activityViewModel: ActivitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory),
+    activityDetailViewModel: ActivityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory)
 ){
     val localContext = LocalContext.current
     val bottomNavigationItems = listOf(
@@ -89,19 +102,44 @@ fun ItineraryApp (
         ) { innerPadding ->
             NavHost(navController = navController, startDestination = "Home"){
                 composable("Home"){
-                    YourTripView(modifier = Modifier.padding(innerPadding), navController = navController, token = "f57031c8-1c62-4bea-947b-4239db58e31c", tripsViewModel = tripsViewModel, context = localContext)
+                    YourTripView(modifier = Modifier.padding(innerPadding), navController = navController, token = "f57031c8-1c62-4bea-947b-4239db58e31c", tripsViewModel = tripsViewModel, context = localContext, journeyViewModel = viewModel(factory = JourneyViewModel.Factory))
                 }
 
                 composable("Explore"){
-                    ActivityDetailView(modifier = Modifier.padding(innerPadding))
+                    DestinationSearchView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, destinationViewModel = viewModel(factory = DestinationViewModel.Factory), journeyFormViewModel = journeyFormViewModel)
                 }
+
+                composable("Destinations"){
+                    DestinationSearchView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, destinationViewModel = destinationViewModel, journeyFormViewModel = journeyFormViewModel)
+                }
+
+                composable("Create"){
+                    TripNameView(modifier = Modifier.padding(innerPadding), navController = navController,tripNameViewModel = tripNameViewModel, token = "f57031c8-1c62-4bea-947b-4239db58e31c", context = localContext)
+                }
+
+                composable("FormDestination"){
+
+                   JourneyFormView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, journeyFormViewModel = journeyFormViewModel, destinationViewModel = destinationViewModel, context = localContext)
+                }
+
+                composable("Journey/{itineraryId}"){
+
+                    backStackEntry->
+                    JourneyView(modifier = Modifier.padding(innerPadding), navController = navController, journeyViewModel = journeyViewModel, itineraryId = backStackEntry.arguments?.getString("itineraryId")?.toIntOrNull() ?: 0, context = localContext, token ="f57031c8-1c62-4bea-947b-4239db58e31c", journeyFormViewModel =journeyFormViewModel, activitiesViewModel = activityViewModel)
+                }
+
 
                 composable("Profile"){
-                    
+//                    JourneyView(modifier = Modifier.padding(innerPadding), navController = navController, journeyViewModel = viewModel(factory = com.example.alp_visualprogramming.viewModel.JourneyViewModel.Factory), itineraryId = 1, context = localContext, token ="f57031c8-1c62-4bea-947b-4239db58e31c")
                 }
 
-                composable("Activities"){
-                    ActivitiesView(modifier = Modifier.padding(innerPadding))
+                composable("Activities/{dayId}"){
+                        backStackEntry->
+                        ActivitiesView(modifier = Modifier.padding(innerPadding), navController = navController,activityViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c",dayId = backStackEntry.arguments?.getString("dayId")?.toIntOrNull() ?: 0, activityDetailViewModel = activityDetailViewModel)
+                }
+
+                composable("ActivityDetail"){
+                    ActivityDetailView(modifier = Modifier.padding(innerPadding), navController = navController,activityDetailViewModel = activityDetailViewModel)
                 }
             }
 

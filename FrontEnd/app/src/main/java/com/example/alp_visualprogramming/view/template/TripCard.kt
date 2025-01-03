@@ -19,6 +19,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.ParagraphStyle
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
@@ -32,7 +33,7 @@ import com.example.alp_visualprogramming.R
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 
-val OswaldRegular = FontFamily(Font(R.font.oswald_regular))
+
 
 
 @Composable
@@ -40,6 +41,7 @@ fun TripCard(title: String, travellers: Int, startDate: String?, endDate: String
 
     val defaultStartDate = startDate ?: "No Start Date"
     val defaultEndDate = endDate ?: "No End Date"
+    val OswaldRegular = FontFamily(Font(R.font.oswald_regular))
 
     Card(modifier = Modifier
         .width(334.dp)
@@ -64,7 +66,10 @@ fun TripCard(title: String, travellers: Int, startDate: String?, endDate: String
                     fontSize = 32.sp,
                     fontFamily = OswaldRegular,
                     color = Color(0xFFFBF7E7),
-                    modifier = Modifier.padding(start = 16.dp, top = 16.dp)
+                    modifier = Modifier.padding(start = 16.dp, top = 16.dp),
+                    style = TextStyle(
+                        lineHeight = 35.sp
+                    )
                 )
                 Text(text = "From: " + defaultStartDate,
                     style = TextStyle(
