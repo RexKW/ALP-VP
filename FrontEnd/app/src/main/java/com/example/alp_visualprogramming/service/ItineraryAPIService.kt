@@ -1,5 +1,6 @@
 package com.example.alp_visualprogramming.service
 
+import com.example.alp_visualprogramming.models.ExploreItineraryResponse
 import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetAllItineraryResponse
 import com.example.alp_visualprogramming.models.GetCreatedItineraryResponse
@@ -17,6 +18,9 @@ import retrofit2.http.Path
 interface ItineraryAPIService {
     @GET("itinerary/ownedTrips")
     fun getAllItinerary(@Header("X-API-TOKEN") token: String): Call<GetAllItineraryResponse>
+
+    @GET("itinerary/explore")
+    fun exploreItineraries(@Header("X-API-TOKEN") token: String): Call<ExploreItineraryResponse>
 
     @GET("api/todo-list/{id}")
     fun getItinerary(@Header("X-API-TOKEN") token: String, @Path("id") id: Int): Call<GetItineraryResponse>

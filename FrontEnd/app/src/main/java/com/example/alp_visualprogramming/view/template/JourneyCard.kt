@@ -42,7 +42,9 @@ fun JourneyCardView(
     name: String?,
     startDate: String,
     endDate: String,
-    onCardClick: () -> Unit = {}
+    onCardClick: () -> Unit = {},
+    onEditClick: () -> Unit = {},
+    noEdit:Boolean
     ){
     Column(modifier = Modifier.width(342.dp)) {
         Card(modifier = Modifier
@@ -56,20 +58,11 @@ fun JourneyCardView(
             shape = RoundedCornerShape(40.dp),
         ) {
             Box(modifier = Modifier.fillMaxSize()) {
-                Column(modifier = Modifier.fillMaxWidth().padding(20.dp)){
-                    Icon(
-                        imageVector = Icons.Default.Create,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(30.dp)
-                            .fillMaxWidth()
-                            .align(Alignment.End),
-                        tint = Color.White
+                Column(modifier = Modifier.fillMaxWidth().padding(20.dp).padding(top = 35.dp)){
 
-                    )
                     Text(text = name ?: "Unknown",
                         style = TextStyle(
-                            fontSize = 56.sp,
+                            fontSize = 48.sp,
                             fontFamily = FontFamily(Font(R.font.oswald_regular)),
                             fontWeight = FontWeight(400),
                             color = Color(0xFFFBF7E7),
@@ -156,6 +149,25 @@ fun JourneyCardView(
                     tint = Color.White
                 )
             }
+            if(!noEdit) {
+                Card(
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color(0xFFEE417D),
+                    ), shape = RoundedCornerShape(size = 10.dp),
+                    modifier = Modifier.clickable {
+                        onEditClick()
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Create,
+                        modifier = Modifier.padding(20.dp),
+                        contentDescription = null,
+                        tint = Color.White
+
+                    )
+
+                }
+            }
         }
 
     }
@@ -164,5 +176,5 @@ fun JourneyCardView(
 @Preview
 @Composable
 fun DestinationsTripCardPreview(){
-    JourneyCardView(modifier = Modifier,"Aceh Singkil", "22 Sep 2024", "24 Sep 2024")
+    JourneyCardView(modifier = Modifier,"Aceh Singkil", "22 Sep 2024", "24 Sep 2024", onCardClick = {}, onEditClick = {}, true)
 }

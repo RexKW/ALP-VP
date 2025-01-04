@@ -13,6 +13,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -41,7 +42,7 @@ import com.example.alp_visualprogramming.view.template.TripCard
 import com.example.alp_visualprogramming.viewModel.ActivityDetailViewModel
 
 @Composable
-fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDetailViewModel, navController: NavController){
+fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDetailViewModel, navController: NavController, viewOnly: Boolean = false){
 
         Column(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF7E7))) {
             Box(modifier = Modifier.fillMaxWidth()) {
@@ -193,9 +194,10 @@ fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDeta
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Icon(
-                            imageVector = Icons.Default.Star,
+                            imageVector = Icons.Default.ShoppingCart,
                             contentDescription = null,
-                            tint = Color(0xFFFBF7E7)
+                            tint = Color(0xFFFBF7E7),
+                            modifier = Modifier.padding(start = 10.dp)
                         )
                         Text(
                             text = "Cost",
@@ -219,6 +221,19 @@ fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDeta
                                 ),
                             modifier = Modifier.padding(start = 10.dp)
                         )
+                    }
+
+                    if(!viewOnly){
+                        Row(
+                            modifier = Modifier.padding(top = 16.dp).clip(RoundedCornerShape(20.dp))
+                                .fillMaxWidth().background(Color(0xFFEE417D)).padding(10.dp),
+
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Edit",
+                            )
+                        }
                     }
                 }
             }

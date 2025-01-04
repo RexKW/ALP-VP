@@ -59,10 +59,19 @@ import com.example.alp_visualprogramming.view.template.DateCardView
 import com.example.alp_visualprogramming.view.template.DestinationCard
 import com.example.alp_visualprogramming.viewModel.ActivitiesViewModel
 import com.example.alp_visualprogramming.viewModel.ActivityDetailViewModel
+import com.example.alp_visualprogramming.viewModel.ActivityFormViewModel
 import com.example.alp_visualprogramming.viewModel.JourneyViewModel
 
 @Composable
-fun ActivitiesView(modifier: Modifier = Modifier, navController: NavHostController = rememberNavController(), activitiesViewModel: ActivitiesViewModel, activityDetailViewModel: ActivityDetailViewModel, context: Context, token:String, dayId: Int){
+fun ActivitiesView(modifier: Modifier = Modifier,
+                   navController: NavHostController = rememberNavController(),
+                   activitiesViewModel: ActivitiesViewModel,
+                   activityDetailViewModel: ActivityDetailViewModel,
+                   context: Context,
+                   token:String, dayId: Int,
+                   activityFormViewModel: ActivityFormViewModel,
+                   canEdit: Boolean
+){
     val dayDataStatus = activitiesViewModel.dayDataStatus
     val dataStatus = activitiesViewModel.dataStatus
     val itineraryId = activitiesViewModel.currItineraryId
@@ -216,7 +225,7 @@ fun ActivitiesView(modifier: Modifier = Modifier, navController: NavHostControll
                             ) {
                                 Button(
                                     onClick = {
-
+                                        activityFormViewModel.initializeCreate(dayId, navController)
                                     },
 
 
@@ -260,6 +269,8 @@ fun ActivitiesPreview(){
         activitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory),
         token = "",
         dayId = 1,
-        activityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory)
+        activityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory),
+        activityFormViewModel = viewModel(factory = ActivityFormViewModel.Factory),
+        canEdit = true
     )
 }

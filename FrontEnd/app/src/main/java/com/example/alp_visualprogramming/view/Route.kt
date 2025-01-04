@@ -33,7 +33,9 @@ import androidx.navigation.compose.rememberNavController
 import com.example.alp_visualprogramming.BottomNavigationItem
 import com.example.alp_visualprogramming.viewModel.ActivitiesViewModel
 import com.example.alp_visualprogramming.viewModel.ActivityDetailViewModel
+import com.example.alp_visualprogramming.viewModel.ActivityFormViewModel
 import com.example.alp_visualprogramming.viewModel.DestinationViewModel
+import com.example.alp_visualprogramming.viewModel.ExploreViewModel
 import com.example.alp_visualprogramming.viewModel.JourneyFormViewModel
 import com.example.alp_visualprogramming.viewModel.JourneyViewModel
 import com.example.alp_visualprogramming.viewModel.TripNameViewModel
@@ -48,7 +50,9 @@ fun ItineraryApp (
     tripNameViewModel: TripNameViewModel = viewModel(factory = TripNameViewModel.Factory),
     destinationViewModel: DestinationViewModel = viewModel(factory = DestinationViewModel.Factory),
     activityViewModel: ActivitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory),
-    activityDetailViewModel: ActivityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory)
+    activityDetailViewModel: ActivityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory),
+    activityFormViewModel: ActivityFormViewModel = viewModel(factory = ActivityFormViewModel.Factory),
+    exploreViewModel: ExploreViewModel = viewModel(factory = ExploreViewModel.Factory)
 ){
     val localContext = LocalContext.current
     val bottomNavigationItems = listOf(
@@ -106,8 +110,16 @@ fun ItineraryApp (
                 }
 
                 composable("Explore"){
-                    DestinationSearchView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, destinationViewModel = viewModel(factory = DestinationViewModel.Factory), journeyFormViewModel = journeyFormViewModel)
+                    ExploreView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, exploreViewModel = exploreViewModel, context = localContext, journeyViewModel = journeyViewModel)
                 }
+
+                composable("Explore/{itineraryId}"){
+
+                        backStackEntry->
+                    JourneyExploreView(modifier = Modifier.padding(innerPadding), navController = navController, journeyViewModel = journeyViewModel, itineraryId = backStackEntry.arguments?.getString("itineraryId")?.toIntOrNull() ?: 0, context = localContext, token ="f57031c8-1c62-4bea-947b-4239db58e31c", journeyFormViewModel =journeyFormViewModel, activitiesViewModel = activityViewModel)
+                }
+
+
 
                 composable("Destinations"){
                     DestinationSearchView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, destinationViewModel = destinationViewModel, journeyFormViewModel = journeyFormViewModel)
@@ -135,11 +147,15 @@ fun ItineraryApp (
 
                 composable("Activities/{dayId}"){
                         backStackEntry->
-                        ActivitiesView(modifier = Modifier.padding(innerPadding), navController = navController,activityViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c",dayId = backStackEntry.arguments?.getString("dayId")?.toIntOrNull() ?: 0, activityDetailViewModel = activityDetailViewModel)
+                        ActivitiesView(modifier = Modifier.padding(innerPadding), navController = navController,activityViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c",dayId = backStackEntry.arguments?.getString("dayId")?.toIntOrNull() ?: 0, activityDetailViewModel = activityDetailViewModel, activityFormViewModel = activityFormViewModel)
                 }
 
                 composable("ActivityDetail"){
                     ActivityDetailView(modifier = Modifier.padding(innerPadding), navController = navController,activityDetailViewModel = activityDetailViewModel)
+                }
+
+                composable("FormActivity") {
+                    ActivityFormView(modifier = Modifier.padding(innerPadding), navController = navController, activityFormViewModel = activityFormViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c")
                 }
             }
 

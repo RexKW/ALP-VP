@@ -1,6 +1,7 @@
 package com.example.alp_visualprogramming.repository
 
 import com.example.alp_visualprogramming.models.ActivityRequest
+import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetActivityResponse
 import com.example.alp_visualprogramming.models.GetAllActivityResponse
 import com.example.alp_visualprogramming.models.GetAllDayResponse
@@ -10,7 +11,7 @@ import retrofit2.Call
 interface ActivityRepository {
     fun getAllActivities(token: String, dayId: Int): Call<GetAllActivityResponse>
     fun getActivity(token: String, activityId: Int): Call<GetActivityResponse>
-    fun createActivity(token: String, dayId: Int, name: String, description: String, start_time: String, end_time: String, type: String, cost: Double, location_id: Int): Call<GetActivityResponse>
+    fun createActivity(token: String, dayId: Int, name: String, description: String, start_time: String, end_time: String, type: String, cost: Double, location_id: Int): Call<GeneralResponseModel>
     fun getAllDays(token: String, itinerary_destination_Id: Int): Call<GetAllDayResponse>
 }
 
@@ -30,7 +31,7 @@ class NetworkActivityRepository(
 
     }
 
-    override fun createActivity(token: String, dayId: Int, name: String, description: String, start_time: String, end_time: String, type: String, cost: Double, location_id: Int): Call<GetActivityResponse> {
+    override fun createActivity(token: String, dayId: Int, name: String, description: String, start_time: String, end_time: String, type: String, cost: Double, location_id: Int): Call<GeneralResponseModel> {
         return activityAPIService.createActivity(token, dayId, ActivityRequest( name, description, start_time, end_time, type, cost, location_id))
     }
 }

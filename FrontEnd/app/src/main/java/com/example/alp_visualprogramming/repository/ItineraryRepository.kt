@@ -1,5 +1,6 @@
 package com.example.alp_visualprogramming.repository
 
+import com.example.alp_visualprogramming.models.ExploreItineraryResponse
 import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetAllItineraryResponse
 import com.example.alp_visualprogramming.models.GetCreatedItineraryResponse
@@ -18,6 +19,8 @@ interface ItineraryRepository {
     fun updateItinerary(token: String, id: Int, title: String): Call<GeneralResponseModel>
 
     fun deleteItinerary(token: String, todoId: Int): Call<GeneralResponseModel>
+
+    fun exploreItineraries(token: String): Call<ExploreItineraryResponse>
 }
 
 class NetworkItineraryRepository(
@@ -35,6 +38,10 @@ class NetworkItineraryRepository(
             token,
             ItineraryRequest(title)
         )
+    }
+
+    override fun exploreItineraries(token: String): Call<ExploreItineraryResponse> {
+        return itineraryAPIService.exploreItineraries(token)
     }
 
     override fun getItinerary(token: String, id: Int): Call<GetItineraryResponse> {

@@ -52,6 +52,10 @@ class JourneyViewModel(
         navController.navigate("Journey/$itineraryId")
     }
 
+    fun viewJourney(itinerary_Id: Int, navController: NavController){
+        navController.navigate("Explore/$itinerary_Id")
+    }
+
     fun getAllJourneys(token:String, itinerary_Id:Int){
         viewModelScope.launch {
             dataStatus = JourneyDataStatusUIState.Loading

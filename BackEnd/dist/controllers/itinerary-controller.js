@@ -27,6 +27,19 @@ class ItineraryController {
             }
         });
     }
+    static exploreItinerary(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield itinerary_service_1.ItineraryService.explore();
+                res.status(200).json({
+                    data: response
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
     static getAllItinerary(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {

@@ -1,6 +1,7 @@
 package com.example.alp_visualprogramming.service
 
 import com.example.alp_visualprogramming.models.ActivityRequest
+import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetActivityResponse
 import com.example.alp_visualprogramming.models.GetAllActivityResponse
 import com.example.alp_visualprogramming.models.GetAllDayResponse
@@ -21,7 +22,8 @@ interface ActivityAPIService{
     @GET("activities/allDays/{itineraryDestinationId}")
     fun getAllDays(@Header("X-API-TOKEN") token: String, @Path("itineraryDestinationId") itineraryDestinationId: Int): Call<GetAllDayResponse>
 
+
     @POST("activities/createActivity/{dayId}")
-    fun createActivity(@Header("X-API-TOKEN") token: String, @Path("dayId") dayId: Int, @Body activityRequest: ActivityRequest): Call<GetActivityResponse>
+    fun createActivity(@Header("X-API-TOKEN") token: String, @Path("dayId") dayId: Int, @Body activityRequest: ActivityRequest): Call<GeneralResponseModel>
 
 }

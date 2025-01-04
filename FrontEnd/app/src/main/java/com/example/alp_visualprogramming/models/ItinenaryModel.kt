@@ -1,7 +1,5 @@
 package com.example.alp_visualprogramming.models
 
-import com.google.gson.annotations.SerializedName
-
 data class ItineraryModel(
     val id: Int,
     val name : String,
@@ -12,7 +10,7 @@ data class ItineraryModel(
 
 )
 
-data class createdItineraryModel(
+data class CreatedItineraryModel(
     val id: Int,
     val name : String,
     val createdDate: Int,
@@ -20,8 +18,18 @@ data class createdItineraryModel(
 
 )
 
+data class ExploreItineraryModel(
+    val id: Int,
+    val name: String,
+    val destinations: Int
+)
+
+data class ExploreItineraryResponse(
+    val data: List<ExploreItineraryModel>
+)
+
 data class GetCreatedItineraryResponse(
-    val data: createdItineraryModel
+    val data: CreatedItineraryModel
 )
 
 data class GetAllItineraryResponse(

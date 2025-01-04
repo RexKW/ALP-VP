@@ -23,6 +23,19 @@ export class ItineraryController{
 		}
     }
 
+	static async exploreItinerary(req: Request, res: Response, next: NextFunction){
+		try{
+			const response = await ItineraryService.explore()
+
+			res.status(200).json({
+				data: response
+			})
+
+		}catch(error){
+			next(error)
+		}
+	}
+
 
 
     static async getAllItinerary(req: UserRequest, res: Response, next: NextFunction){
@@ -82,6 +95,8 @@ export class ItineraryController{
 		}
     }
 
+	
+
 
 	//Destinations 
 
@@ -115,6 +130,25 @@ export class ItineraryController{
 			next(error)
 		}
 	}
+
+	static async updateJourney(req: UserRequest, res: Response, next: NextFunction) {
+        try{
+			const request = req.body as AddItineraryDestinationRequest
+			request.destination_id = Number(req.params.destinationId)
+			
+			const dateRequest = {
+				...request,
+				start_date: new Date(request.start_date),
+				end_date: new Date(request.end_date)
+			}
+			const response = await ItineraryDestinationService.createItineraryDestination(dateRequest, req.user!)
+			res.status(200).json({
+				data: response,
+			})
+		}catch (error){
+			next(error)
+		}
+    }
 
 
 	//Users

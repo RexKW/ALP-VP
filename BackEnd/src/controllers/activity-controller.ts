@@ -4,6 +4,11 @@ import { UserService } from "../services/auth-service";
 import { CreateActivityRequest } from "../model/activity-model";
 import { ActivityService } from "../services/activity-service";
 import { DayService } from "../services/day-service";
+import { prismaClient } from "../application/database";
+
+function addLeadingZero(time: string): string { 
+    return time.length === 4 ? `0${time}` : time; 
+}
 
 export class ActivityController{
     static async getAllDays(req: Request, res: Response, next: NextFunction){
@@ -49,11 +54,21 @@ export class ActivityController{
         try{
             const request = req.body as CreateActivityRequest
             const dayId = Number(req.params.dayId);
-            const timeRequest = {
-				...request,
-				start_time: new Date(request.start_time),
-				end_time: new Date(request.end_time)
-			}
+            const day = await prismaClient.schedule_Per_Day.findUnique({
+                where:{
+                    id: dayId
+                }
+            })
+            const start_time = addLeadingZero(`${request.start_time}`);
+            const end_time = addLeadingZero(`${request.end_time}`)
+            const dayString = day?.date.toISOString().split('T')[0];
+            const startDateTime = new Date(`${dayString}T${start_time}:00.000Z`).toISOString();
+            const endDateTime = new Date(`${dayString}T${end_time}:00.000Z`).toISOString();
+            const timeRequest = { 
+                ...request, 
+                start_time: new Date(startDateTime), 
+                end_time: new Date(endDateTime) 
+            };
             const response = await ActivityService.createActivity(dayId,timeRequest)
 
 
@@ -65,4 +80,7 @@ export class ActivityController{
             next(error)
         }
     }
+
+    
 }
+

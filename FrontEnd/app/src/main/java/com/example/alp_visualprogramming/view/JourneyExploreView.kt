@@ -57,7 +57,7 @@ import com.example.alp_visualprogramming.viewModel.JourneyFormViewModel
 import com.example.alp_visualprogramming.viewModel.JourneyViewModel
 
 @Composable
-fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFormViewModel: JourneyFormViewModel,activitiesViewModel: ActivitiesViewModel, token: String, navController: NavController, itineraryId: Int,  context : Context){
+fun JourneyExploreView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFormViewModel: JourneyFormViewModel,activitiesViewModel: ActivitiesViewModel, token: String, navController: NavController, itineraryId: Int,  context : Context){
     val dataStatus = journeyViewModel.dataStatus
 
     LaunchedEffect(token) {
@@ -126,16 +126,19 @@ fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFo
                             textAlign = TextAlign.Center,
                         )
                     )
-                    Text(
-                        text = "Travellers",
-                        style = TextStyle(
-                            fontSize = 28.sp,
-                            fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                            fontWeight = FontWeight(400),
-                            color = Color(0xFF440215),
-                            textAlign = TextAlign.Center,
+                    Row {
+                        Text(
+                            text = "Clone",
+                            style = TextStyle(
+                                fontSize = 28.sp,
+                                fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                                fontWeight = FontWeight(400),
+                                color = Color(0xFF440215),
+                                textAlign = TextAlign.Center,
+                            )
                         )
-                    )
+                    }
+
                 }
 
                 when (dataStatus) {
@@ -162,14 +165,10 @@ fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFo
                                     onEditClick = {
 //                                        journeyFormViewModel.initializeFormJourney(navController, token, itineraryId, journey.id)
                                     },
-                                    noEdit = false
+                                    noEdit = true
                                 )
                             }
-                            item {
-                                NewDestinationCard(modifier = Modifier, onCardClick = {
-                                    journeyFormViewModel.initializeFormDestination(navController, token, itineraryId)
-                                })
-                            }
+
                         }
                     } else {
                         Column(
@@ -197,6 +196,6 @@ fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFo
     (showBackground = true,
             showSystemUi = true)
 @Composable
-fun JourneyPreview() {
+fun JourneyExplorePreview() {
     JourneyView(navController = rememberNavController(), modifier = Modifier, journeyViewModel = viewModel(factory = JourneyViewModel.Factory), activitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory),journeyFormViewModel = viewModel(factory = JourneyFormViewModel.Factory), itineraryId = 1, context = LocalContext.current , token = "")
 }

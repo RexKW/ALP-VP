@@ -18,6 +18,7 @@ exports.apiRouter.put("/itinerary/updateTrip/:itineraryId(\\d+)", itinerary_cont
 exports.apiRouter.delete("/itinerary/deleteTrip/:itineraryId(\\d+)", itinerary_controller_1.ItineraryController.deleteItinerary);
 exports.apiRouter.get("/itinerary/allJourneys/:itineraryId(\\d+)", itinerary_controller_1.ItineraryController.allJourney);
 exports.apiRouter.post("/itinerary/createJourney/:destinationId(\\d+)", itinerary_controller_1.ItineraryController.selectDestination);
+exports.apiRouter.get("/itinerary/explore", itinerary_controller_1.ItineraryController.exploreItinerary);
 exports.apiRouter.get("/destinations/all", destination_controller_1.DestinationController.getAllDestinations);
 exports.apiRouter.get("/destinations/:destinationId(\\d+)", destination_controller_1.DestinationController.getDestination);
 exports.apiRouter.put("/destinations/switchDestination/:destinationId(\\d+)", itinerary_controller_1.ItineraryController.updateItinerary);

@@ -10,6 +10,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.toItineraryResponse = toItineraryResponse;
+exports.toItineraryExploreResponseList = toItineraryExploreResponseList;
 exports.toItineraryResponseList = toItineraryResponseList;
 const database_1 = require("../application/database");
 function toItineraryResponse(itinerary, travellerNumber, start_date, end_date) {
@@ -20,6 +21,24 @@ function toItineraryResponse(itinerary, travellerNumber, start_date, end_date) {
         from: start_date,
         to: end_date
     };
+}
+function toItineraryExploreResponseList(prismaItinerary) {
+    return __awaiter(this, void 0, void 0, function* () {
+        const result = [];
+        for (const itinerary of prismaItinerary) {
+            const destinations = yield database_1.prismaClient.itinerary_Destinations.count({
+                where: {
+                    itinerary_id: itinerary.id
+                }
+            });
+            result.push({
+                id: itinerary.id,
+                name: itinerary.name,
+                destinations: destinations
+            });
+        }
+        return result;
+    });
 }
 function toItineraryResponseList(prismaitinerary) {
     return __awaiter(this, void 0, void 0, function* () {

@@ -15,10 +15,11 @@ apiRouter.put("/itinerary/updateTrip/:itineraryId(\\d+)", ItineraryController.up
 apiRouter.delete("/itinerary/deleteTrip/:itineraryId(\\d+)", ItineraryController.deleteItinerary)
 apiRouter.get("/itinerary/allJourneys/:itineraryId(\\d+)", ItineraryController.allJourney)
 apiRouter.post("/itinerary/createJourney/:destinationId(\\d+)", ItineraryController.selectDestination)
+apiRouter.get("/itinerary/explore", ItineraryController.exploreItinerary)
 
 apiRouter.get("/destinations/all", DestinationController.getAllDestinations)
 apiRouter.get("/destinations/:destinationId(\\d+)", DestinationController.getDestination)
-apiRouter.put("/destinations/switchDestination/:destinationId(\\d+)", ItineraryController.updateItinerary)
+apiRouter.put("/destinations/updateDestination/:destinationId(\\d+)", ItineraryController.updateItinerary)
 
 apiRouter.get("/activities/allDays/:itineraryDestinationId(\\d+)", ActivityController.getAllDays)
 apiRouter.get("/activities/allActivities/:dayId(\\d+)", ActivityController.getAllActivities)

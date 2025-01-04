@@ -14,6 +14,8 @@ export class DayService{
             },
         })
 
+        allDays.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+
         return toScheduleResponseList(allDays)
     }
 }

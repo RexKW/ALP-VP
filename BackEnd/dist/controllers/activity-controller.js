@@ -12,6 +12,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.ActivityController = void 0;
 const activity_service_1 = require("../services/activity-service");
 const day_service_1 = require("../services/day-service");
+const database_1 = require("../application/database");
+function addLeadingZero(time) {
+    return time.length === 4 ? `0${time}` : time;
+}
 class ActivityController {
     static getAllDays(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -60,7 +64,17 @@ class ActivityController {
             try {
                 const request = req.body;
                 const dayId = Number(req.params.dayId);
-                const timeRequest = Object.assign(Object.assign({}, request), { start_time: new Date(request.start_time), end_time: new Date(request.end_time) });
+                const day = yield database_1.prismaClient.schedule_Per_Day.findUnique({
+                    where: {
+                        id: dayId
+                    }
+                });
+                const start_time = addLeadingZero(`${request.start_time}`);
+                const end_time = addLeadingZero(`${request.end_time}`);
+                const dayString = day === null || day === void 0 ? void 0 : day.date.toISOString().split('T')[0];
+                const startDateTime = new Date(`${dayString}T${start_time}:00.000Z`).toISOString();
+                const endDateTime = new Date(`${dayString}T${end_time}:00.000Z`).toISOString();
+                const timeRequest = Object.assign(Object.assign({}, request), { start_time: new Date(startDateTime), end_time: new Date(endDateTime) });
                 const response = yield activity_service_1.ActivityService.createActivity(dayId, timeRequest);
                 res.status(200).json({
                     data: response

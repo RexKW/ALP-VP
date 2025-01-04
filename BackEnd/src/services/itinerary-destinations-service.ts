@@ -15,6 +15,8 @@ export class ItineraryDestinationService{
             },
         })
 
+        
+
         return toItineraryDestinationResponseList(itinerary_destinations)
     }
 
@@ -115,10 +117,26 @@ export class ItineraryDestinationService{
     }
 
 
-    static async updateItineraryDestination(req: ItineraryDestinationUpdateRequest){
+    static async updateItineraryDestination(req: ItineraryDestinationUpdateRequest): Promise<string> {
         const itinerary_destination = Validation.validate(ItineraryDestinationValidation.UPDATE, req)
         
                 await this.checkItineraryDestination(itinerary_destination.id)
+                
+
+                let destination = await prismaClient.destination.findUnique({
+                    where: {
+                        destination_api_id: req.destination_id,
+                    },
+                });
+                
+    
+                if (!destination) {
+                    destination = await DestinationService.addDestination(req.destination_id);
+                }
+
+                itinerary_destination.destination_id = destination.id
+
+                
         
                 const itineraryDestinationUpdate = await prismaClient.itinerary_Destinations.update({
                     where: {
@@ -126,6 +144,62 @@ export class ItineraryDestinationService{
                     },
                     data: itinerary_destination,
                 })
+
+                const startDate = new Date(itineraryDestinationUpdate.start_date)
+                const endDate = new Date(itineraryDestinationUpdate.end_date)
+
+                const createdDates = await prismaClient.schedule_Per_Day.findMany({
+                    where:{
+                        itinerary_destination_id: itinerary_destination.id
+                    }
+                })
+
+                
+                const datesToInsert = [];
+                const listofDates: { itinerary_destination_id: number; date: Date }[]= [];
+                const prevListofDates = []
+
+                const currentDate = startDate
+
+                while (currentDate <= endDate) {
+                    if(currentDate <  itinerary_destination.start_date || currentDate > itinerary_destination.end_date ){
+                        datesToInsert.push({
+                            itinerary_destination_id: itineraryDestinationUpdate.id,
+                            date: currentDate,
+                        });
+                    }
+                    listofDates.push({
+                        itinerary_destination_id: itineraryDestinationUpdate.id,
+                            date: currentDate,
+                    })
+
+                    
+                    currentDate.setDate(currentDate.getDate() + 1);
+
+                }
+                const currentDate2 = itinerary_destination.start_date
+
+                while(currentDate2 <= itinerary_destination.end_date){
+                    prevListofDates.push({
+                        itinerary_destination_id : itineraryDestinationUpdate.id,
+                        date: currentDate
+                    })
+                }
+
+                prevListofDates.map(async (date) => {
+                    if (listofDates.some(d => d.itinerary_destination_id === date.itinerary_destination_id && d.date === date.date)) {
+                        await prismaClient.schedule_Per_Day.delete({
+                            where: {
+                                itinerary_destination_id_date: {
+                                    itinerary_destination_id: date.itinerary_destination_id,
+                                    date: date.date
+                                }
+                            }
+                        });
+                    }
+                })
+
+                return "Destination Updated"
 
                 logger.info("UPDATE RESULT: " + itineraryDestinationUpdate)
     }

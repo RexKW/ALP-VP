@@ -14,6 +14,7 @@ export class ActivityService{
             },
         })
 
+        activity.sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
         return toActivityResponseList(activity)
     }
 
