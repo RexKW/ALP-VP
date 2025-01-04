@@ -1,11 +1,11 @@
 import { NextFunction, Request, Response } from "express";
-import { LoginUserRequest, RegisterUserRequest, UserResponse } from "../model/user-model";
+import { LoginRequest, RegisterRequest, UserResponse } from "../model/user-model";
 import { UserService } from "../services/auth-service";
 
 export class ActivityController{
     static async register(req: Request, res: Response, next: NextFunction){
         try{
-            const request: RegisterUserRequest = req.body as RegisterUserRequest
+            const request: RegisterRequest = req.body as RegisterRequest
             const response: UserResponse = await UserService.register(request)
 
             res.status(200).json({
@@ -18,7 +18,7 @@ export class ActivityController{
 
     static async login(req: Request, res: Response, next: NextFunction) {
         try {
-            const request = req.body as LoginUserRequest
+            const request = req.body as LoginRequest
             const response = await UserService.login(request)
 
             res.status(200).json({

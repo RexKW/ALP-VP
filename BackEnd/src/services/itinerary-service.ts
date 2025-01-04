@@ -1,35 +1,34 @@
-
 import { toItineraryResponseList, ItineraryResponse, toItineraryResponse, CreateItineraryRequest, ItineraryUpdateRequest } from "../model/itinerary-model";
 import { Validation } from "../validation/validation";
-import { Activity, Itinerary, Itinerary_Destinations, Schedule_Per_Day, User } from "@prisma/client"
-import { prismaClient } from "../application/database"
-import { ResponseError } from "../error/response-error"
+import { Itinerary, User } from "@prisma/client";
+import { prismaClient } from "../application/database";
+import { ResponseError } from "../error/response-error";
 import { ItineraryValidation } from "../validation/itinerary-validation";
-import { logger } from "../application/logging"
+import { logger } from "../application/logging";
 
-export class ItineraryService{
+export class ItineraryService {
     static async getAllItinerary(user: User): Promise<ItineraryResponse[]> {
         const itinerariesOwned = await prismaClient.itinerary_Users.findMany({
             where: {
                 user_id: user.id,
                 role: 'owner'
             },
-        })
+        });
 
         const itineraryIds = itinerariesOwned.map((item) => item.itinerary_id);
         const itineraries = await prismaClient.itinerary.findMany({
-            where:{
+            where: {
                 id: { in: itineraryIds }
             }
-        })
+        });
 
-        const itinerariesWithUserCount = [];
-        for(const itinerary of itineraries){
+        const itinerariesWithUserCount: ItineraryResponse[] = [];
+        for (const itinerary of itineraries) {
             const userCount = await prismaClient.itinerary_Users.count({
-                where:{
-                    itinerary_id : itinerary.id
+                where: {
+                    itinerary_id: itinerary.id
                 }
-            })
+            });
 
             const dateRange = await prismaClient.itinerary_Destinations.aggregate({
                 where: {
@@ -43,8 +42,8 @@ export class ItineraryService{
                 },
             });
 
-            const start_date = dateRange._min.start_date ?? new Date(0)
-            const end_date = dateRange._max.end_date ?? new Date(0)
+            const start_date = dateRange._min.start_date ?? new Date(0);
+            const end_date = dateRange._max.end_date ?? new Date(0);
 
             const itinerariesWithUser = {
                 id: itinerary.id,
@@ -52,23 +51,21 @@ export class ItineraryService{
                 travellers: userCount,
                 from: start_date,
                 to: end_date
-            }
+            };
 
-            itinerariesWithUserCount.push(itinerariesWithUser)
-
+            itinerariesWithUserCount.push(itinerariesWithUser);
         }
-        
 
-        return toItineraryResponseList(itinerariesWithUserCount)
+        return toItineraryResponseList(itinerariesWithUserCount);
     }
 
     static async getItinerary(itinerary_id: number): Promise<ItineraryResponse> {
         const itinerary = await this.checkItinerary(itinerary_id);
         const userCount = await prismaClient.itinerary_Users.count({
-            where:{
-                itinerary_id : itinerary.id
+            where: {
+                itinerary_id: itinerary.id
             }
-        })
+        });
 
         const dateRange = await prismaClient.itinerary_Destinations.aggregate({
             where: {
@@ -82,39 +79,28 @@ export class ItineraryService{
             },
         });
 
-        const start_date = dateRange._min.start_date ?? new Date(0)
-        const end_date = dateRange._max.end_date ?? new Date(0)
+        const start_date = dateRange._min.start_date ?? new Date(0);
+        const end_date = dateRange._max.end_date ?? new Date(0);
 
-
-        return toItineraryResponse(itinerary, userCount, start_date, end_date)
+        return toItineraryResponse(itinerary, userCount, start_date, end_date);
     }
 
-    static async checkItinerary(
-        itinerary_id: number
-    ): Promise<Itinerary> {
+    static async checkItinerary(itinerary_id: number): Promise<Itinerary> {
         const itinerary = await prismaClient.itinerary.findUnique({
             where: {
                 id: itinerary_id
             },
-        })
+        });
 
         if (!itinerary) {
-            throw new ResponseError(400, "Itinerary not found!")
+            throw new ResponseError(400, "Itinerary not found!");
         }
 
-        return itinerary
+        return itinerary;
     }
 
-
-
-
-
-    static async createItinerary(
-        req: CreateItineraryRequest,
-        user: User
-    ): Promise<string> {
-        // validate request
-        const itinerary_Request = Validation.validate(ItineraryValidation.CREATE, req)
+    static async createItinerary(req: CreateItineraryRequest, user: User): Promise<string> {
+        const itinerary_Request = Validation.validate(ItineraryValidation.CREATE, req);
 
         const itinerary1 = await prismaClient.itinerary.create({
             data: {
@@ -122,46 +108,45 @@ export class ItineraryService{
                 created_date: new Date().toISOString(),
                 updated_date: new Date().toISOString()
             },
-        })
+        });
 
-        const owner = await prismaClient.itinerary_Users.create({
-            data:{
+        await prismaClient.itinerary_Users.create({
+            data: {
                 user_id: user.id,
                 itinerary_id: itinerary1.id,
                 role: "owner"
             }
-        })
-        return "Itinerary created successfully!"
+        });
+
+        return "Itinerary created successfully!";
     }
 
+    static async updateItinerary(req: ItineraryUpdateRequest): Promise<string> {
+        const itinerary = Validation.validate(ItineraryValidation.UPDATE, req);
 
-    static async updateItinerary(
-        req: ItineraryUpdateRequest
-    ): Promise<string> {
-        const itinerary = Validation.validate(ItineraryValidation.UPDATE, req)
-
-        await this.checkItinerary(itinerary.id)
+        await this.checkItinerary(itinerary.id);
 
         const itineraryUpdate = await prismaClient.itinerary.update({
             where: {
                 id: itinerary.id,
             },
             data: itinerary,
-        })
+        });
 
-        logger.info("UPDATE RESULT: " + itineraryUpdate)
+        logger.info("UPDATE RESULT: " + itineraryUpdate);
 
-        return "Data update was successful!"
+        return "Data update was successful!";
     }
-    static async deleteItinerary(id: number): Promise<String> {
-        await this.checkItinerary(id)
+
+    static async deleteItinerary(id: number): Promise<string> {
+        await this.checkItinerary(id);
 
         await prismaClient.itinerary.delete({
             where: {
                 id: id,
             },
-        })
+        });
 
-        return "Data has been deleted successfully!"
+        return "Data has been deleted successfully!";
     }
 }

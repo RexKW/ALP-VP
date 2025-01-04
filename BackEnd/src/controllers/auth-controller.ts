@@ -1,4 +1,3 @@
-"use strict";
 import { Request, Response, NextFunction } from 'express';
 import { UserService } from "../services/auth-service";
 
@@ -23,13 +22,14 @@ interface LoginResponse {
     token: string;
 }
 
-class AuthController {
+export class AuthController {
     static async register(req: Request, res: Response, next: NextFunction): Promise<void> {
         try {
             const request: RegisterRequest = req.body;
             const response: RegisterResponse = await UserService.register(request);
-            res.status(200).json({
-                data: response
+
+            res.status(201).json({
+                data: response,
             });
         } catch (error) {
             next(error);
@@ -40,9 +40,11 @@ class AuthController {
         try {
             const request: LoginRequest = req.body;
             const userResponse = await UserService.login(request);
+
             if (!userResponse.token) {
                 throw new Error("Token is undefined");
             }
+
             const response: LoginResponse = { token: userResponse.token };
             res.status(200).json({
                 data: response,
@@ -52,5 +54,3 @@ class AuthController {
         }
     }
 }
-
-export { AuthController };

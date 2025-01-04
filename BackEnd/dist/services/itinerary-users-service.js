@@ -16,17 +16,17 @@ const database_1 = require("../application/database");
 const itinerary_user_validation_1 = require("../validation/itinerary-user-validation");
 class ItineraryUserService {
     static getAllItineraryUsers(itinerary) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return (() => __awaiter(this, void 0, void 0, function* () {
             const itinerary_users = yield database_1.prismaClient.itinerary_Users.findMany({
                 where: {
                     itinerary_id: itinerary.id,
                 },
             });
             return (0, itinerary_users_model_1.toItineraryUserResponseList)(itinerary_users);
-        });
+        }))();
     }
     static addItineraryUser(req) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return (() => __awaiter(this, void 0, void 0, function* () {
             const itinerary_user_request = validation_1.Validation.validate(itinerary_user_validation_1.ItineraryUserValidation.CREATE, req);
             const checkUserItinerary = yield database_1.prismaClient.itinerary_Users.findUnique({
                 where: {
@@ -37,7 +37,7 @@ class ItineraryUserService {
                 },
             });
             if (!checkUserItinerary) {
-                const itinerary_user = yield database_1.prismaClient.itinerary_Users.create({
+                yield database_1.prismaClient.itinerary_Users.create({
                     data: {
                         itinerary_id: itinerary_user_request.itinerary_id,
                         user_id: itinerary_user_request.user_id,
@@ -45,10 +45,10 @@ class ItineraryUserService {
                     }
                 });
             }
-        });
+        }))();
     }
     static kickUser(itinerary, user) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return (() => __awaiter(this, void 0, void 0, function* () {
             const getUser = yield database_1.prismaClient.itinerary_Users.findUnique({
                 where: {
                     user_id_itinerary_id_unique: {
@@ -68,10 +68,10 @@ class ItineraryUserService {
                 });
             }
             return "User has been kicked successfully!";
-        });
+        }))();
     }
     static updateUserRole(changer, changed, itinerary) {
-        return __awaiter(this, void 0, void 0, function* () {
+        return (() => __awaiter(this, void 0, void 0, function* () {
             const userChanger = yield database_1.prismaClient.itinerary_Users.findUnique({
                 where: {
                     user_id_itinerary_id_unique: {
@@ -80,7 +80,7 @@ class ItineraryUserService {
                     },
                 }
             });
-            if ((userChanger === null || userChanger === void 0 ? void 0 : userChanger.role) == "owner" || (userChanger === null || userChanger === void 0 ? void 0 : userChanger.role) == "admin") {
+            if ((userChanger === null || userChanger === void 0 ? void 0 : userChanger.role) === "owner" || (userChanger === null || userChanger === void 0 ? void 0 : userChanger.role) === "admin") {
                 const userChanged = yield database_1.prismaClient.itinerary_Users.findUnique({
                     where: {
                         user_id_itinerary_id_unique: {
@@ -89,8 +89,8 @@ class ItineraryUserService {
                         },
                     }
                 });
-                if ((userChanged === null || userChanged === void 0 ? void 0 : userChanged.role) == "admin") {
-                    const userUpdate = yield database_1.prismaClient.itinerary_Users.update({
+                if ((userChanged === null || userChanged === void 0 ? void 0 : userChanged.role) === "admin") {
+                    yield database_1.prismaClient.itinerary_Users.update({
                         where: {
                             user_id_itinerary_id_unique: {
                                 user_id: userChanged.id,
@@ -102,8 +102,8 @@ class ItineraryUserService {
                         }
                     });
                 }
-                else if ((userChanged === null || userChanged === void 0 ? void 0 : userChanged.role) == "member") {
-                    const userUpdate = yield database_1.prismaClient.itinerary_Users.update({
+                else if ((userChanged === null || userChanged === void 0 ? void 0 : userChanged.role) === "member") {
+                    yield database_1.prismaClient.itinerary_Users.update({
                         where: {
                             user_id_itinerary_id_unique: {
                                 user_id: userChanged.id,
@@ -115,12 +115,12 @@ class ItineraryUserService {
                         }
                     });
                 }
-                else if ((userChanged === null || userChanged === void 0 ? void 0 : userChanged.role) == "owner") {
+                else if ((userChanged === null || userChanged === void 0 ? void 0 : userChanged.role) === "owner") {
                     return "Can't change owner role";
                 }
             }
             return "Data update was successful!";
-        });
+        }))();
     }
 }
 exports.ItineraryUserService = ItineraryUserService;

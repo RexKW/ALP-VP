@@ -27,8 +27,13 @@ class ItineraryController {
     }
     static getAllItinerary(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
-                const response = yield itinerary_service_1.ItineraryService.getAllItinerary(req.user);
+                const user = req.user; // Ensure user is available on the request object
+                if (!user) {
+                    throw new Error("User is not authenticated");
+                }
+                const response = yield itinerary_service_1.ItineraryService.getAllItinerary(Object.assign(Object.assign({}, user), { id: Number(user.id), token: (_a = user.token) !== null && _a !== void 0 ? _a : null }));
                 res.status(200).json({
                     data: response,
                 });
@@ -40,9 +45,14 @@ class ItineraryController {
     }
     static createNewItinerary(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
+            var _a;
             try {
+                const user = req.user; // Ensure user is available on the request object
+                if (!user) {
+                    throw new Error("User is not authenticated");
+                }
                 const request = req.body;
-                const response = yield itinerary_service_1.ItineraryService.createItinerary(request, req.user);
+                const response = yield itinerary_service_1.ItineraryService.createItinerary(request, Object.assign(Object.assign({}, user), { id: Number(user.id), token: (_a = user.token) !== null && _a !== void 0 ? _a : null }));
                 res.status(201).json({
                     data: response,
                 });

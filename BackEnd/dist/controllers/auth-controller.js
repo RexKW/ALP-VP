@@ -9,29 +9,15 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
     });
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.DestinationController = void 0;
+exports.AuthController = void 0;
 const auth_service_1 = require("../services/auth-service");
-const destination_service_1 = require("../services/destination-service");
-class DestinationController {
-    static getAllDestinations(req, res, next) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const response = yield destination_service_1.DestinationService.getAllDestination();
-                res.status(200).json({
-                    data: JSON.parse(JSON.stringify(response))
-                });
-            }
-            catch (error) {
-                next(error);
-            }
-        });
-    }
-    static deleteItinerary(req, res, next) {
+class AuthController {
+    static register(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const request = req.body;
-                const response = yield auth_service_1.UserService.login(request);
-                res.status(200).json({
+                const response = yield auth_service_1.UserService.register(request);
+                res.status(201).json({
                     data: response,
                 });
             }
@@ -40,11 +26,15 @@ class DestinationController {
             }
         });
     }
-    static updateItinerary(req, res, next) {
+    static login(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const request = req.body;
-                const response = yield auth_service_1.UserService.login(request);
+                const userResponse = yield auth_service_1.UserService.login(request);
+                if (!userResponse.token) {
+                    throw new Error("Token is undefined");
+                }
+                const response = { token: userResponse.token };
                 res.status(200).json({
                     data: response,
                 });
@@ -53,9 +43,6 @@ class DestinationController {
                 next(error);
             }
         });
-    }
-    static selectDestination(req, res) {
-        // Implementation of selectDestination
     }
 }
-exports.DestinationController = DestinationController;
+exports.AuthController = AuthController;

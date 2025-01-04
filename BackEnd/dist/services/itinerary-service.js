@@ -104,7 +104,6 @@ class ItineraryService {
     }
     static createItinerary(req, user) {
         return __awaiter(this, void 0, void 0, function* () {
-            // validate request
             const itinerary_Request = validation_1.Validation.validate(itinerary_validation_1.ItineraryValidation.CREATE, req);
             const itinerary1 = yield database_1.prismaClient.itinerary.create({
                 data: {
@@ -113,7 +112,7 @@ class ItineraryService {
                     updated_date: new Date().toISOString()
                 },
             });
-            const owner = yield database_1.prismaClient.itinerary_Users.create({
+            yield database_1.prismaClient.itinerary_Users.create({
                 data: {
                     user_id: user.id,
                     itinerary_id: itinerary1.id,
