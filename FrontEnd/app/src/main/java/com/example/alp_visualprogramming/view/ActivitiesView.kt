@@ -194,6 +194,7 @@ fun ActivitiesView(modifier: Modifier = Modifier,
                         columns = GridCells.Fixed(1),
                         modifier = Modifier.fillMaxWidth().padding(vertical = 0.dp),
                         verticalArrangement = Arrangement.spacedBy(-5.dp),
+                        contentPadding = PaddingValues(bottom = 120.dp)
                     ) {
                         if(dataStatus.data.isEmpty()){
                             item {
@@ -206,10 +207,10 @@ fun ActivitiesView(modifier: Modifier = Modifier,
 
                                 ActivityCardView(activity.name,activitiesViewModel.formatDate(
                                     activitiesViewModel.parseDate(activity.start_time)!!,
-                                    "hh:mm"
+                                    "HH:mm"
                                 ) + " - " + activitiesViewModel.formatDate(
                                     activitiesViewModel.parseDate(activity.end_time)!!,
-                                    "hh:mm"
+                                    "HH:mm"
                                 ) , onCardClick = {
                                     activityDetailViewModel.getActivity(activity, token, navController)
                                 })

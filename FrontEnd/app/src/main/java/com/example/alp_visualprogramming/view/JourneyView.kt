@@ -51,6 +51,7 @@ import com.example.alp_visualprogramming.uiStates.TripDataStatusUIState
 import com.example.alp_visualprogramming.view.template.JourneyCardView
 import com.example.alp_visualprogramming.view.template.NewDestinationCard
 import com.example.alp_visualprogramming.view.template.NewTripCard
+import com.example.alp_visualprogramming.view.template.NoDestinationCard
 import com.example.alp_visualprogramming.view.template.TripCard
 import com.example.alp_visualprogramming.viewModel.ActivitiesViewModel
 import com.example.alp_visualprogramming.viewModel.JourneyFormViewModel
@@ -85,7 +86,7 @@ fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFo
 
             IconButton(
                 onClick = {
-                    navController.popBackStack()
+                    navController.navigate("Home")
                 },
                 modifier = Modifier
                     .align(Alignment.TopStart)
@@ -160,14 +161,14 @@ fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFo
                                         activitiesViewModel.getAllDaysInitial(journey.id, token, navController, itineraryId)
                                     },
                                     onEditClick = {
-//                                        journeyFormViewModel.initializeFormJourney(navController, token, itineraryId, journey.id)
+                                        journeyFormViewModel.initializeFormDestination(navController, token, itineraryId, journey.id,true)
                                     },
-                                    noEdit = false
+                                    canEdit = journeyViewModel.canEdit
                                 )
                             }
                             item {
                                 NewDestinationCard(modifier = Modifier, onCardClick = {
-                                    journeyFormViewModel.initializeFormDestination(navController, token, itineraryId)
+                                    journeyFormViewModel.initializeFormDestination(navController, token, itineraryId, null,false)
                                 })
                             }
                         }
@@ -178,10 +179,15 @@ fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFo
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
-
+                            if(journeyViewModel.canEdit){
                                 NewDestinationCard(modifier = Modifier, onCardClick = {
-                                    journeyFormViewModel.initializeFormDestination(navController, token, itineraryId)
+                                    journeyFormViewModel.initializeFormDestination(navController, token, itineraryId, null,false)
                                 })
+                            }else{
+                                NoDestinationCard(modifier = Modifier)
+                            }
+
+
 
                         }
                     }

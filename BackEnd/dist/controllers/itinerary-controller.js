@@ -53,6 +53,19 @@ class ItineraryController {
             }
         });
     }
+    static getAllInvitedItinerary(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield itinerary_service_1.ItineraryService.getAllInvitedItinerary(req.user);
+                res.status(200).json({
+                    data: response,
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
     static createNewItinerary(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
@@ -126,12 +139,58 @@ class ItineraryController {
             }
         });
     }
+    static getJourney(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const itinerary_destination_id = Number(req.params.itineraryDestinationId);
+                const response = yield itinerary_destinations_service_1.ItineraryDestinationService.getItineraryDestination(itinerary_destination_id);
+                res.status(200).json({
+                    data: response
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    static updateJourney(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const request = req.body;
+                request.id = Number(req.params.itineraryDestinationId);
+                const dateRequest = Object.assign(Object.assign({}, request), { start_date: new Date(request.start_date), end_date: new Date(request.end_date) });
+                const response = yield itinerary_destinations_service_1.ItineraryDestinationService.updateItineraryDestination(dateRequest);
+                res.status(200).json({
+                    data: response,
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    static deleteJourney(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const response = yield itinerary_destinations_service_1.ItineraryDestinationService.deleteItineraryDestination(Number(req.params.itineraryDestinationId));
+                res.status(200).json({
+                    data: response,
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
     //Users
     static addUser(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const request = req.body;
                 const response = yield itinerary_users_service_1.ItineraryUserService.addItineraryUser(request);
+                res.status(200).json({
+                    data: response
+                });
             }
             catch (error) {
                 next(error);

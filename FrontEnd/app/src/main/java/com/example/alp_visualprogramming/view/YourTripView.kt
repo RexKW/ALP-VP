@@ -3,6 +3,7 @@ package com.example.alp_visualprogramming.view
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -87,7 +88,9 @@ fun YourTripView(modifier: Modifier = Modifier,  navController : NavController, 
                 )
                 Text(
                     "Invited Trips",
-                    modifier = Modifier.padding(start = 30.dp),
+                    modifier = Modifier.padding(start = 30.dp).clickable{
+                        navController.navigate("Invited")
+                    },
                     style = TextStyle(
                         fontSize = 24.sp,
                         fontFamily = FontFamily(Font(R.font.oswald_regular)),

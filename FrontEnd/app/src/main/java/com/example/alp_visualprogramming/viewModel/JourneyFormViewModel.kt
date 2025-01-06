@@ -21,6 +21,8 @@ import com.example.alp_visualprogramming.ItineraryApplication
 import com.example.alp_visualprogramming.models.DestinationModel
 import com.example.alp_visualprogramming.models.ErrorModel
 import com.example.alp_visualprogramming.models.GeneralResponseModel
+import com.example.alp_visualprogramming.models.GetDestinationResponse
+import com.example.alp_visualprogramming.models.GetItineraryDestinationResponse
 import com.example.alp_visualprogramming.models.ItineraryModel
 import com.example.alp_visualprogramming.repository.DestinationRepository
 import com.example.alp_visualprogramming.repository.ItineraryDestinationRepository
@@ -29,8 +31,10 @@ import com.example.alp_visualprogramming.repository.UserRepository
 import com.example.alp_visualprogramming.uiStates.StringDataStatusUIState
 import com.google.gson.Gson
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import retrofit2.Call
 import retrofit2.Callback
+import retrofit2.Response
 import java.io.IOException
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
@@ -55,8 +59,23 @@ class JourneyFormViewModel(
     var isCreate by mutableStateOf(false)
         private set
 
+    var isUpdate by mutableStateOf(false)
+        private set
+
+    var currItinerarDestinationId by mutableStateOf<Int?>(null)
+
+    fun changeCurrItinerarDestinationId(itineraryDestinationId: Int){
+        currItinerarDestinationId = itineraryDestinationId
+    }
+
+    fun changeIsUpdate(update: Boolean){
+        isUpdate = update
+    }
+
     var submissionStatus: StringDataStatusUIState by mutableStateOf(StringDataStatusUIState.Start)
         private set
+
+
 
     var currItineraryId by mutableStateOf<Int?>(null)
 
@@ -86,10 +105,74 @@ class JourneyFormViewModel(
         }
     }
 
-    fun initializeFormDestination(navController: NavController, token: String, itineraryId: Int){
+    fun initializeFormDestination(navController: NavController, token: String, itineraryId: Int, itinerary_destination_id: Int?, update:Boolean){
         changeCurrItineraryId(itineraryId)
         Log.d("JourneyFormViewModel", "Itinerary ID: $itineraryId")
+        if(update && itinerary_destination_id != null){
+            changeCurrItinerarDestinationId(itinerary_destination_id)
+            changeIsUpdate(true)
+            initializeUpdateJourney(token,itinerary_destination_id , navController)
+        }
         navController.navigate("FormDestination")
+    }
+
+    fun initializeUpdateJourney(token: String, itinerary_destination_id: Int, navController: NavController){
+        viewModelScope.launch {
+            val call = itineraryDestinationRepository.getItineraryDestination(itinerary_destination_id, token)
+            call.enqueue(object: Callback<GetItineraryDestinationResponse>{
+                override fun onResponse(
+                    call: Call<GetItineraryDestinationResponse>,
+                    res: Response<GetItineraryDestinationResponse>
+                ) {
+                    if (res.isSuccessful) {
+                        changeStartDateInput(res.body()?.data?.start_date ?: "")
+                        changeEndDateInput(res.body()?.data?.start_date ?: "")
+                        viewModelScope.launch{
+                             getDestination(token, res.body()?.data?.destination_id?: 0)
+
+
+                        }
+
+                    }
+                }
+
+
+                override fun onFailure(call: Call<GetItineraryDestinationResponse>, t: Throwable) {
+
+                }
+            })
+        }
+    }
+
+    suspend fun getDestination(token:String, destinationId: Int){
+        return suspendCancellableCoroutine { continuation ->
+            val call = destinationRepository.getDestinationById(token, destinationId)
+            call.enqueue(object: Callback<GetDestinationResponse>{
+                override fun onResponse(
+                    call: Call<GetDestinationResponse>,
+                    res: Response<GetDestinationResponse>
+                ) {
+                    if (res.isSuccessful) {
+                        val destination = res.body()?.data
+                        if (destination != null) {
+                            changeLocationInput(destination)
+                        }
+
+                    }
+
+                }
+
+                override fun onFailure(call: Call<GetDestinationResponse>, t: Throwable) {
+
+                }
+
+
+            })
+
+
+        }
+
+
     }
 
     fun selectDestination(destination: DestinationModel, navController: NavController){
@@ -146,6 +229,43 @@ class JourneyFormViewModel(
         return datePickerDialog
     }
 
+    fun deleteJourney(navController: NavController, token: String, journeyId: Int){
+        viewModelScope.launch {
+            submissionStatus = StringDataStatusUIState.Loading
+            try{
+                val call = itineraryDestinationRepository.deleteItineraryDestination(journeyId, token)
+
+                call.enqueue(object: Callback<GeneralResponseModel>{
+                    override fun onResponse(
+                        call: retrofit2.Call<GeneralResponseModel>,
+                        res: retrofit2.Response<GeneralResponseModel>
+                    ) {
+                        if(res.isSuccessful) {
+                            submissionStatus = StringDataStatusUIState.Success(res.body()!!.data)
+                            navController.navigate("Journey/$currItineraryId")
+                            resetViewModel()
+                        }
+
+                    }
+
+                    override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
+                        Log.e("API Response", "Failure: ${t.message}")
+                        submissionStatus = StringDataStatusUIState.Failed(t.localizedMessage)
+                    }
+
+                })
+
+
+            }catch (e: IOException){
+                submissionStatus = StringDataStatusUIState.Failed(e.localizedMessage)
+
+            }
+        }
+    }
+
+
+
+
     fun createJourney(navController: NavController, token: String, locationId: Int){
         viewModelScope.launch {
             submissionStatus = StringDataStatusUIState.Loading
@@ -162,6 +282,7 @@ class JourneyFormViewModel(
                             navController.navigate("Journey/$currItineraryId") {
                                 popUpTo("FormDestination") { inclusive = true }
                             }
+                            resetViewModel()
                         }else{
                             val errorMessage = Gson().fromJson(
                                 res.errorBody()!!.charStream(),
@@ -180,6 +301,39 @@ class JourneyFormViewModel(
             }catch (e: IOException){
 
             }
+        }
+    }
+
+    fun updateJourney(navController: NavController, token: String, locationId: Int, journeyId: Int){
+        viewModelScope.launch {
+            submissionStatus = StringDataStatusUIState.Loading
+            try{
+                val call = itineraryDestinationRepository.updateItineraryDestination(token, journeyId, startDateInput,  endDateInput, locationId =  locationId, accomodationId = null, itineraryId =  currItineraryId ?: 0)
+                call.enqueue(object: Callback<GeneralResponseModel>{
+                    override fun onResponse(
+                        call: retrofit2.Call<GeneralResponseModel>,
+                        res: retrofit2.Response<GeneralResponseModel>
+                    ) {
+                        if(res.isSuccessful){
+                            submissionStatus = StringDataStatusUIState.Success(res.body()!!.data)
+                            Log.d("API Response", "Success: ${res.body()}")
+                            navController.navigate("Journey/$currItineraryId")
+                            resetViewModel()
+                        }
+
+                    }
+                    override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
+                        Log.e("API Response", "Failure: ${t.message}")
+                        submissionStatus = StringDataStatusUIState.Failed(t.localizedMessage)
+
+                    }
+
+                })
+
+            }catch (e: IOException){
+
+            }
+
         }
     }
 
@@ -207,6 +361,14 @@ class JourneyFormViewModel(
             e.printStackTrace()
             null
         }
+    }
+
+    fun resetViewModel(){
+        startDateInput = ""
+        endDateInput = ""
+        locationInput = null
+        isCreate = false
+        isUpdate = false
     }
 
 

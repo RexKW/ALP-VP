@@ -54,5 +54,19 @@ class AuthController {
             }
         });
     }
+    static userRole(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const itinerary_id = parseInt(req.params.itineraryId, 10);
+                const response = yield itinerary_users_service_1.ItineraryUserService.getUserRole(req.user, itinerary_id);
+                res.status(200).json({
+                    data: response
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
 }
 exports.AuthController = AuthController;

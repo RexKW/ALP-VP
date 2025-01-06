@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from "express";
 import { CreateItineraryRequest, ItineraryResponse, GetItineraryRequest, ItineraryUpdateRequest } from "../model/itinerary-model";
-import { AddItineraryDestinationRequest } from "../model/itinerary-destinations-model";
+import { AddItineraryDestinationRequest, UpdateItineraryDestinationRequest } from "../model/itinerary-destinations-model";
 import { ItineraryService } from "../services/itinerary-service";
 import { UserRequest } from "../type/user-request";
 import { ItineraryDestinationService } from "../services/itinerary-destinations-service";
@@ -52,6 +52,21 @@ export class ItineraryController{
 		}
     }
 
+	static async getAllInvitedItinerary(req: UserRequest, res: Response, next: NextFunction){
+        try {
+			const response = await ItineraryService.getAllInvitedItinerary(
+				req.user!
+			)
+
+			res.status(200).json({
+				data: response,
+			})
+		} catch (error) {
+			next(error)
+		}
+    }
+
+
     static async createNewItinerary(req: UserRequest, res: Response, next: NextFunction) {
         try {
 			const request = req.body as CreateItineraryRequest
@@ -95,8 +110,6 @@ export class ItineraryController{
 		}
     }
 
-	
-
 
 	//Destinations 
 
@@ -131,17 +144,31 @@ export class ItineraryController{
 		}
 	}
 
+	static async getJourney(req: Request, res: Response, next: NextFunction){
+		try{
+			const itinerary_destination_id = Number(req.params.itineraryDestinationId)
+			const response = await ItineraryDestinationService.getItineraryDestination(itinerary_destination_id)
+
+			res.status(200).json({
+				data: response
+			})
+		}catch(error){
+			next(error)
+		}
+	}
+
+
 	static async updateJourney(req: UserRequest, res: Response, next: NextFunction) {
         try{
-			const request = req.body as AddItineraryDestinationRequest
-			request.destination_id = Number(req.params.destinationId)
+			const request = req.body as UpdateItineraryDestinationRequest
+			request.id = Number(req.params.itineraryDestinationId)
 			
 			const dateRequest = {
 				...request,
 				start_date: new Date(request.start_date),
 				end_date: new Date(request.end_date)
 			}
-			const response = await ItineraryDestinationService.createItineraryDestination(dateRequest, req.user!)
+			const response = await ItineraryDestinationService.updateItineraryDestination(dateRequest)
 			res.status(200).json({
 				data: response,
 			})
@@ -150,6 +177,18 @@ export class ItineraryController{
 		}
     }
 
+	static async deleteJourney(req: Request, res: Response, next: NextFunction){
+		try{
+			const response = await ItineraryDestinationService.deleteItineraryDestination(Number(req.params.itineraryDestinationId))
+			res.status(200).json({
+				data: response,
+			})
+
+		}catch(error){
+			next(error)
+		}
+	}
+
 
 	//Users
 
@@ -157,6 +196,9 @@ export class ItineraryController{
 		try{
 			const request = req.body as AddItineraryUserRequest
 			const response = await ItineraryUserService.addItineraryUser(request)
+			res.status(200).json({
+				data:response
+			})
 		}catch (error){
 			next(error)
 		}

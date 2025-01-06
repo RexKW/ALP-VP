@@ -44,7 +44,7 @@ fun JourneyCardView(
     endDate: String,
     onCardClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
-    noEdit:Boolean
+    canEdit:Boolean
     ){
     Column(modifier = Modifier.width(342.dp)) {
         Card(modifier = Modifier
@@ -149,7 +149,7 @@ fun JourneyCardView(
                     tint = Color.White
                 )
             }
-            if(!noEdit) {
+            if(canEdit) {
                 Card(
                     colors = CardDefaults.cardColors(
                         containerColor = Color(0xFFEE417D),

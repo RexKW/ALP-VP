@@ -7,6 +7,13 @@ export interface AddItineraryDestinationRequest {
   end_date: Date;
 }
 
+export interface UpdateItineraryDestinationRequest {
+  id: number;
+  destination_id: number;
+  start_date: Date;
+  end_date: Date;
+}
+
 export interface ItineraryDestinationResponse {
   id: number;
   destination_id: number;

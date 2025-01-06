@@ -3,6 +3,7 @@ package com.example.alp_visualprogramming.view
 import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -16,6 +17,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -38,55 +40,56 @@ import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_visualprogramming.R
+import com.example.alp_visualprogramming.uiStates.InvitedTripDataStatusUIState
 import com.example.alp_visualprogramming.uiStates.TripDataStatusUIState
 import com.example.alp_visualprogramming.view.template.NewTripCard
 import com.example.alp_visualprogramming.view.template.TripCard
+import com.example.alp_visualprogramming.viewModel.InvitedTripsViewModel
+import com.example.alp_visualprogramming.viewModel.JourneyViewModel
 import com.example.alp_visualprogramming.viewModel.TripsViewModel
 
 @Composable
-fun InvitedTripView(modifier: Modifier = Modifier,  navController : NavController, token: String, tripsViewModel: TripsViewModel, context : Context){
+fun InvitedTripView(modifier: Modifier = Modifier,  navController : NavController, token: String, invitedTripsViewModel: InvitedTripsViewModel,journeyViewModel: JourneyViewModel, context : Context){
     var placeholder = true
-    val dataStatus = tripsViewModel.dataStatus
+    val dataStatus = invitedTripsViewModel.dataStatus
     LaunchedEffect(token) {
         if (token != "Unknown") {
-            tripsViewModel.getAllInvitedItineraries(token)
+            invitedTripsViewModel.getAllInvitedItineraries(token)
         }
     }
 
     LaunchedEffect(dataStatus) {
-        if (dataStatus is TripDataStatusUIState.Failed) {
+        if (dataStatus is  InvitedTripDataStatusUIState.Failed) {
             Toast.makeText(context, "DATA ERROR: ${dataStatus.errorMessage}", Toast.LENGTH_SHORT).show()
-            tripsViewModel.clearDataErrorMessage()
+            invitedTripsViewModel.clearDataErrorMessage()
         }
     }
     Box(modifier = Modifier.fillMaxSize()) {
         Image(
             painter = painterResource(R.drawable.backdrop),
             contentDescription = "",
-            modifier = Modifier.fillMaxWidth().height(556.dp).align(Alignment.BottomCenter),
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(556.dp)
+                .align(Alignment.BottomCenter),
         )
         Column(
-            modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 15.dp, top = 50.dp),
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(start = 15.dp, end = 15.dp, top = 50.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Row(
-                modifier = Modifier.align(Alignment.Start).padding(start = 15.dp),
+                modifier = Modifier
+                    .align(Alignment.Start)
+                    .padding(start = 15.dp),
                 verticalAlignment = Alignment.Bottom
             ) {
                 Text(
                     "Your Trips",
-                    style = TextStyle(
-                        fontSize = 45.sp,
-                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFEE417D),
-
-                        textAlign = TextAlign.Center,
-                    )
-                )
-                Text(
-                    "Invited Trips",
-                    modifier = Modifier.padding(start = 30.dp),
+                    modifier = Modifier.clickable{
+                        navController.navigate("Home")
+                    },
                     style = TextStyle(
                         fontSize = 24.sp,
                         fontFamily = FontFamily(Font(R.font.oswald_regular)),
@@ -96,9 +99,22 @@ fun InvitedTripView(modifier: Modifier = Modifier,  navController : NavControlle
                         textAlign = TextAlign.Center,
                     )
                 )
+                Text(
+                    "Invited Trips",
+                    modifier = Modifier.padding(start = 30.dp),
+                    style = TextStyle(
+
+                        fontSize = 45.sp,
+                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFFEE417D),
+
+                        textAlign = TextAlign.Center,
+                    )
+                )
             }
             when (dataStatus) {
-                is TripDataStatusUIState.Success -> if (dataStatus.data.isNotEmpty()) {
+                is  InvitedTripDataStatusUIState.Success -> if (dataStatus.data.isNotEmpty()) {
                     LazyColumn(
                         flingBehavior = ScrollableDefaults.flingBehavior(),
                         modifier = Modifier
@@ -112,19 +128,14 @@ fun InvitedTripView(modifier: Modifier = Modifier,  navController : NavControlle
                             TripCard(
                                 title = trip.name,
                                 travellers = trip.travellers,
-                                startDate = tripsViewModel.formatDate(trip.from),
-                                endDate = tripsViewModel.formatDate(trip.to),
+                                startDate = invitedTripsViewModel.formatDate(trip.from),
+                                endDate = invitedTripsViewModel.formatDate(trip.to),
                                 modifier = Modifier
                                     .padding(bottom = 12.dp),
                                 onCardClick = {
-//                                tripsDetailViewModel.getTodo(token, trip.id, navController, false)
+                                    journeyViewModel.getJourney(trip.id, navController)
                                 }
                             )
-                        }
-                        item {
-                            NewTripCard(modifier = Modifier, onCardClick = {
-                                navController.navigate("Create")
-                            })
                         }
                     }
                 } else {
@@ -142,6 +153,15 @@ fun InvitedTripView(modifier: Modifier = Modifier,  navController : NavControlle
                     }
                 }
 
+                is InvitedTripDataStatusUIState.Failed -> {
+
+                }
+                InvitedTripDataStatusUIState.Loading -> {
+                    CircularProgressIndicator()
+                }
+                InvitedTripDataStatusUIState.Start -> {
+
+                }
             }
 
         }
@@ -158,8 +178,9 @@ fun InvitedPreview(){
     InvitedTripView(
         navController = rememberNavController(),
         token = "f57031c8-1c62-4bea-947b-4239db58e31c",
-        tripsViewModel = viewModel(factory = TripsViewModel.Factory),
-        context = LocalContext.current
+        context = LocalContext.current,
+        invitedTripsViewModel = viewModel(factory = InvitedTripsViewModel.Factory),
+        journeyViewModel = viewModel(factory = JourneyViewModel.Factory)
 
 
     )

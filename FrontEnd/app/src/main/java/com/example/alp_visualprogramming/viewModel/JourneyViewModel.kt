@@ -16,6 +16,7 @@ import com.example.alp_visualprogramming.models.ErrorModel
 import com.example.alp_visualprogramming.models.GetAllItineraryDestinationResponse
 import com.example.alp_visualprogramming.models.GetAllItineraryResponse
 import com.example.alp_visualprogramming.models.GetDestinationResponse
+import com.example.alp_visualprogramming.models.UserRoleResponse
 import com.example.alp_visualprogramming.repository.ItineraryDestinationRepository
 import com.example.alp_visualprogramming.repository.UserRepository
 import com.example.alp_visualprogramming.uiStates.JourneyDataStatusUIState
@@ -45,6 +46,12 @@ class JourneyViewModel(
 
     var dataStatus: JourneyDataStatusUIState by mutableStateOf(JourneyDataStatusUIState.Start)
         private set
+
+    var canEdit: Boolean = false
+
+    fun changeCanEdit(value: Boolean){
+        canEdit= value
+    }
 
     var dataStatusDest: JourneyDataStatusUIState by mutableStateOf(JourneyDataStatusUIState.Start)
 
@@ -76,7 +83,17 @@ class JourneyViewModel(
                                     }
                                 }
                                 deferredNames.awaitAll()
-                                dataStatus = JourneyDataStatusUIState.Success(itineraryData)
+                                viewModelScope.launch {
+
+                                        val role = getUserRole(token, itinerary_Id)
+                                        if(role != "member"){
+                                            changeCanEdit(true)
+                                        }
+
+                                    dataStatus = JourneyDataStatusUIState.Success(itineraryData)
+
+                                }
+
 
 
                                 Log.d("data-result", "TODO LIST DATA: ${dataStatus}")
@@ -127,6 +144,29 @@ class JourneyViewModel(
             })
         }
 
+    }
+
+    suspend fun getUserRole(token:String, itineraryId: Int): String{
+        return suspendCancellableCoroutine { continuation ->
+            val call = userRepository.getUserRole(token = token, id = itineraryId)
+            call.enqueue(object: Callback<UserRoleResponse> {
+                override fun onResponse(
+                    call: Call<UserRoleResponse>,
+                    res: Response<UserRoleResponse>
+                ) {
+                    if (res.isSuccessful) {
+                        val userRoleData = res.body()?.data
+                        continuation.resume(userRoleData ?: "Unknown")
+                    }
+
+                }
+
+                override fun onFailure(call: Call<UserRoleResponse>, t: Throwable) {
+                    continuation.resumeWithException(t)
+                }
+
+            })
+        }
     }
 
     fun formatDate(dateString: String?): String {

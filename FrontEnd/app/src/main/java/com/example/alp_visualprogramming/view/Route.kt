@@ -26,6 +26,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -36,6 +37,7 @@ import com.example.alp_visualprogramming.viewModel.ActivityDetailViewModel
 import com.example.alp_visualprogramming.viewModel.ActivityFormViewModel
 import com.example.alp_visualprogramming.viewModel.DestinationViewModel
 import com.example.alp_visualprogramming.viewModel.ExploreViewModel
+import com.example.alp_visualprogramming.viewModel.InvitedTripsViewModel
 import com.example.alp_visualprogramming.viewModel.JourneyFormViewModel
 import com.example.alp_visualprogramming.viewModel.JourneyViewModel
 import com.example.alp_visualprogramming.viewModel.TripNameViewModel
@@ -52,7 +54,8 @@ fun ItineraryApp (
     activityViewModel: ActivitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory),
     activityDetailViewModel: ActivityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory),
     activityFormViewModel: ActivityFormViewModel = viewModel(factory = ActivityFormViewModel.Factory),
-    exploreViewModel: ExploreViewModel = viewModel(factory = ExploreViewModel.Factory)
+    exploreViewModel: ExploreViewModel = viewModel(factory = ExploreViewModel.Factory),
+    invitedTripsViewModel: InvitedTripsViewModel = viewModel(factory = InvitedTripsViewModel.Factory)
 ){
     val localContext = LocalContext.current
     val bottomNavigationItems = listOf(
@@ -109,6 +112,10 @@ fun ItineraryApp (
                     YourTripView(modifier = Modifier.padding(innerPadding), navController = navController, token = "f57031c8-1c62-4bea-947b-4239db58e31c", tripsViewModel = tripsViewModel, context = localContext, journeyViewModel = viewModel(factory = JourneyViewModel.Factory))
                 }
 
+                composable("Invited"){
+                    InvitedTripView(navController = navController, token = "f57031c8-1c62-4bea-947b-4239db58e31c", invitedTripsViewModel = invitedTripsViewModel, journeyViewModel = journeyViewModel, context = localContext )
+                }
+
                 composable("Explore"){
                     ExploreView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, exploreViewModel = exploreViewModel, context = localContext, journeyViewModel = journeyViewModel)
                 }
@@ -147,7 +154,7 @@ fun ItineraryApp (
 
                 composable("Activities/{dayId}"){
                         backStackEntry->
-                        ActivitiesView(modifier = Modifier.padding(innerPadding), navController = navController,activityViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c",dayId = backStackEntry.arguments?.getString("dayId")?.toIntOrNull() ?: 0, activityDetailViewModel = activityDetailViewModel, activityFormViewModel = activityFormViewModel)
+                        ActivitiesView(modifier = Modifier.padding(innerPadding), navController = navController,activityViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c",dayId = backStackEntry.arguments?.getString("dayId")?.toIntOrNull() ?: 0, activityDetailViewModel = activityDetailViewModel, activityFormViewModel = activityFormViewModel, canEdit = true)
                 }
 
                 composable("ActivityDetail"){

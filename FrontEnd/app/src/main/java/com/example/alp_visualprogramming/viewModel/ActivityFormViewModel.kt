@@ -241,8 +241,14 @@ class ActivityFormViewModel(
     }
 
     fun checkNullFormValues(){
-        if(titleInput != "" && startTimeInput != "" && endTimeInput != "" && typeInput != "" && descriptionInput != ""){
-            isCreate = true
+        if(titleInput != "" && startTimeInput != "" && endTimeInput != "" && typeInput != "" && descriptionInput != "" && costInput >= 0.0){
+
+            if(startTimeInput>= endTimeInput){
+                isCreate = false
+            }else{
+                isCreate = true
+            }
+
 
         }else{
             isCreate = false

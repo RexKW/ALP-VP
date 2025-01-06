@@ -6,11 +6,15 @@ import com.example.alp_visualprogramming.models.GetAllItineraryResponse
 import com.example.alp_visualprogramming.models.GetCreatedItineraryResponse
 import com.example.alp_visualprogramming.models.GetItineraryResponse
 import com.example.alp_visualprogramming.models.ItineraryRequest
+import com.example.alp_visualprogramming.models.UserResponse
+import com.example.alp_visualprogramming.models.UserRoleResponse
 import com.example.alp_visualprogramming.service.ItineraryAPIService
 import retrofit2.Call
 
 interface ItineraryRepository {
     fun getAllItineraries(token: String): Call<GetAllItineraryResponse>
+
+    fun getAllInvitedItineraries(token: String): Call<GetAllItineraryResponse>
 
     fun createItinerary(token: String, title: String): Call<GetCreatedItineraryResponse>
 
@@ -21,6 +25,8 @@ interface ItineraryRepository {
     fun deleteItinerary(token: String, todoId: Int): Call<GeneralResponseModel>
 
     fun exploreItineraries(token: String): Call<ExploreItineraryResponse>
+
+
 }
 
 class NetworkItineraryRepository(
@@ -28,6 +34,10 @@ class NetworkItineraryRepository(
 ): ItineraryRepository {
     override fun getAllItineraries(token: String): Call<GetAllItineraryResponse> {
         return itineraryAPIService.getAllItinerary(token)
+    }
+
+    override fun getAllInvitedItineraries(token: String): Call<GetAllItineraryResponse> {
+        return itineraryAPIService.getAllInvitedItinerary(token)
     }
 
     override fun createItinerary(
@@ -47,6 +57,8 @@ class NetworkItineraryRepository(
     override fun getItinerary(token: String, id: Int): Call<GetItineraryResponse> {
         return itineraryAPIService.getItinerary(token, id)
     }
+
+
 
     override fun updateItinerary(
         token: String,

@@ -11,15 +11,19 @@ export const apiRouter = express.Router()
 apiRouter.use(authMiddleware)
 apiRouter.post("/itinerary/create", ItineraryController.createNewItinerary)
 apiRouter.get("/itinerary/ownedTrips", ItineraryController.getAllItinerary)
+apiRouter.get("/itinerary/invitedTrips", ItineraryController.getAllInvitedItinerary)
 apiRouter.put("/itinerary/updateTrip/:itineraryId(\\d+)", ItineraryController.updateItinerary)
 apiRouter.delete("/itinerary/deleteTrip/:itineraryId(\\d+)", ItineraryController.deleteItinerary)
 apiRouter.get("/itinerary/allJourneys/:itineraryId(\\d+)", ItineraryController.allJourney)
 apiRouter.post("/itinerary/createJourney/:destinationId(\\d+)", ItineraryController.selectDestination)
 apiRouter.get("/itinerary/explore", ItineraryController.exploreItinerary)
+apiRouter.get("/itinerary/journey/:itineraryDestinationId(\\d+)", ItineraryController.getJourney)
+apiRouter.put("/itinerary/updateJourney/:itineraryDestinationId(\\d+)", ItineraryController.updateJourney)
+apiRouter.delete("/itinerary/deleteJourney/:itineraryDestinationId(\\d+)", ItineraryController.deleteJourney)
 
 apiRouter.get("/destinations/all", DestinationController.getAllDestinations)
 apiRouter.get("/destinations/:destinationId(\\d+)", DestinationController.getDestination)
-apiRouter.put("/destinations/updateDestination/:destinationId(\\d+)", ItineraryController.updateItinerary)
+
 
 apiRouter.get("/activities/allDays/:itineraryDestinationId(\\d+)", ActivityController.getAllDays)
 apiRouter.get("/activities/allActivities/:dayId(\\d+)", ActivityController.getAllActivities)
@@ -28,6 +32,7 @@ apiRouter.get("/activities/getActivity/:activityId(\\d+)", ActivityController.ge
 
 
 apiRouter.get("/users/all", AuthController.allUsers)
+apiRouter.get("/users/role/:itineraryId(\\d+)", AuthController.userRole)
 
 
 apiRouter.get("/location/seed")

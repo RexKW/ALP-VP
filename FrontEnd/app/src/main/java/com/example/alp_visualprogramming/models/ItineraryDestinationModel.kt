@@ -20,6 +20,18 @@ data class ItineraryDestinationRequest (
 
 )
 
+data class ItineraryDestinationUpdateRequest (
+    val destination_id: Int,
+    val accomodation_id : Int?,
+    val start_date: String,
+    val end_date: String
+
+)
+
+
+data class GetItineraryDestinationResponse (
+    val data: ItineraryDestinationModel
+)
 
 data class GetAllItineraryDestinationResponse(
     val data: List<ItineraryDestinationModel>

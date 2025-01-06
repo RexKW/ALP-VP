@@ -163,9 +163,8 @@ fun JourneyExploreView(modifier: Modifier,journeyViewModel: JourneyViewModel, jo
                                         activitiesViewModel.getAllDaysInitial(journey.id, token, navController, itineraryId)
                                     },
                                     onEditClick = {
-//                                        journeyFormViewModel.initializeFormJourney(navController, token, itineraryId, journey.id)
                                     },
-                                    noEdit = true
+                                    canEdit = journeyViewModel.canEdit
                                 )
                             }
 
@@ -177,10 +176,20 @@ fun JourneyExploreView(modifier: Modifier,journeyViewModel: JourneyViewModel, jo
                             horizontalAlignment = Alignment.CenterHorizontally,
                             verticalArrangement = Arrangement.Center
                         ) {
+                            if(journeyViewModel.canEdit) {
 
                                 NewDestinationCard(modifier = Modifier, onCardClick = {
-                                    journeyFormViewModel.initializeFormDestination(navController, token, itineraryId)
+                                    journeyFormViewModel.initializeFormDestination(
+                                        navController,
+                                        token,
+                                        itineraryId,
+                                        null,
+                                        false
+                                    )
                                 })
+                            }else{
+
+                            }
 
                         }
                     }

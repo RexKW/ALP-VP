@@ -24,6 +24,7 @@ class ActivityService {
                     day_id: day_id,
                 },
             });
+            activity.sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
             return (0, activity_model_1.toActivityResponseList)(activity);
         });
     }

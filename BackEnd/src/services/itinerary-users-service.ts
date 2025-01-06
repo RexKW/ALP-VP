@@ -26,6 +26,25 @@ export class ItineraryUserService{
         return users
     }
 
+    static async getUserRole(user: User, itineraryId:number): Promise<String>{
+        const userItinerary = await prismaClient.itinerary_Users.findUnique({
+            where: {
+                user_id_itinerary_id_unique: {
+                    user_id: user.id,
+                    itinerary_id: itineraryId,
+                },
+            },
+        });
+
+        if(userItinerary){
+            return userItinerary.role
+        }else{
+            return "Not in Itinerary"
+        }
+
+       
+    }
+
 
     static async addItineraryUser(req: AddItineraryUserRequest ){
         const itinerary_user_request = Validation.validate(ItineraryUserValidation.CREATE, req) 

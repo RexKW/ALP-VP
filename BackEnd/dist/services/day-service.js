@@ -20,6 +20,7 @@ class DayService {
                     itinerary_destination_id: itinerary_destination_id
                 },
             });
+            allDays.sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime());
             return (0, schedule_per_day_model_1.toScheduleResponseList)(allDays);
         });
     }

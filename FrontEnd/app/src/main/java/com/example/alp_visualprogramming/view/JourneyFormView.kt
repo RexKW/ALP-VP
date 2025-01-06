@@ -3,6 +3,7 @@ package com.example.alp_visualprogramming.view
 import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -18,6 +19,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -67,6 +69,7 @@ fun JourneyFormView(modifier: Modifier, token: String, navController: NavControl
             IconButton(
                 onClick = {
                     navController.popBackStack()
+                    journeyFormViewModel.resetViewModel()
                 },
                 modifier = Modifier
                     .align(Alignment.TopStart) // Align to the top left corner
@@ -86,16 +89,35 @@ fun JourneyFormView(modifier: Modifier, token: String, navController: NavControl
                 modifier = Modifier.fillMaxWidth().height(561.dp).align(Alignment.BottomCenter).padding(top = 50.dp),
             )
             Column(modifier = Modifier.padding(start = 32.dp, top = 5.dp, end = 32.dp)) {
-                Text(
-                    text = "Journey",
-                    style = TextStyle(
-                        fontSize = 64.sp,
-                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFEE417D),
-                        textAlign = TextAlign.Center,
+                Row() {
+
+
+                    Text(
+                        text = "Journey",
+                        style = TextStyle(
+                            fontSize = 64.sp,
+                            fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFEE417D),
+                            textAlign = TextAlign.Center,
+                        )
                     )
-                )
+
+                    if(journeyFormViewModel.isUpdate){
+                        Icon(
+                            imageVector = Icons.Default.Delete,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .size(64.dp)
+                                .fillMaxWidth()
+                                .clickable{
+                                    journeyFormViewModel.deleteJourney(navController, token, journeyFormViewModel.currItinerarDestinationId?:0)
+                                }
+                        )
+                    }
+
+
+                }
 
                 Card(
                     modifier = Modifier
@@ -163,6 +185,7 @@ fun JourneyFormView(modifier: Modifier, token: String, navController: NavControl
                     showCalendarDialog = {journeyFormViewModel.showDatePickerDialog(journeyFormViewModel.initEndDatePickerDialog(context))}
                 )
 
+
                 if (!journeyFormViewModel.isCreate) {
                     Button(modifier = Modifier
                         .padding(top = 10.dp)
@@ -176,7 +199,7 @@ fun JourneyFormView(modifier: Modifier, token: String, navController: NavControl
                     ) {
 
                         Text(
-                            text = "Continue",
+                            text = if(journeyFormViewModel.isUpdate) "Update" else "Create",
                             style = TextStyle(
                                 fontSize = 32.sp,
                                 fontFamily = FontFamily(Font(R.font.oswald_regular)),
@@ -188,34 +211,72 @@ fun JourneyFormView(modifier: Modifier, token: String, navController: NavControl
                         )
                     }
                 }else{
-                    Button(modifier = Modifier
-                        .padding(top = 10.dp)
-                        .width(372.dp)
-                        .height(62.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            Color(0xFFEE417D)
-                        ),
-                        onClick = {
-                            journeyFormViewModel.createJourney(token = token, locationId =  journeyFormViewModel.locationInput?.id ?:0, navController = navController)
-                        }
-                    ) {
+                    if(!journeyFormViewModel.isUpdate) {
 
-                        Text(
-                            text = "Continue",
-                            style = TextStyle(
-                                fontSize = 32.sp,
-                                fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                                fontWeight = FontWeight(400),
-                                color = Color(0xFFFBF7E7),
 
+                        Button(modifier = Modifier
+                            .padding(top = 10.dp)
+                            .width(372.dp)
+                            .height(62.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                Color(0xFFEE417D)
+                            ),
+                            onClick = {
+                                journeyFormViewModel.createJourney(
+                                    token = token,
+                                    locationId = journeyFormViewModel.locationInput?.id ?: 0,
+                                    navController = navController
                                 )
+                            }
+                        ) {
 
-                        )
+                            Text(
+                                text = "Create",
+                                style = TextStyle(
+                                    fontSize = 32.sp,
+                                    fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFFBF7E7),
+
+                                    )
+
+                            )
+                        }
+                    }else{
+                        Button(modifier = Modifier
+                            .padding(top = 10.dp)
+                            .width(372.dp)
+                            .height(62.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                Color(0xFFEE417D)
+                            ),
+                            onClick = {
+                                journeyFormViewModel.updateJourney(
+                                    token = token,
+                                    locationId = journeyFormViewModel.locationInput?.id ?: 0,
+                                    navController = navController,
+                                    journeyId = journeyFormViewModel.currItinerarDestinationId ?: 0
+                                )
+                            }
+                        ) {
+
+                            Text(
+                                text = "Update",
+                                style = TextStyle(
+                                    fontSize = 32.sp,
+                                    fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFFBF7E7),
+
+                                    )
+
+                            )
                     }
                 }
             }
         }
     }
+        }
 }
 
 @Preview
