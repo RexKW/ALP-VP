@@ -206,9 +206,4 @@ class ActivitiesViewModel(
     }
 
 
-
-    fun sortActivities(){
-
-    }
-
 }

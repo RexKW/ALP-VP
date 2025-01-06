@@ -29,6 +29,8 @@ apiRouter.get("/activities/allDays/:itineraryDestinationId(\\d+)", ActivityContr
 apiRouter.get("/activities/allActivities/:dayId(\\d+)", ActivityController.getAllActivities)
 apiRouter.post("/activities/createActivity/:dayId(\\d+)", ActivityController.createActivity)
 apiRouter.get("/activities/getActivity/:activityId(\\d+)", ActivityController.getActivity)
+apiRouter.delete("/activities/deleteActivity/:activityId(\\d+)", ActivityController.deleteActivity)
+apiRouter.put("/activities/updateActivity/:activityId(\\d+)", ActivityController.updateActivity)
 
 
 apiRouter.get("/users/all", AuthController.allUsers)

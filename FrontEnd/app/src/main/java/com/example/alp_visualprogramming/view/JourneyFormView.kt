@@ -56,6 +56,8 @@ import com.example.alp_visualprogramming.viewModel.JourneyViewModel
 @Composable
 fun JourneyFormView(modifier: Modifier, token: String, navController: NavController, journeyFormViewModel: JourneyFormViewModel, destinationViewModel: DestinationViewModel, context: Context){
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF7E7))) {
+
+
         Box(modifier = Modifier.fillMaxWidth()) {
 
             Image(
@@ -72,13 +74,13 @@ fun JourneyFormView(modifier: Modifier, token: String, navController: NavControl
                     journeyFormViewModel.resetViewModel()
                 },
                 modifier = Modifier
-                    .align(Alignment.TopStart) // Align to the top left corner
-                    .padding(16.dp)            // Add padding for proper spacing
+                    .align(Alignment.TopStart)
+                    .padding(16.dp)
             ) {
                 Icon(
-                    imageVector = Icons.Default.ArrowBack, // Use an arrow-back icon
+                    imageVector = Icons.Default.ArrowBack,
                     contentDescription = "Back",
-                    tint = Color.White // Set the icon color (adjust as needed for contrast)
+                    tint = Color.White
                 )
             }
         }
@@ -89,7 +91,10 @@ fun JourneyFormView(modifier: Modifier, token: String, navController: NavControl
                 modifier = Modifier.fillMaxWidth().height(561.dp).align(Alignment.BottomCenter).padding(top = 50.dp),
             )
             Column(modifier = Modifier.padding(start = 32.dp, top = 5.dp, end = 32.dp)) {
-                Row() {
+                Row(
+                    modifier = Modifier,
+                    verticalAlignment = Alignment.Bottom
+                ) {
 
 
                     Text(
@@ -112,7 +117,8 @@ fun JourneyFormView(modifier: Modifier, token: String, navController: NavControl
                                 .fillMaxWidth()
                                 .clickable{
                                     journeyFormViewModel.deleteJourney(navController, token, journeyFormViewModel.currItinerarDestinationId?:0)
-                                }
+                                },
+                            tint = Color(0xFFEE417D)
                         )
                     }
 

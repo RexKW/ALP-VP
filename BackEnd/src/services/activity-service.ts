@@ -65,23 +65,25 @@ export class ActivityService{
 
 
     static async updateActivity(
+        activity_id: number,
             req: ActivityUpdateRequest
         ): Promise<string> {
             const activity = Validation.validate(ActivityValidation.UPDATE, req)
     
-            await this.checkActivity(activity.id)
+            await this.checkActivity(activity_id)
     
-            const itineraryUpdate = await prismaClient.itinerary.update({
+            const activityUpdate = await prismaClient.activity.update({
                 where: {
-                    id: activity.id,
+                    id: activity_id,
                 },
                 data: activity,
             })
     
-            logger.info("UPDATE RESULT: " + itineraryUpdate)
+            logger.info("UPDATE RESULT: " + activityUpdate)
     
             return "Data update was successful!"
         }
+
         static async deleteActivity(aId: number,): Promise<String> {
             await this.checkActivity(aId)
     

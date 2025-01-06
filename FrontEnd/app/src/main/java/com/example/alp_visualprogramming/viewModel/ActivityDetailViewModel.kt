@@ -34,12 +34,19 @@ class ActivityDetailViewModel(
 ): ViewModel() {
     var currActivity by mutableStateOf<ActivityModel?>(null)
 
+    var currDayId by mutableStateOf<Int?>(null)
+
     fun updateActivity(activity: ActivityModel){
         currActivity = activity
     }
 
-    fun getActivity(activity: ActivityModel, token: String, navController: NavController){
+    fun updateDayId(dayId: Int){
+        currDayId = dayId
+    }
+
+    fun getActivity(activity: ActivityModel, token: String, navController: NavController, dayId: Int){
         updateActivity(activity)
+        updateDayId(dayId)
         navController.navigate("ActivityDetail")
     }
 

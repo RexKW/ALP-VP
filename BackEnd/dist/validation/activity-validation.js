@@ -15,12 +15,12 @@ ActivityValidation.CREATE = zod_1.z.object({
     location_id: zod_1.z.number().int()
 });
 ActivityValidation.UPDATE = zod_1.z.object({
-    id: zod_1.z.number().positive(),
     name: zod_1.z.string().min(1).max(100),
+    day_id: zod_1.z.number().positive(),
     description: zod_1.z.string(),
     type: zod_1.z.string().min(1).max(20),
-    startTime: zod_1.z.date(),
-    endTime: zod_1.z.date(),
+    start_time: zod_1.z.date(),
+    end_time: zod_1.z.date(),
     cost: zod_1.z.number().nonnegative(),
     location_id: zod_1.z.number().int()
 });

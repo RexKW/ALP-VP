@@ -65,17 +65,17 @@ class ActivityService {
             return "Data created successfully!";
         });
     }
-    static updateActivity(req) {
+    static updateActivity(activity_id, req) {
         return __awaiter(this, void 0, void 0, function* () {
             const activity = validation_1.Validation.validate(activity_validation_1.ActivityValidation.UPDATE, req);
-            yield this.checkActivity(activity.id);
-            const itineraryUpdate = yield database_1.prismaClient.itinerary.update({
+            yield this.checkActivity(activity_id);
+            const activityUpdate = yield database_1.prismaClient.activity.update({
                 where: {
-                    id: activity.id,
+                    id: activity_id,
                 },
                 data: activity,
             });
-            logging_1.logger.info("UPDATE RESULT: " + itineraryUpdate);
+            logging_1.logger.info("UPDATE RESULT: " + activityUpdate);
             return "Data update was successful!";
         });
     }

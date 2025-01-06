@@ -158,11 +158,11 @@ fun ItineraryApp (
                 }
 
                 composable("ActivityDetail"){
-                    ActivityDetailView(modifier = Modifier.padding(innerPadding), navController = navController,activityDetailViewModel = activityDetailViewModel)
+                    ActivityDetailView(modifier = Modifier.padding(innerPadding), navController = navController,activityDetailViewModel = activityDetailViewModel, activityFormViewModel = activityFormViewModel)
                 }
 
                 composable("FormActivity") {
-                    ActivityFormView(modifier = Modifier.padding(innerPadding), navController = navController, activityFormViewModel = activityFormViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c")
+                    ActivityFormView(modifier = Modifier.padding(innerPadding), navController = navController, activityFormViewModel = activityFormViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c", activitiesViewModel =  activityViewModel)
                 }
             }
 

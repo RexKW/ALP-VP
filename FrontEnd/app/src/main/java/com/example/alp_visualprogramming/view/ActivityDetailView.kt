@@ -2,6 +2,7 @@ package com.example.alp_visualprogramming.view
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -40,9 +41,10 @@ import androidx.navigation.compose.rememberNavController
 import com.example.alp_visualprogramming.R
 import com.example.alp_visualprogramming.view.template.TripCard
 import com.example.alp_visualprogramming.viewModel.ActivityDetailViewModel
+import com.example.alp_visualprogramming.viewModel.ActivityFormViewModel
 
 @Composable
-fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDetailViewModel, navController: NavController, viewOnly: Boolean = false){
+fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDetailViewModel, activityFormViewModel: ActivityFormViewModel, navController: NavController, viewOnly: Boolean = false){
 
         Column(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF7E7))) {
             Box(modifier = Modifier.fillMaxWidth()) {
@@ -105,10 +107,10 @@ fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDeta
                             Text(
                                 text = activityDetailViewModel.formatDate(
                                     activityDetailViewModel.parseDate(activityDetailViewModel.currActivity!!.start_time)!!,
-                                    "hh:mm"
+                                    "HH:mm"
                                 ) + " - " + activityDetailViewModel.formatDate(
                                     activityDetailViewModel.parseDate(activityDetailViewModel.currActivity!!.end_time)!!,
-                                    "hh:mm"
+                                    "HH:mm"
                                 ), style = TextStyle(
                                     fontSize = 16.sp,
                                     fontFamily = FontFamily(Font(R.font.oswald_regular)),
@@ -201,6 +203,7 @@ fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDeta
                         )
                         Text(
                             text = "Cost",
+                            modifier = Modifier.padding(start = 10.dp),
                             style = TextStyle(
                                 fontSize = 32.sp,
                                 fontFamily = FontFamily(Font(R.font.oswald_regular)),
@@ -226,12 +229,22 @@ fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDeta
                     if(!viewOnly){
                         Row(
                             modifier = Modifier.padding(top = 16.dp).clip(RoundedCornerShape(20.dp))
-                                .fillMaxWidth().background(Color(0xFFEE417D)).padding(10.dp),
+                                .fillMaxWidth().background(Color(0xFFEE417D)).padding(10.dp).
+                            clickable{
+                                activityFormViewModel.initializeUpdate( activity = activityDetailViewModel.currActivity!!, navController = navController, dayId =  activityDetailViewModel.currDayId!! )
+                            },
 
                             verticalAlignment = Alignment.CenterVertically
                         ) {
                             Text(
                                 text = "Edit",
+                                style = TextStyle(
+                                    fontSize = 32.sp,
+                                    fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                                    fontWeight = FontWeight(400),
+                                    color = Color(0xFFFBF7E7),
+                                    textAlign = TextAlign.Center
+                                )
                             )
                         }
                     }
@@ -252,6 +265,8 @@ fun ActivityDetailPreview() {
     ActivityDetailView(
         modifier = Modifier,
         activityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory),
-        navController = rememberNavController()
+        navController = rememberNavController(),
+
+        activityFormViewModel = viewModel(factory = ActivityFormViewModel.Factory)
     )
 }

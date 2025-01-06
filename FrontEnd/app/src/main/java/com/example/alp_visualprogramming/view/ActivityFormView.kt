@@ -4,6 +4,7 @@ import android.content.Context
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.scrollable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -13,12 +14,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -57,10 +60,11 @@ import com.example.alp_visualprogramming.view.template.FormTextField
 import com.example.alp_visualprogramming.view.template.FormTimePicker
 import com.example.alp_visualprogramming.view.template.LocationCard
 import com.example.alp_visualprogramming.view.template.TripCard
+import com.example.alp_visualprogramming.viewModel.ActivitiesViewModel
 import com.example.alp_visualprogramming.viewModel.ActivityFormViewModel
 
 @Composable
-fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, context: Context, navController: NavController, token: String, modifier: Modifier) {
+fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, activitiesViewModel: ActivitiesViewModel,context: Context, navController: NavController, token: String, modifier: Modifier) {
     val activityFormUIState = activityFormViewModel.activityFormUIState.collectAsState()
     val submissionStatus = activityFormViewModel.submissionStatus
 
@@ -100,25 +104,44 @@ fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, context: Cont
                 .fillMaxWidth()
                 .weight(2.5f)
                 .verticalScroll(rememberScrollState())
-                .padding(start = 32.dp, top = 5.dp, end = 32.dp, bottom = 100.dp)
+                .padding(start = 32.dp, top = 5.dp, end = 32.dp, bottom = 140.dp)
                 ,
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
+            Row {
+                FormTextField(
+                    inputValue = activityFormViewModel.titleInput,
+                    onValueChange = {
+                        activityFormViewModel.changeTitleInput(it)
+                        activityFormViewModel.checkNullFormValues()
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth(),
+                    labelText = "Activity Name",
+                    placeholderText = "Input Activity Name",
+                    minLine = 1,
+                    maxLine = 1
+                )
 
-            FormTextField(
-                inputValue = activityFormViewModel.titleInput,
-                onValueChange = {
-                    activityFormViewModel.changeTitleInput(it)
-                    activityFormViewModel.checkNullFormValues()
-                },
-                modifier = Modifier
-                    .fillMaxWidth(),
-                labelText = "Activity Name",
-                placeholderText = "Input Activity Name",
-                minLine = 1,
-                maxLine = 1
-            )
+                if (activityFormViewModel.activityId != 0){
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .size(64.dp)
+                            .fillMaxWidth()
+                            .clickable{
+                               activityFormViewModel.deleteActivity( token)
+                                activitiesViewModel.getAllActivities(dayId =  activityFormViewModel.currDayId, token = token, navController = navController)
+                            },
+                        tint = Color(0xFFEE417D)
+                    )
+                }
+
+            }
+
+
 
             Row(horizontalArrangement = Arrangement.spacedBy(16.dp)) {
                 FormDropdown(
@@ -215,7 +238,7 @@ fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, context: Cont
                 ) {
 
                     Text(
-                        text = "Continue",
+                        text = if (activityFormViewModel.activityId != 0) "Update" else "Create",
                         style = TextStyle(
                             fontSize = 32.sp,
                             fontFamily = FontFamily(Font(R.font.oswald_regular)),
@@ -233,35 +256,99 @@ fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, context: Cont
                     }
 
                     else -> {
-                        Button(modifier = Modifier
-                            .padding(top = 10.dp)
-                            .width(372.dp)
-                            .height(62.dp),
-                            colors = ButtonDefaults.buttonColors(
-                                Color(0xFFEE417D)
-                            ),
-                            onClick = {
-                                activityFormViewModel.createActivity(
-                                    token = token,
-                                    navController = navController
+                        if(activityFormViewModel.activityId != 0){
+                            Button(modifier = Modifier
+                                .padding(top = 10.dp)
+                                .width(372.dp)
+                                .height(62.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    Color(0xFFEE417D)
+                                ),
+                                onClick = {
+                                    activityFormViewModel.updateActivity(
+                                        token = token,
+                                        navController = navController,
+                                    )
+
+                                    activitiesViewModel.getAllActivities(dayId =  activityFormViewModel.currDayId, token = token, navController = navController)
+                                }
+                            ) {
+
+
+                                Text(
+                                    text = "Update",
+                                    style = TextStyle(
+                                        fontSize = 32.sp,
+                                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                                        fontWeight = FontWeight(400),
+                                        color = Color(0xFFFBF7E7),
+
+                                        )
 
                                 )
                             }
-                        ) {
-
-
-                            Text(
-                                text = "Continue",
-                                style = TextStyle(
-                                    fontSize = 32.sp,
-                                    fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                                    fontWeight = FontWeight(400),
-                                    color = Color(0xFFFBF7E7),
-
+                            Button(modifier = Modifier
+                                .padding(top = 10.dp)
+                                .width(372.dp)
+                                .height(62.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    Color(0xFFEE417D)
+                                ),
+                                onClick = {
+                                    activityFormViewModel.updateActivity(
+                                        token = token,
+                                        navController = navController,
                                     )
 
-                            )
+                                    activitiesViewModel.getAllActivities(dayId =  activityFormViewModel.currDayId, token = token, navController = navController)
+                                }
+                            ) {
+
+
+                                Text(
+                                    text = "Update",
+                                    style = TextStyle(
+                                        fontSize = 32.sp,
+                                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                                        fontWeight = FontWeight(400),
+                                        color = Color(0xFFFBF7E7),
+
+                                        )
+
+                                )
+                            }
+                        }else{
+                            Button(modifier = Modifier
+                                .padding(top = 10.dp)
+                                .width(372.dp)
+                                .height(62.dp),
+                                colors = ButtonDefaults.buttonColors(
+                                    Color(0xFFEE417D)
+                                ),
+                                onClick = {
+                                    activityFormViewModel.createActivity(
+                                        token = token,
+                                        navController = navController
+
+                                    )
+                                }
+                            ) {
+
+
+                                Text(
+                                    text = "Create",
+                                    style = TextStyle(
+                                        fontSize = 32.sp,
+                                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                                        fontWeight = FontWeight(400),
+                                        color = Color(0xFFFBF7E7),
+
+                                        )
+
+                                )
+                            }
                         }
+
                     }
                 }
 
@@ -288,6 +375,7 @@ fun ActivityFormPreview() {
         context = LocalContext.current,
         navController = rememberNavController(),
         token = "",
-        modifier = Modifier
+        modifier = Modifier,
+        activitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory)
     )
 }

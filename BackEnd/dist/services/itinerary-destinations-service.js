@@ -134,6 +134,9 @@ class ItineraryDestinationService {
                     }
                 });
                 console.log(`Old itinerary Destination start: ${oldItineraryDestination === null || oldItineraryDestination === void 0 ? void 0 : oldItineraryDestination.start_date} Old itinerary Destination end: ${oldItineraryDestination === null || oldItineraryDestination === void 0 ? void 0 : oldItineraryDestination.end_date}`);
+                const startDate2 = new Date((oldItineraryDestination === null || oldItineraryDestination === void 0 ? void 0 : oldItineraryDestination.start_date) || itinerary_destination.start_date);
+                const endDate2 = new Date((oldItineraryDestination === null || oldItineraryDestination === void 0 ? void 0 : oldItineraryDestination.end_date) || itinerary_destination.end_date);
+                console.log(`Start Date 2 ${startDate2} End Date 2 ${endDate2}`);
                 const itineraryDestinationUpdate = yield database_1.prismaClient.itinerary_Destinations.update({
                     where: {
                         id: itinerary_destination.id,
@@ -149,62 +152,37 @@ class ItineraryDestinationService {
                 });
                 const datesToInsert = [];
                 const listofDates = [];
-                const prevListofDates = [];
                 const currentDate = startDate;
                 while (currentDate <= endDate) {
-                    if (currentDate < itinerary_destination.start_date || currentDate > itinerary_destination.end_date) {
+                    if (currentDate < startDate2 || currentDate > endDate2) {
                         datesToInsert.push({
-                            itinerary_destination_id: itineraryDestinationUpdate.id,
+                            itinerary_destination_id: itinerary_destination.id,
                             date: currentDate,
                         });
                     }
                     listofDates.push({
-                        itinerary_destination_id: itineraryDestinationUpdate.id,
+                        itinerary_destination_id: itinerary_destination.id,
                         date: currentDate,
                     });
                     currentDate.setDate(currentDate.getDate() + 1);
                 }
-                const currentDate2 = new Date((oldItineraryDestination === null || oldItineraryDestination === void 0 ? void 0 : oldItineraryDestination.start_date) || itinerary_destination.start_date);
-                while (currentDate2 <= (new Date((oldItineraryDestination === null || oldItineraryDestination === void 0 ? void 0 : oldItineraryDestination.end_date) || itinerary_destination.end_date || new Date()))) {
-                    prevListofDates.push({
-                        itinerary_destination_id: itineraryDestinationUpdate.id,
-                        date: currentDate2
-                    });
-                    currentDate2.setDate(currentDate2.getDate() + 1);
-                }
-                const areDatesEqual = (date1, date2) => {
-                    return date1.getTime() === date2.getTime();
-                };
-                prevListofDates.forEach((date) => __awaiter(this, void 0, void 0, function* () {
-                    const matchFound = listofDates.some(d => d.itinerary_destination_id === date.itinerary_destination_id && areDatesEqual(d.date, date.date));
-                    console.log(`Checking date: ${date.date} for itinerary_destination_id: ${date.itinerary_destination_id}`);
-                    if (!matchFound) {
-                        console.log(`No match found for date: ${date.date}. Proceeding with record lookup.`);
-                        const recordToDelete = yield database_1.prismaClient.schedule_Per_Day.findUnique({
+                const currentDate2 = startDate2;
+                while (currentDate2 <= endDate2) {
+                    if (currentDate2 < startDate || currentDate2 > endDate) {
+                        yield database_1.prismaClient.schedule_Per_Day.delete({
                             where: {
                                 itinerary_destination_id_date: {
-                                    itinerary_destination_id: date.itinerary_destination_id,
-                                    date: date.date
+                                    itinerary_destination_id: itinerary_destination.id,
+                                    date: currentDate2
                                 }
                             }
                         });
-                        if (recordToDelete) {
-                            console.log(`Found record to delete with ID: ${recordToDelete.id}`);
-                            yield database_1.prismaClient.schedule_Per_Day.delete({
-                                where: {
-                                    id: recordToDelete.id
-                                }
-                            });
-                            console.log(`Record with ID: ${recordToDelete.id} deleted successfully.`);
-                        }
-                        else {
-                            console.log(`No record found for itinerary_destination_id: ${date.itinerary_destination_id} and date: ${date.date}`);
-                        }
                     }
-                    else {
-                        console.log(`Match found for date: ${date.date}. Skipping deletion.`);
-                    }
-                }));
+                    currentDate2.setDate(currentDate2.getDate() + 1);
+                }
+                yield database_1.prismaClient.schedule_Per_Day.createMany({
+                    data: datesToInsert,
+                });
             }
             else { // if it is a different destination, it deletes all previous activities and adds new ones
                 const itineraryDestinationUpdate = yield database_1.prismaClient.itinerary_Destinations.update({
@@ -231,7 +209,7 @@ class ItineraryDestinationService {
                     });
                     currentDate.setDate(currentDate.getDate() + 1);
                 }
-                yield yield database_1.prismaClient.schedule_Per_Day.createMany({
+                yield database_1.prismaClient.schedule_Per_Day.createMany({
                     data: datesToInsert,
                 });
             }

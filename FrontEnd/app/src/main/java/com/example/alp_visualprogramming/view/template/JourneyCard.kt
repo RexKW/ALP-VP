@@ -62,7 +62,7 @@ fun JourneyCardView(
 
                     Text(text = name ?: "Unknown",
                         style = TextStyle(
-                            fontSize = 48.sp,
+                            fontSize = 42.sp,
                             fontFamily = FontFamily(Font(R.font.oswald_regular)),
                             fontWeight = FontWeight(400),
                             color = Color(0xFFFBF7E7),

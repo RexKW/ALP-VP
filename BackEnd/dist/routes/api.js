@@ -29,6 +29,8 @@ exports.apiRouter.get("/activities/allDays/:itineraryDestinationId(\\d+)", activ
 exports.apiRouter.get("/activities/allActivities/:dayId(\\d+)", activity_controller_1.ActivityController.getAllActivities);
 exports.apiRouter.post("/activities/createActivity/:dayId(\\d+)", activity_controller_1.ActivityController.createActivity);
 exports.apiRouter.get("/activities/getActivity/:activityId(\\d+)", activity_controller_1.ActivityController.getActivity);
+exports.apiRouter.delete("/activities/deleteActivity/:activityId(\\d+)", activity_controller_1.ActivityController.deleteActivity);
+exports.apiRouter.put("/activities/updateActivity/:activityId(\\d+)", activity_controller_1.ActivityController.updateActivity);
 exports.apiRouter.get("/users/all", user_controller_1.AuthController.allUsers);
 exports.apiRouter.get("/users/role/:itineraryId(\\d+)", user_controller_1.AuthController.userRole);
 exports.apiRouter.get("/location/seed");

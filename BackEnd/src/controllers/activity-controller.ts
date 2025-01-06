@@ -1,7 +1,7 @@
 import { NextFunction, Request, response, Response } from "express";
 import { LoginUserRequest, RegisterUserRequest, UserResponse } from "../model/user-model";
 import { UserService } from "../services/auth-service";
-import { CreateActivityRequest } from "../model/activity-model";
+import { ActivityUpdateRequest, CreateActivityRequest} from "../model/activity-model";
 import { ActivityService } from "../services/activity-service";
 import { DayService } from "../services/day-service";
 import { prismaClient } from "../application/database";
@@ -77,6 +77,55 @@ export class ActivityController{
             })
 
         }catch (error){
+            next(error)
+        }
+    }
+
+    static async deleteActivity(req: Request, res: Response, next: NextFunction){
+        try{
+            const activityId = Number(req.params.activityId)
+            const response = await ActivityService.deleteActivity(activityId)
+
+            res.status(200).json({
+                data: response
+            })
+
+        }catch(error){
+            next(error)
+        }
+    }
+
+    static async updateActivity(req: Request, res: Response, next: NextFunction){
+
+        try{
+            const request = req.body as ActivityUpdateRequest
+            const activityId = Number(req.params.activityId)
+            const start_time = addLeadingZero(`${request.start_time}`);
+            const end_time = addLeadingZero(`${request.end_time}`)
+            const dayId = req.body.day_id;
+            const day = await prismaClient.schedule_Per_Day.findUnique({
+                where:{
+                    id: dayId
+                }
+            })
+
+            const dayString = day?.date.toISOString().split('T')[0];
+            const startDateTime = new Date(`${dayString}T${start_time}:00.000Z`).toISOString();
+            const endDateTime = new Date(`${dayString}T${end_time}:00.000Z`).toISOString();
+            const timeRequest = {  
+                ...request, 
+                start_time: new Date(startDateTime), 
+                end_time: new Date(endDateTime) 
+            };
+            console.log(timeRequest)
+            const response = await ActivityService.updateActivity(activityId, timeRequest)
+
+            res.status(200).json({
+                data: response
+            })
+
+
+        }catch(error){
             next(error)
         }
     }

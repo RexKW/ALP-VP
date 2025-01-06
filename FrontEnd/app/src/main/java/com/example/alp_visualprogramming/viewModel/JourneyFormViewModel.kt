@@ -105,13 +105,16 @@ class JourneyFormViewModel(
         }
     }
 
+
     fun initializeFormDestination(navController: NavController, token: String, itineraryId: Int, itinerary_destination_id: Int?, update:Boolean){
         changeCurrItineraryId(itineraryId)
         Log.d("JourneyFormViewModel", "Itinerary ID: $itineraryId")
         if(update && itinerary_destination_id != null){
             changeCurrItinerarDestinationId(itinerary_destination_id)
             changeIsUpdate(true)
+
             initializeUpdateJourney(token,itinerary_destination_id , navController)
+
         }
         navController.navigate("FormDestination")
     }
@@ -120,18 +123,25 @@ class JourneyFormViewModel(
         viewModelScope.launch {
             val call = itineraryDestinationRepository.getItineraryDestination(itinerary_destination_id, token)
             call.enqueue(object: Callback<GetItineraryDestinationResponse>{
+                @RequiresApi(Build.VERSION_CODES.O)
                 override fun onResponse(
                     call: Call<GetItineraryDestinationResponse>,
                     res: Response<GetItineraryDestinationResponse>
                 ) {
                     if (res.isSuccessful) {
-                        changeStartDateInput(res.body()?.data?.start_date ?: "")
-                        changeEndDateInput(res.body()?.data?.start_date ?: "")
+                        val start_date = convertIsoToCustomFormat(res.body()?.data?.start_date ?: "")
+                        val end_date = convertIsoToCustomFormat(res.body()?.data?.end_date ?: "")
+                        changeStartDateInput(start_date ?: "")
+
+                        changeEndDateInput(end_date ?: "")
+                        Log.e("Start Date", "Data: ${startDateInput}")
+                        Log.e("End Date", "Data: ${endDateInput}")
                         viewModelScope.launch{
                              getDestination(token, res.body()?.data?.destination_id?: 0)
 
 
                         }
+
 
                     }
                 }
@@ -308,6 +318,8 @@ class JourneyFormViewModel(
         viewModelScope.launch {
             submissionStatus = StringDataStatusUIState.Loading
             try{
+                Log.e("Start Date", "Data: ${startDateInput}")
+                Log.e("End Date", "Data: ${endDateInput}")
                 val call = itineraryDestinationRepository.updateItineraryDestination(token, journeyId, startDateInput,  endDateInput, locationId =  locationId, accomodationId = null, itineraryId =  currItineraryId ?: 0)
                 call.enqueue(object: Callback<GeneralResponseModel>{
                     override fun onResponse(
@@ -351,7 +363,7 @@ class JourneyFormViewModel(
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
-    fun convertIsoToCustomFormat(isoString: String, customFormat: String = "yyyy-MM-dd HH:mm:ss"): String? {
+    fun convertIsoToCustomFormat(isoString: String, customFormat: String = "d/M/yyyy"): String? {
         return try {
             val isoFormatter = DateTimeFormatter.ISO_DATE_TIME
             val customFormatter = DateTimeFormatter.ofPattern(customFormat)

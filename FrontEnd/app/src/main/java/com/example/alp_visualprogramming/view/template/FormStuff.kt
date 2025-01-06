@@ -243,7 +243,8 @@ fun FormDatePickerStart(
             .clickable { showCalendarDialog() }
             .padding(start = 16.dp),
         horizontalArrangement = Arrangement.SpaceEvenly,
-        verticalAlignment = Alignment.CenterVertically
+        verticalAlignment = Alignment.CenterVertically,
+
     ) {
         Text(
             text = "Start Date",

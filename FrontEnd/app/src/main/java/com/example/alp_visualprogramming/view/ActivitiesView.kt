@@ -212,7 +212,7 @@ fun ActivitiesView(modifier: Modifier = Modifier,
                                     activitiesViewModel.parseDate(activity.end_time)!!,
                                     "HH:mm"
                                 ) , onCardClick = {
-                                    activityDetailViewModel.getActivity(activity, token, navController)
+                                    activityDetailViewModel.getActivity(activity, token, navController, activitiesViewModel.selectedDay!!)
                                 })
                             }
                         }

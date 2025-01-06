@@ -3,8 +3,10 @@ package com.example.alp_visualprogramming.viewModel
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import android.content.Context
+import android.os.Build
 import android.util.Log
 import android.widget.DatePicker
+import androidx.annotation.RequiresApi
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -16,6 +18,7 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.example.alp_visualprogramming.ItineraryApplication
+import com.example.alp_visualprogramming.models.ActivityModel
 import com.example.alp_visualprogramming.models.ErrorModel
 import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.repository.ActivityRepository
@@ -31,6 +34,8 @@ import kotlinx.coroutines.launch
 import retrofit2.Call
 import retrofit2.Callback
 import java.io.IOException
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
 
@@ -197,9 +202,19 @@ class ActivityFormViewModel(
         navController.navigate("FormActivity")
     }
 
-    fun initializeUpdate(){
-
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun initializeUpdate(dayId: Int, activity: ActivityModel, navController: NavController){
+        changeCurrDayId(dayId)
+        changeActivityId(activity.id)
+        changeTitleInput(activity.name)
+        changeTypeInput(activity.type)
+        changeCostInput(activity.cost)
+        changeDescriptionInput(activity.description)
+        startTimeInput = convertIsoToCustomFormat(activity.start_time).toString()
+        endTimeInput = convertIsoToCustomFormat(activity.end_time).toString()
+        navController.navigate("FormActivity")
     }
+
 
     fun createActivity(navController: NavController, token: String){
         viewModelScope.launch {
@@ -214,7 +229,6 @@ class ActivityFormViewModel(
                         if (res.isSuccessful) {
                             submissionStatus = StringDataStatusUIState.Success(res.body()!!.data)
                             Log.d("API Response", "Success: ${res.body()}")
-                            navController.popBackStack()
                         }else{
                             val errorMessage = Gson().fromJson(
                                 res.errorBody()!!.charStream(),
@@ -236,6 +250,64 @@ class ActivityFormViewModel(
         }
     }
 
+    fun updateActivity( navController: NavController, token: String){
+        viewModelScope.launch {
+            submissionStatus = StringDataStatusUIState.Loading
+
+            try{
+                val call = activityRepository.updateActivity(token = token, activityId = activityId, name = titleInput, start_time = startTimeInput, end_time = endTimeInput, type = typeInput, cost = costInput, description = descriptionInput, location_id = 1, dayId = currDayId)
+                call.enqueue(object: Callback<GeneralResponseModel>{
+                    override fun onResponse(
+                        call: retrofit2.Call<GeneralResponseModel>,
+                        res: retrofit2.Response<GeneralResponseModel>
+                    ) {
+                        if (res.isSuccessful) {
+                            submissionStatus = StringDataStatusUIState.Success(res.body()!!.data)
+
+                        }
+
+                    }
+                    override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
+                        Log.e("API Response", "Failure: ${t.message}")
+                        submissionStatus = StringDataStatusUIState.Failed(t.localizedMessage)
+                    }
+
+
+                })
+            }catch(e: IOException){
+
+            }
+
+
+        }
+    }
+
+    fun deleteActivity( token: String){
+        viewModelScope.launch {
+            submissionStatus = StringDataStatusUIState.Loading
+            try{
+            val call = activityRepository.deleteActivity(token = token, activityId = activityId)
+            call.enqueue(object: Callback<GeneralResponseModel>{
+                override fun onResponse(
+                    call: retrofit2.Call<GeneralResponseModel>,
+                    res: retrofit2.Response<GeneralResponseModel>
+                ) {
+
+                }
+
+                override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
+
+                }
+
+            })
+
+            }catch (e: IOException){
+
+            }
+
+        }
+    }
+
     fun clearDataErrorMessage() {
         submissionStatus = StringDataStatusUIState.Start
     }
@@ -252,6 +324,31 @@ class ActivityFormViewModel(
 
         }else{
             isCreate = false
+        }
+    }
+
+    fun resetViewModel(){
+        titleInput = ""
+        startTimeInput = ""
+        endTimeInput = ""
+        typeInput = ""
+        descriptionInput = ""
+        costInput = 0.0
+        isCreate = false
+        submissionStatus = StringDataStatusUIState.Start
+
+    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    fun convertIsoToCustomFormat(isoString: String, customFormat: String = "HH:mm"): String? {
+        return try {
+            val isoFormatter = DateTimeFormatter.ISO_DATE_TIME
+            val customFormatter = DateTimeFormatter.ofPattern(customFormat)
+            val zonedDateTime = ZonedDateTime.parse(isoString, isoFormatter)
+            zonedDateTime.format(customFormatter)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
         }
     }
 
