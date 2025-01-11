@@ -212,7 +212,7 @@ fun SignUp(navController: NavController, initialEmail: String = "") {
 @Preview(showBackground = true)
 @Composable
 fun SignUpPreview() {
-    ALP_VPTheme {
+
         SignUp(initialEmail = "test@example.com", navController = rememberNavController())
-    }
+
 }

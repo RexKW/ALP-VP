@@ -164,7 +164,7 @@ fun SignIn(onNavigateToSignUp: () -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun SignInPreview() {
-    ALP_VPTheme {
+
         SignIn(onNavigateToSignUp = {})
-    }
+
 }
