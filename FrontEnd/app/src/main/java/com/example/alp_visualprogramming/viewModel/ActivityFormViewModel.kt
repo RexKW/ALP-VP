@@ -229,6 +229,7 @@ class ActivityFormViewModel(
                         if (res.isSuccessful) {
                             submissionStatus = StringDataStatusUIState.Success(res.body()!!.data)
                             Log.d("API Response", "Success: ${res.body()}")
+                            resetViewModel()
                         }else{
                             val errorMessage = Gson().fromJson(
                                 res.errorBody()!!.charStream(),
@@ -263,7 +264,7 @@ class ActivityFormViewModel(
                     ) {
                         if (res.isSuccessful) {
                             submissionStatus = StringDataStatusUIState.Success(res.body()!!.data)
-
+                            resetViewModel()
                         }
 
                     }

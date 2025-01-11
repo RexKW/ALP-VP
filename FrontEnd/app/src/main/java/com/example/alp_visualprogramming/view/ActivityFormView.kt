@@ -87,7 +87,9 @@ fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, activitiesVie
                 alignment = Alignment.TopStart,
             )
             IconButton(
-                onClick = { /* Handle back action here */ },
+                onClick = {
+                    navController.popBackStack()
+                },
                 modifier = Modifier
                     .align(Alignment.TopStart) // Align to the top left corner
                     .padding(16.dp)            // Add padding for proper spacing
@@ -109,35 +111,22 @@ fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, activitiesVie
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            Row {
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically
+            ) {
                 FormTextField(
                     inputValue = activityFormViewModel.titleInput,
                     onValueChange = {
                         activityFormViewModel.changeTitleInput(it)
                         activityFormViewModel.checkNullFormValues()
                     },
-                    modifier = Modifier
-                        .fillMaxWidth(),
+                    modifier = Modifier,
                     labelText = "Activity Name",
                     placeholderText = "Input Activity Name",
                     minLine = 1,
                     maxLine = 1
                 )
-
-                if (activityFormViewModel.activityId != 0){
-                    Icon(
-                        imageVector = Icons.Default.Delete,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(64.dp)
-                            .fillMaxWidth()
-                            .clickable{
-                               activityFormViewModel.deleteActivity( token)
-                                activitiesViewModel.getAllActivities(dayId =  activityFormViewModel.currDayId, token = token, navController = navController)
-                            },
-                        tint = Color(0xFFEE417D)
-                    )
-                }
 
             }
 
@@ -179,17 +168,26 @@ fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, activitiesVie
                 Column {
                     FormTimePicker(
                         timePickerValue = activityFormViewModel.startTimeInput,
-                        showTimeDialog = {activityFormViewModel.showTimePickerDialog(activityFormViewModel.initStartTimePickerDialog(context))},
+                        showTimeDialog = {
+                            activityFormViewModel.showTimePickerDialog(
+                                activityFormViewModel.initStartTimePickerDialog(context)
+                            )
+                        },
                         labelText = "Start Time"
                     )
                     FormTimePicker(
                         timePickerValue = activityFormViewModel.endTimeInput,
-                        showTimeDialog = {activityFormViewModel.showTimePickerDialog(activityFormViewModel.initEndTimePickerDialog(context))},
+                        showTimeDialog = {
+                            activityFormViewModel.showTimePickerDialog(
+                                activityFormViewModel.initEndTimePickerDialog(context)
+                            )
+                        },
                         labelText = "End Time"
                     )
                 }
                 Column {
-                    Text("Location",
+                    Text(
+                        "Location",
                         modifier = Modifier.padding(bottom = 4.dp),
                         style = TextStyle(
                             fontSize = 20.sp,
@@ -197,11 +195,14 @@ fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, activitiesVie
                             fontWeight = FontWeight(400),
                             color = Color(0xFF3E122B),
                         )
-                        )
-                    Column(modifier = Modifier.width(163.dp)
-                        .height(151.dp)
-                        .background(color = Color(0xFF5FEEDB),
-                            shape = RoundedCornerShape(size = 21.14119.dp))
+                    )
+                    Column(
+                        modifier = Modifier.width(163.dp)
+                            .height(151.dp)
+                            .background(
+                                color = Color(0xFF5FEEDB),
+                                shape = RoundedCornerShape(size = 21.14119.dp)
+                            )
 
 
                     ) {
@@ -256,105 +257,151 @@ fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, activitiesVie
                     }
 
                     else -> {
-                        if(activityFormViewModel.activityId != 0){
-                            Button(modifier = Modifier
-                                .padding(top = 10.dp)
-                                .width(372.dp)
-                                .height(62.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    Color(0xFFEE417D)
-                                ),
-                                onClick = {
-                                    activityFormViewModel.updateActivity(
-                                        token = token,
-                                        navController = navController,
-                                    )
-
-                                    activitiesViewModel.getAllActivities(dayId =  activityFormViewModel.currDayId, token = token, navController = navController)
-                                }
-                            ) {
-
-
-                                Text(
-                                    text = "Update",
-                                    style = TextStyle(
-                                        fontSize = 32.sp,
-                                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFBF7E7),
-
+                        Row(modifier = Modifier, horizontalArrangement = Arrangement.SpaceBetween) {
+                            if (activityFormViewModel.activityId != 0) {
+                                Button(modifier = Modifier
+                                    .padding(top = 10.dp)
+                                    .width(372.dp)
+                                    .height(62.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        Color(0xFFEE417D)
+                                    ),
+                                    onClick = {
+                                        activityFormViewModel.updateActivity(
+                                            token = token,
+                                            navController = navController,
                                         )
 
-                                )
-                            }
-                            Button(modifier = Modifier
-                                .padding(top = 10.dp)
-                                .width(372.dp)
-                                .height(62.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    Color(0xFFEE417D)
-                                ),
-                                onClick = {
-                                    activityFormViewModel.updateActivity(
-                                        token = token,
-                                        navController = navController,
-                                    )
-
-                                    activitiesViewModel.getAllActivities(dayId =  activityFormViewModel.currDayId, token = token, navController = navController)
-                                }
-                            ) {
-
-
-                                Text(
-                                    text = "Update",
-                                    style = TextStyle(
-                                        fontSize = 32.sp,
-                                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFBF7E7),
-
+                                        activitiesViewModel.getAllActivities(
+                                            dayId = activityFormViewModel.currDayId,
+                                            token = token,
+                                            navController = navController
                                         )
+                                    }
+                                ) {
 
-                                )
-                            }
-                        }else{
-                            Button(modifier = Modifier
-                                .padding(top = 10.dp)
-                                .width(372.dp)
-                                .height(62.dp),
-                                colors = ButtonDefaults.buttonColors(
-                                    Color(0xFFEE417D)
-                                ),
-                                onClick = {
-                                    activityFormViewModel.createActivity(
-                                        token = token,
-                                        navController = navController
+
+                                    Text(
+                                        text = "Update",
+                                        style = TextStyle(
+                                            fontSize = 32.sp,
+                                            fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                                            fontWeight = FontWeight(400),
+                                            color = Color(0xFFFBF7E7),
+
+                                            )
 
                                     )
                                 }
-                            ) {
-
-
-                                Text(
-                                    text = "Create",
-                                    style = TextStyle(
-                                        fontSize = 32.sp,
-                                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                                        fontWeight = FontWeight(400),
-                                        color = Color(0xFFFBF7E7),
-
+                                Button(modifier = Modifier
+                                    .padding(top = 10.dp)
+                                    .width(372.dp)
+                                    .height(62.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        Color(0xFFEE417D)
+                                    ),
+                                    onClick = {
+                                        activityFormViewModel.updateActivity(
+                                            token = token,
+                                            navController = navController,
                                         )
 
-                                )
+                                        activitiesViewModel.getAllActivities(
+                                            dayId = activityFormViewModel.currDayId,
+                                            token = token,
+                                            navController = navController
+                                        )
+                                    }
+                                ) {
+
+
+                                    Text(
+                                        text = "Update",
+                                        style = TextStyle(
+                                            fontSize = 32.sp,
+                                            fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                                            fontWeight = FontWeight(400),
+                                            color = Color(0xFFFBF7E7),
+
+                                            )
+
+                                    )
+                                }
+                            } else {
+                                Button(modifier = Modifier
+                                    .padding(top = 10.dp)
+                                    .width(372.dp)
+                                    .height(62.dp),
+                                    colors = ButtonDefaults.buttonColors(
+                                        Color(0xFFEE417D)
+                                    ),
+                                    onClick = {
+                                        activityFormViewModel.createActivity(
+                                            token = token,
+                                            navController = navController
+
+                                        )
+                                    }
+                                ) {
+
+
+                                    Text(
+                                        text = "Create",
+                                        style = TextStyle(
+                                            fontSize = 32.sp,
+                                            fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                                            fontWeight = FontWeight(400),
+                                            color = Color(0xFFFBF7E7),
+
+                                            )
+
+                                    )
+                                }
                             }
+
                         }
-
                     }
+
+
                 }
+
+
+
 
 
             }
 
+            Button(modifier = Modifier
+                .padding(top = 10.dp)
+                .width(372.dp)
+                .height(62.dp),
+                colors = ButtonDefaults.buttonColors(
+                    Color(0xFFEE417D)
+                ),
+                onClick = {
+                    activityFormViewModel.deleteActivity(token)
+                    activitiesViewModel.getAllActivities(
+                        dayId = activityFormViewModel.currDayId,
+                        token = token,
+                        navController = navController
+                    )
+
+                }
+            ) {
+
+
+                Text(
+                    text = "Delete",
+                    style = TextStyle(
+                        fontSize = 32.sp,
+                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                        fontWeight = FontWeight(400),
+                        color = Color(0xFFFBF7E7),
+
+                        )
+
+                )
+            }
         }
 
 

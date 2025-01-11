@@ -71,8 +71,8 @@ class TripNameViewModel(
                             Log.d("json", "JSON RESPONSE: ${res.body()!!.data}")
                             submissionStatus = StringDataStatusUIState.Success(res.body()!!.toString())
                             val itineraryId = res.body()!!.data.id
-
-                            navController.navigate("Journey/{$itineraryId}") {
+                            Log.d("itineraryId", "ITINERARY ID: $itineraryId")
+                            navController.navigate("Journey/$itineraryId") {
                                 popUpTo("Create") { inclusive = true }
                             }
                         } else {

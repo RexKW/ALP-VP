@@ -1,6 +1,8 @@
 package com.example.alp_visualprogramming.view
 
+import android.os.Build
 import android.util.Log
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -43,6 +45,7 @@ import com.example.alp_visualprogramming.viewModel.JourneyViewModel
 import com.example.alp_visualprogramming.viewModel.TripNameViewModel
 import com.example.alp_visualprogramming.viewModel.TripsViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ItineraryApp (
     navController: NavHostController = rememberNavController(),
@@ -158,7 +161,7 @@ fun ItineraryApp (
                 }
 
                 composable("ActivityDetail"){
-                    ActivityDetailView(modifier = Modifier.padding(innerPadding), navController = navController,activityDetailViewModel = activityDetailViewModel, activityFormViewModel = activityFormViewModel)
+                    ActivityDetailView(modifier = Modifier.padding(innerPadding), navController = navController,activityDetailViewModel = activityDetailViewModel, activityFormViewModel = activityFormViewModel, activitiesViewModel = activityViewModel, token = "f57031c8-1c62-4bea-947b-4239db58e31c")
                 }
 
                 composable("FormActivity") {
@@ -170,6 +173,7 @@ fun ItineraryApp (
     }
 }
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Preview(showBackground = true, showSystemUi = true)
 @Composable
 fun AppRoutePreview() {

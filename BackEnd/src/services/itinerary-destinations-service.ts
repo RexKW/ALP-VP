@@ -100,7 +100,6 @@ export class ItineraryDestinationService{
             const startDate = itinerary_Destinations.start_date
             const endDate = itinerary_Destinations.end_date
             const currentDate = startDate
-            const BATCH_SIZE = 20;
             const datesToInsert = [];
             let batchCounter = 0;
             while (currentDate <= endDate) {

@@ -1,5 +1,7 @@
 package com.example.alp_visualprogramming.view
 
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -11,9 +13,11 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.ShoppingCart
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
@@ -40,11 +44,13 @@ import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_visualprogramming.R
 import com.example.alp_visualprogramming.view.template.TripCard
+import com.example.alp_visualprogramming.viewModel.ActivitiesViewModel
 import com.example.alp_visualprogramming.viewModel.ActivityDetailViewModel
 import com.example.alp_visualprogramming.viewModel.ActivityFormViewModel
 
+@RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDetailViewModel, activityFormViewModel: ActivityFormViewModel, navController: NavController, viewOnly: Boolean = false){
+fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDetailViewModel, activityFormViewModel: ActivityFormViewModel, navController: NavController, viewOnly: Boolean = false, token: String, activitiesViewModel: ActivitiesViewModel){
 
         Column(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF7E7))) {
             Box(modifier = Modifier.fillMaxWidth()) {
@@ -247,6 +253,9 @@ fun ActivityDetailView(modifier: Modifier, activityDetailViewModel: ActivityDeta
                                 )
                             )
                         }
+
+
+
                     }
                 }
             }
@@ -266,6 +275,8 @@ fun ActivityDetailPreview() {
         modifier = Modifier,
         activityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory),
         navController = rememberNavController(),
+        token = "",
+        activitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory),
 
         activityFormViewModel = viewModel(factory = ActivityFormViewModel.Factory)
     )

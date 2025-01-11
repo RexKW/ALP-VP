@@ -47,14 +47,10 @@ class DestinationViewModel(
         navController.navigate("Destinations")
     }
 
-    fun searchDestination(){
-
-    }
 
     fun getAllDestinations(token: String){
         viewModelScope.launch {
             dataStatus = DestinationDataStatusUIState.Loading
-
             try {
                 val call = destinationRepository.getAllDestinations(token)
                 call.enqueue(object : Callback<GetAllDestinationResponse> {

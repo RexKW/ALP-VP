@@ -10,9 +10,14 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material3.Icon
@@ -20,6 +25,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -28,6 +35,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -54,6 +62,8 @@ fun DestinationSearchView(
     }
 
     val dataStatus = destinationViewModel.dataStatus
+    val searchText = remember { mutableStateOf("") }
+
 
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF7E7))) {
         Box(modifier = Modifier.fillMaxWidth()) {
@@ -93,6 +103,10 @@ fun DestinationSearchView(
                 )
             )
 
+            SearchBar(searchText.value) { newText ->
+                searchText.value = newText
+            }
+
             when(dataStatus){
                 is DestinationDataStatusUIState.Success -> {
                     LazyVerticalGrid(
@@ -103,7 +117,10 @@ fun DestinationSearchView(
                         verticalArrangement = Arrangement.spacedBy(16.dp),
                         contentPadding = PaddingValues(bottom = 100.dp)
                     ) {
-                        items(dataStatus.data) { destination ->
+                        items(dataStatus.data.filter {
+                            it.name.contains(searchText.value, ignoreCase = true) ||
+                                    it.province.contains(searchText.value, ignoreCase = true)
+                        }) { destination ->
                             DestinationCard(
                                 name = destination.name,
                                 province = destination.province,
@@ -148,6 +165,43 @@ fun DestinationSearchView(
     }
 
 
+}
+
+@Composable
+
+fun SearchBar(searchText: String, onSearchTextChange: (String) -> Unit) {
+    Box(
+        modifier = Modifier
+            .width(380.dp)
+            .height(47.dp)
+            .background(color = Color(0xFFEAE5D2), shape = RoundedCornerShape(size = 20.dp))
+            .padding(horizontal = 16.dp, vertical = 12.dp)
+    ) {
+        BasicTextField(
+            value = searchText,
+            onValueChange = onSearchTextChange,
+            modifier = Modifier.fillMaxWidth(),
+            textStyle = TextStyle(
+                color = Color.Black,
+                fontSize = 16.sp,
+                fontWeight = FontWeight.Normal
+            ),
+            keyboardOptions = KeyboardOptions.Default.copy(imeAction = ImeAction.Search),
+            keyboardActions = KeyboardActions(onSearch = {
+                // Handle search action (currently placeholder)
+            })
+        )
+        if (searchText.isEmpty()) {
+            Text(
+                text = "     Search",
+                style = TextStyle(
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight(400),
+                    color = Color(0x6B3E122B),
+                )
+            )
+        }
+    }
 }
 
 @Preview(
