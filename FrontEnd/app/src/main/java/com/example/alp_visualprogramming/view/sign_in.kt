@@ -23,8 +23,8 @@ import androidx.compose.foundation.text.ClickableText
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.alp_vp.R
-import com.example.alp_vp.ui.theme.ALP_VPTheme
+    import com.example.alp_visualprogramming.R
+import com.example.alp_visualprogramming.ui.theme.ALP_VisualProgrammingTheme
 
 @Composable
 fun SignIn(onNavigateToSignUp: () -> Unit) {

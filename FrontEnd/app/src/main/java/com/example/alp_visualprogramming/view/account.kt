@@ -20,6 +20,11 @@ import androidx.compose.ui.text.input.*
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+<<<<<<< Updated upstream
+=======
+import com.example.alp_visualprogramming.R
+import com.example.alp_visualprogramming.ui.theme.ALP_VisualProgrammingTheme
+>>>>>>> Stashed changes
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.platform.LocalContext
@@ -278,5 +283,12 @@ fun account(name: String, modifier: Modifier = Modifier, context: Context) {
 @Preview(showBackground = true)
 @Composable
 fun accountPreview() {
+<<<<<<< Updated upstream
 
+=======
+    ALP_VisualProgrammingTheme() {
+        val context = LocalContext.current
+        account("Android", context = context)
+    }
+>>>>>>> Stashed changes
 }
