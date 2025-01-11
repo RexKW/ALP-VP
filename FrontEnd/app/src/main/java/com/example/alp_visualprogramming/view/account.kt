@@ -25,7 +25,7 @@ import androidx.compose.material.icons.filled.Edit
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import coil.compose.rememberAsyncImagePainter
-import com.example.alp_vp.R
+import com.example.alp_visualprogramming.R
 import com.example.alp_vp.api.ProfileImageResponse
 import kotlinx.coroutines.launch
 import retrofit2.Response
@@ -278,8 +278,5 @@ fun account(name: String, modifier: Modifier = Modifier, context: Context) {
 @Preview(showBackground = true)
 @Composable
 fun accountPreview() {
-    ALP_VPTheme {
-        val context = LocalContext.current
-        account("Android", context = context)
-    }
+
 }
