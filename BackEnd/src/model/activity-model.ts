@@ -12,10 +12,11 @@ export interface CreateActivityRequest {
   location_id: number;
 }
 
+
 export interface ActivityUpdateRequest {
-  id: number;
   name: string;
   description: string;
+  day_id: number;
   start_time: Date;
   end_time: Date;
   type: string;

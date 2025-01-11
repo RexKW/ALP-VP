@@ -1,12 +1,19 @@
-import { NextFunction, Request, Response } from "express";
-import { LoginRequest, RegisterRequest, UserResponse } from "../model/user-model";
+import { NextFunction, Request, response, Response } from "express";
 import { UserService } from "../services/auth-service";
+import { ActivityUpdateRequest, CreateActivityRequest} from "../model/activity-model";
+import { ActivityService } from "../services/activity-service";
+import { DayService } from "../services/day-service";
+import { prismaClient } from "../application/database";
+
+function addLeadingZero(time: string): string { 
+    return time.length === 4 ? `0${time}` : time; 
+}
 
 export class ActivityController{
-    static async register(req: Request, res: Response, next: NextFunction){
+    static async getAllDays(req: Request, res: Response, next: NextFunction){
         try{
-            const request: RegisterRequest = req.body as RegisterRequest
-            const response: UserResponse = await UserService.register(request)
+            const itineraryDestinationId = Number(req.params.itineraryDestinationId)
+            const response = await DayService.getAllDays(itineraryDestinationId)
 
             res.status(200).json({
                 data: response
@@ -16,10 +23,10 @@ export class ActivityController{
         }
     }
 
-    static async login(req: Request, res: Response, next: NextFunction) {
+    static async getAllActivities(req: Request, res: Response, next: NextFunction) {
         try {
-            const request = req.body as LoginRequest
-            const response = await UserService.login(request)
+            const dayId = Number(req.params.dayId);
+            const response = await ActivityService.getAllActivity(dayId)
 
             res.status(200).json({
                 data: response,
@@ -28,4 +35,100 @@ export class ActivityController{
             next(error)
         }
     }
+
+    static async getActivity(req: Request, res: Response, next: NextFunction) {
+        try {
+            const activityId = Number(req.params.activityId)
+            const response = await ActivityService.getActivity(activityId)
+
+            res.status(200).json({
+                data: response,
+            })
+        } catch (error) {
+            next(error)
+        }
+    }
+
+    static async createActivity(req: Request, res: Response, next: NextFunction){
+        try{
+            const request = req.body as CreateActivityRequest
+            const dayId = Number(req.params.dayId);
+            const day = await prismaClient.schedule_Per_Day.findUnique({
+                where:{
+                    id: dayId
+                }
+            })
+            const start_time = addLeadingZero(`${request.start_time}`);
+            const end_time = addLeadingZero(`${request.end_time}`)
+            const dayString = day?.date.toISOString().split('T')[0];
+            const startDateTime = new Date(`${dayString}T${start_time}:00.000Z`).toISOString();
+            const endDateTime = new Date(`${dayString}T${end_time}:00.000Z`).toISOString();
+            const timeRequest = { 
+                ...request, 
+                start_time: new Date(startDateTime), 
+                end_time: new Date(endDateTime) 
+            };
+            const response = await ActivityService.createActivity(dayId,timeRequest)
+
+
+            res.status(200).json({
+                data: response
+            })
+
+        }catch (error){
+            next(error)
+        }
+    }
+
+    static async deleteActivity(req: Request, res: Response, next: NextFunction){
+        try{
+            const activityId = Number(req.params.activityId)
+            const response = await ActivityService.deleteActivity(activityId)
+
+            res.status(200).json({
+                data: response
+            })
+
+        }catch(error){
+            next(error)
+        }
+    }
+
+    static async updateActivity(req: Request, res: Response, next: NextFunction){
+
+        try{
+            const request = req.body as ActivityUpdateRequest
+            const activityId = Number(req.params.activityId)
+            const start_time = addLeadingZero(`${request.start_time}`);
+            const end_time = addLeadingZero(`${request.end_time}`)
+            const dayId = req.body.day_id;
+            const day = await prismaClient.schedule_Per_Day.findUnique({
+                where:{
+                    id: dayId
+                }
+            })
+
+            const dayString = day?.date.toISOString().split('T')[0];
+            const startDateTime = new Date(`${dayString}T${start_time}:00.000Z`).toISOString();
+            const endDateTime = new Date(`${dayString}T${end_time}:00.000Z`).toISOString();
+            const timeRequest = {  
+                ...request, 
+                start_time: new Date(startDateTime), 
+                end_time: new Date(endDateTime) 
+            };
+            console.log(timeRequest)
+            const response = await ActivityService.updateActivity(activityId, timeRequest)
+
+            res.status(200).json({
+                data: response
+            })
+
+
+        }catch(error){
+            next(error)
+        }
+    }
+
+    
 }
+

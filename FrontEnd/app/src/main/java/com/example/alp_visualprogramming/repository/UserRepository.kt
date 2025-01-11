@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.alp_visualprogramming.models.GeneralResponseModel
+import com.example.alp_visualprogramming.models.UserRoleResponse
 import com.example.alp_visualprogramming.service.UserAPIService
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.map
@@ -19,6 +20,8 @@ interface UserRepository {
     suspend fun saveUserToken(token: String)
 
     suspend fun saveUsername(username: String)
+
+    fun getUserRole(token: String, id: Int): Call<UserRoleResponse>
 }
 
 class NetworkUserRepository(
@@ -52,5 +55,9 @@ class NetworkUserRepository(
 
     override fun logout(token: String): Call<GeneralResponseModel> {
         return userAPIService.logout(token)
+    }
+
+    override fun getUserRole(token: String, id: Int): Call<UserRoleResponse> {
+        return userAPIService.getUserRole(token, id)
     }
 }

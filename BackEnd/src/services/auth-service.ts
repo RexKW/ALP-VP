@@ -8,6 +8,16 @@ import { Validation } from "../validation/validation";
 import { v4 as uuidv4 } from "uuid";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
+import {v4 as uuid} from "uuid"
+import bcrypt from "bcrypt"
+import { PrismaClient } from "@prisma/client";
+
+export class UserService{
+    static async register(req: RegisterUserRequest): Promise<UserResponse>{
+        const registerReq = Validation.validate(
+            UserValidation.REGISTER,req
+        )
+
 
 class UserService {
     static async register(req: any): Promise<UserResponse> {
@@ -78,3 +88,13 @@ class UserService {
 }
 
 export { UserService };
+
+    static async getAllUsers(){
+        const userList = await prismaClient.user.findMany()
+
+
+        return userList
+
+
+    }
+}

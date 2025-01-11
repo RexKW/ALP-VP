@@ -25,6 +25,30 @@ class ItineraryUserService {
             return (0, itinerary_users_model_1.toItineraryUserResponseList)(itinerary_users);
         }))();
     }
+    static getAllUsers() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const users = yield database_1.prismaClient.user.findMany();
+            return users;
+        });
+    }
+    static getUserRole(user, itineraryId) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const userItinerary = yield database_1.prismaClient.itinerary_Users.findUnique({
+                where: {
+                    user_id_itinerary_id_unique: {
+                        user_id: user.id,
+                        itinerary_id: itineraryId,
+                    },
+                },
+            });
+            if (userItinerary) {
+                return userItinerary.role;
+            }
+            else {
+                return "Not in Itinerary";
+            }
+        });
+    }
     static addItineraryUser(req) {
         return (() => __awaiter(this, void 0, void 0, function* () {
             const itinerary_user_request = validation_1.Validation.validate(itinerary_user_validation_1.ItineraryUserValidation.CREATE, req);

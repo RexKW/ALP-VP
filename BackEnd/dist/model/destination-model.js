@@ -7,6 +7,7 @@ function toDestinationResponse(destination) {
         id: destination.id,
         name: destination.name,
         province: destination.province,
+        destination_api_id: destination.destination_api_id
     };
 }
 function toDestinationResponseList(prismaTodo) {
@@ -15,6 +16,7 @@ function toDestinationResponseList(prismaTodo) {
             id: destination.id,
             name: destination.name,
             province: destination.province,
+            destination_api_id: destination.destination_api_id
         };
     });
     return result;

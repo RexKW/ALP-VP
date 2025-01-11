@@ -7,13 +7,14 @@ import { ActivityValidation } from "../validation/activity-validation";
 import { logger } from "../application/logging"
 
 export class ActivityService{
-    static async getAllActivity(day: Schedule_Per_Day): Promise<ActivityResponse[]> {
+    static async getAllActivity(day_id: number): Promise<ActivityResponse[]> {
         const activity = await prismaClient.activity.findMany({
             where: {
-                day_id: day.id,
+                day_id: day_id,
             },
         })
 
+        activity.sort((a, b) => new Date(a.start_time).getTime() - new Date(b.start_time).getTime());
         return toActivityResponseList(activity)
     }
 
@@ -41,7 +42,7 @@ export class ActivityService{
 
 
     static async createActivity(
-        day: Schedule_Per_Day,
+        day_id: number,
         req: CreateActivityRequest
     ): Promise<string> {
         const activityRequest = Validation.validate(ActivityValidation.CREATE, req)
@@ -55,7 +56,7 @@ export class ActivityService{
                 cost: activityRequest.cost,
                 type: activityRequest.type,
                 location_id: activityRequest.location_id,
-                day_id: day.id,
+                day_id: day_id,
             },
         })
 
@@ -64,23 +65,25 @@ export class ActivityService{
 
 
     static async updateActivity(
+        activity_id: number,
             req: ActivityUpdateRequest
         ): Promise<string> {
             const activity = Validation.validate(ActivityValidation.UPDATE, req)
     
-            await this.checkActivity(activity.id)
+            await this.checkActivity(activity_id)
     
-            const itineraryUpdate = await prismaClient.itinerary.update({
+            const activityUpdate = await prismaClient.activity.update({
                 where: {
-                    id: activity.id,
+                    id: activity_id,
                 },
                 data: activity,
             })
     
-            logger.info("UPDATE RESULT: " + itineraryUpdate)
+            logger.info("UPDATE RESULT: " + activityUpdate)
     
             return "Data update was successful!"
         }
+
         static async deleteActivity(aId: number,): Promise<String> {
             await this.checkActivity(aId)
     

@@ -11,6 +11,8 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.ItineraryController = void 0;
 const itinerary_service_1 = require("../services/itinerary-service");
+const itinerary_destinations_service_1 = require("../services/itinerary-destinations-service");
+const itinerary_users_service_1 = require("../services/itinerary-users-service");
 class ItineraryController {
     static getItinerary(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -52,8 +54,10 @@ class ItineraryController {
                     throw new Error("User is not authenticated");
                 }
                 const request = req.body;
-                const response = yield itinerary_service_1.ItineraryService.createItinerary(request, Object.assign(Object.assign({}, user), { id: Number(user.id), token: (_a = user.token) !== null && _a !== void 0 ? _a : null }));
-                res.status(201).json({
+                // const response = yield itinerary_service_1.ItineraryService.createItinerary(request, Object.assign(Object.assign({}, user), { id: Number(user.id), token: (_a = user.token) !== null && _a !== void 0 ? _a : null }));
+                // res.status(201).json({
+                const response = yield itinerary_service_1.ItineraryService.createItinerary(request, req.user);
+                res.status(200).json({
                     data: response,
                 });
             }
@@ -84,6 +88,49 @@ class ItineraryController {
                 res.status(201).json({
                     data: response,
                 });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    //Destinations 
+    static selectDestination(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const request = req.body;
+                request.destination_id = Number(req.params.destinationId);
+                const dateRequest = Object.assign(Object.assign({}, request), { start_date: new Date(request.start_date), end_date: new Date(request.end_date) });
+                const response = yield itinerary_destinations_service_1.ItineraryDestinationService.createItineraryDestination(dateRequest, req.user);
+                res.status(200).json({
+                    data: response,
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    static allJourney(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const itinerary_id = parseInt(req.params.itineraryId, 10);
+                const response = yield itinerary_destinations_service_1.ItineraryDestinationService.getAllItinenaryDestination(itinerary_id);
+                res.status(200).json({
+                    data: response
+                });
+            }
+            catch (error) {
+                next(error);
+            }
+        });
+    }
+    //Users
+    static addUser(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const request = req.body;
+                const response = yield itinerary_users_service_1.ItineraryUserService.addItineraryUser(request);
             }
             catch (error) {
                 next(error);

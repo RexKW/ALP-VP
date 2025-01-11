@@ -23,3 +23,17 @@ export function toBudgetResponse(budget: Budget): BudgetResponse {
     type: budget.type,
   };
 }
+
+
+export function toBudgetResponseList(prismaTodo: Budget[]): BudgetResponse[] {
+  const result = prismaTodo.map((budget) => {
+    return {
+      id: budget.id,
+      estimated_budget: budget.estimated_budget,
+      actual_budget: budget.actual_budget,
+      type: budget.type,
+    };
+  })
+
+  return result
+}

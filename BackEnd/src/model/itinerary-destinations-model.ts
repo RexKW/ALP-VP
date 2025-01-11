@@ -3,7 +3,13 @@ import { Itinerary_Destinations } from "@prisma/client";
 export interface AddItineraryDestinationRequest {
   itinerary_id: number;
   destination_id: number;
-  accomodation_id?: number |null;
+  start_date: Date;
+  end_date: Date;
+}
+
+export interface UpdateItineraryDestinationRequest {
+  id: number;
+  destination_id: number;
   start_date: Date;
   end_date: Date;
 }

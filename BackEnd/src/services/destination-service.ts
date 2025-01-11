@@ -7,6 +7,34 @@ import { ActivityValidation } from "../validation/activity-validation";
 import { toDestinationResponse, DestinationResponse, toDestinationResponseList } from "../model/destination-model";
 
 export class DestinationService{
+    static async addDestination(api_id: number): Promise<Destination>{
+        const axios = require('axios');
+        const destination = await prismaClient.destination.findUnique({
+            where:{
+                destination_api_id: api_id
+            }
+        })
+        if(destination){
+            return destination
+        }
+
+        const destinations = await this.getAllDestination()
+        const destinationDB = destinations.find(destination => destination.id === String(api_id));
+        const dbDestination = await prismaClient.destination.create({
+            data:{
+                name: destinationDB.name,
+                province: destinationDB.province,
+                destination_api_id: parseInt(destinationDB.id, 10)
+            }
+        })
+
+        return dbDestination
+        
+        
+        
+    }
+
+
     static async getAllProvinces() {
         const axios = require('axios');
         const destinations = await axios.get('https://rexkw.github.io/api-wilayah-indonesia/api/provinces.json')
@@ -24,23 +52,41 @@ export class DestinationService{
 
     static async getAllDestination(){
         const provinces = await this.getAllProvinces();
-        const allCities = [];
-        for (const province of provinces) { 
-            const cities = await this.getAllCitiesInProvince(province.id); 
-            const cityWithProvince = cities.map(({ id ,name }: Destination) =>({
-                id,
-                name,
-                province: province.name
-            }));
-            allCities.push(...cityWithProvince)
-        }
 
-        return allCities
+    const allCitiesPromises = provinces.map(async (province: { id: string; name: string }) => {
+        const cities = await this.getAllCitiesInProvince(province.id);
+
+
+        return cities.map(({ id, name }: Destination) => ({
+            id,
+            name: name.replace(/\b(KOTA |KABUPATEN )\b\s*/gi, ""),
+            province: province.name
+        }));
+    });
+
+
+    const allCities = (await Promise.all(allCitiesPromises)).flat();
+
+    return allCities;
     }
 
     static async getDestinationbyID(destinationId: string){
         const axios = require('axios');
         const destination = await axios.get(`https://emsifa.github.io/api-wilayah-indonesia/api/regency/${destinationId}.json`);
+
+        return destination
+    }
+
+    static async getDestinationDBbyID(destination_id: number){
+        const destination = await prismaClient.destination.findUnique({
+            where:{
+                id: destination_id
+            }
+        })
+
+        if (!destination) {
+            throw new Error('Destination not found');
+        }
 
         return destination
     }

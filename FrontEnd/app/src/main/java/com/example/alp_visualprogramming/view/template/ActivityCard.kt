@@ -1,6 +1,7 @@
 package com.example.alp_visualprogramming.view.template
 
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.height
@@ -34,7 +35,10 @@ fun ActivityCardView(
         Card(
             modifier = Modifier.padding(top = 8.dp, bottom = 8.dp)
                 .width(312.07941.dp)
-                .height(120.dp),
+                .height(120.dp)
+                .clickable{
+                    onCardClick()
+                          },
             colors = CardDefaults.cardColors(
                 containerColor = Color(0xFF5FEEDB),
             ),

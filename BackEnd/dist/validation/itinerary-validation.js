@@ -6,8 +6,7 @@ class ItineraryValidation {
 }
 exports.ItineraryValidation = ItineraryValidation;
 ItineraryValidation.CREATE = zod_1.z.object({
-    name: zod_1.z.string().min(1).max(100),
-    user_id: zod_1.z.number().positive()
+    name: zod_1.z.string().min(1).max(100)
 });
 ItineraryValidation.UPDATE = zod_1.z.object({
     id: zod_1.z.number().positive(),

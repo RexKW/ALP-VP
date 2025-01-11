@@ -7,6 +7,8 @@ exports.toUserResponse = void 0;
 function toUserResponse(user) {
     return {
         id: user.id,
+        token: (_a = user.token) !== null && _a !== void 0 ? _a : "",
+        email: user.email,
         username: user.username,
         email: user.email,
         password: user.password, // Add this line

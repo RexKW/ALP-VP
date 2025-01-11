@@ -17,6 +17,12 @@ const response_error_1 = require("../error/response-error");
 const itinerary_validation_1 = require("../validation/itinerary-validation");
 const logging_1 = require("../application/logging");
 class ItineraryService {
+    static explore() {
+        return __awaiter(this, void 0, void 0, function* () {
+            const allItineraries = yield database_1.prismaClient.itinerary.findMany();
+            return (0, itinerary_model_1.toItineraryExploreResponseList)(allItineraries);
+        });
+    }
     static getAllItinerary(user) {
         return __awaiter(this, void 0, void 0, function* () {
             var _a, _b;
@@ -62,6 +68,59 @@ class ItineraryService {
                 itinerariesWithUserCount.push(itinerariesWithUser);
             }
             return (0, itinerary_model_1.toItineraryResponseList)(itinerariesWithUserCount);
+        });
+    }
+    static getAllInvitedItinerary(user) {
+        return __awaiter(this, void 0, void 0, function* () {
+            var _a, _b;
+            const itinerariesOwned = yield database_1.prismaClient.itinerary_Users.findMany({
+                where: {
+                    user_id: user.id,
+                    role: {
+                        in: ['admin', 'member']
+                    }
+                },
+            });
+            const itineraryIds = itinerariesOwned.map((item) => item.itinerary_id);
+            const itineraries = yield database_1.prismaClient.itinerary.findMany({
+                where: {
+                    id: { in: itineraryIds }
+                }
+            });
+            const itinerariesWithUserCount = [];
+            for (const itinerary of itineraries) {
+                const userCount = yield database_1.prismaClient.itinerary_Users.count({
+                    where: {
+                        itinerary_id: itinerary.id
+                    }
+                });
+                const dateRange = yield database_1.prismaClient.itinerary_Destinations.aggregate({
+                    where: {
+                        itinerary_id: itinerary.id,
+                    },
+                    _min: {
+                        start_date: true,
+                    },
+                    _max: {
+                        end_date: true,
+                    },
+                });
+                const start_date = (_a = dateRange._min.start_date) !== null && _a !== void 0 ? _a : new Date(0);
+                const end_date = (_b = dateRange._max.end_date) !== null && _b !== void 0 ? _b : new Date(0);
+                const itinerariesWithUser = {
+                    id: itinerary.id,
+                    name: itinerary.name,
+                    travellers: userCount,
+                    from: start_date,
+                    to: end_date
+                };
+                itinerariesWithUserCount.push(itinerariesWithUser);
+            }
+            return (0, itinerary_model_1.toItineraryResponseList)(itinerariesWithUserCount);
+        });
+    }
+    static cloneItinerary() {
+        return __awaiter(this, void 0, void 0, function* () {
         });
     }
     static getItinerary(itinerary_id) {
@@ -119,7 +178,7 @@ class ItineraryService {
                     role: "owner"
                 }
             });
-            return "Itinerary created successfully!";
+            return itinerary1;
         });
     }
     static updateItinerary(req) {
