@@ -15,6 +15,17 @@ export interface BudgetResponse {
   type: string;
 }
 
+export interface ActualBudgetResponse{
+  totalAccomodation: Decimal;
+  totalTransport: Decimal;
+  totalShoppingEntertainment: Decimal;
+  totalCulinary: Decimal;
+  totalSightSeeing: Decimal;
+  totalHealthcare: Decimal;
+  totalSport: Decimal;
+        
+}
+
 export function toBudgetResponse(budget: Budget): BudgetResponse {
   return {
     id: budget.id,

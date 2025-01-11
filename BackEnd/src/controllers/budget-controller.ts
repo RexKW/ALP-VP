@@ -1,12 +1,15 @@
 import { NextFunction, Request, Response } from "express";
 import { LoginUserRequest, RegisterUserRequest, UserResponse } from "../model/user-model";
 import { UserService } from "../services/auth-service";
+import { UserRequest } from "../type/user-request";
+import { ActualBudgetResponse } from "../model/budget-model";
+import { BudgetService } from "../services/budget-service";
 
 export class BudgetController{
-    static async register(req: Request, res: Response, next: NextFunction){
+    static async actualBudget(req: UserRequest, res: Response, next: NextFunction){
         try{
-            const request: RegisterUserRequest = req.body as RegisterUserRequest
-            const response: UserResponse = await UserService.register(request)
+            const id = Number(req.params.itineraryId)
+            const response: ActualBudgetResponse = await BudgetService.getSpendings(id)
 
             res.status(200).json({
                 data: response

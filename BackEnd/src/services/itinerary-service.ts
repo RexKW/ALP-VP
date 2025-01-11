@@ -125,8 +125,22 @@ export class ItineraryService{
         return toItineraryResponseList(itinerariesWithUserCount)
     }
 
-    static async cloneItinerary(){
-        
+    static async cloneItinerary(itinerary_id: number, user: User){
+        const itinerary = await this.checkItinerary(itinerary_id);
+        const itinerary1 = await prismaClient.itinerary.create({
+            data: {
+                name: itinerary.name,
+                created_date: new Date().toISOString(),
+                updated_date: new Date().toISOString()
+            },
+        })
+        const owner = await prismaClient.itinerary_Users.create({
+            data:{
+                user_id: user.id,
+                itinerary_id: itinerary1.id,
+                role: "owner"
+            }
+        })
     }
 
     static async getItinerary(itinerary_id: number): Promise<ItineraryResponse> {
@@ -198,8 +212,20 @@ export class ItineraryService{
                 role: "owner"
             }
         })
+
+        // const itinerary_Destinations = await prismaClient.itinerary_Destinations.create({
+        //     data: {
+        //         itinerary_id: itinerary_Destinations_Request.itinerary_id,
+        //         destination_id: destination.id,
+        //         accomodation_id: null,
+        //         start_date: itinerary_Destinations_Request.start_date,
+        //         end_date: itinerary_Destinations_Request.end_date
+        //     },
+        // })
+
         return itinerary1
     }
+
 
 
     static async updateItinerary(

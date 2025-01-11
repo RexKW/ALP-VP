@@ -7,6 +7,7 @@ exports.apiRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const itinerary_controller_1 = require("../controllers/itinerary-controller");
 const activity_controller_1 = require("../controllers/activity-controller");
+const budget_controller_1 = require("../controllers/budget-controller");
 const auth_middleware_1 = require("../middlware/auth-middleware");
 const destination_controller_1 = require("../controllers/destination-controller");
 const user_controller_1 = require("../controllers/user-controller");
@@ -31,6 +32,7 @@ exports.apiRouter.post("/activities/createActivity/:dayId(\\d+)", activity_contr
 exports.apiRouter.get("/activities/getActivity/:activityId(\\d+)", activity_controller_1.ActivityController.getActivity);
 exports.apiRouter.delete("/activities/deleteActivity/:activityId(\\d+)", activity_controller_1.ActivityController.deleteActivity);
 exports.apiRouter.put("/activities/updateActivity/:activityId(\\d+)", activity_controller_1.ActivityController.updateActivity);
+exports.apiRouter.get("/budget/actualBudget/:itineraryId(\\d+)", budget_controller_1.BudgetController.actualBudget);
 exports.apiRouter.get("/users/all", user_controller_1.AuthController.allUsers);
 exports.apiRouter.get("/users/role/:itineraryId(\\d+)", user_controller_1.AuthController.userRole);
 exports.apiRouter.get("/location/seed");

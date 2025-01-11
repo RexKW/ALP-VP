@@ -32,6 +32,8 @@ apiRouter.get("/activities/getActivity/:activityId(\\d+)", ActivityController.ge
 apiRouter.delete("/activities/deleteActivity/:activityId(\\d+)", ActivityController.deleteActivity)
 apiRouter.put("/activities/updateActivity/:activityId(\\d+)", ActivityController.updateActivity)
 
+apiRouter.get("/budget/actualBudget/:itineraryId(\\d+)", BudgetController.actualBudget)
+
 
 apiRouter.get("/users/all", AuthController.allUsers)
 apiRouter.get("/users/role/:itineraryId(\\d+)", AuthController.userRole)

@@ -11,12 +11,13 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.BudgetController = void 0;
 const auth_service_1 = require("../services/auth-service");
+const budget_service_1 = require("../services/budget-service");
 class BudgetController {
-    static register(req, res, next) {
+    static actualBudget(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const request = req.body;
-                const response = yield auth_service_1.UserService.register(request);
+                const id = Number(req.params.itineraryId);
+                const response = yield budget_service_1.BudgetService.getSpendings(id);
                 res.status(200).json({
                     data: response
                 });

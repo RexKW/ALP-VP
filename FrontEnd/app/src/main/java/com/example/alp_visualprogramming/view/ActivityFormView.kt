@@ -380,7 +380,7 @@ fun ActivityFormView(activityFormViewModel: ActivityFormViewModel, activitiesVie
                 ),
                 onClick = {
                     activityFormViewModel.deleteActivity(token)
-                    activitiesViewModel.getAllActivities(
+                    activitiesViewModel.getAllActivitiesBack(
                         dayId = activityFormViewModel.currDayId,
                         token = token,
                         navController = navController
