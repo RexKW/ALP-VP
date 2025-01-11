@@ -30,7 +30,6 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
-import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_visualprogramming.R
 import com.example.alp_visualprogramming.uiStates.TripDataStatusUIState
@@ -38,97 +37,128 @@ import com.example.alp_visualprogramming.view.template.TripCard
 import com.example.alp_visualprogramming.viewModel.TripsViewModel
 
 @Composable
-fun YourTripView(modifier: Modifier = Modifier,  navController : NavController, token: String, tripsViewModel: TripsViewModel, context : Context){
-    var placeholder = true
+fun YourTripView(
+    modifier: Modifier = Modifier,
+    navController: NavController,
+    token: String,
+    tripsViewModel: TripsViewModel,
+    context: Context
+) {
     val dataStatus = tripsViewModel.dataStatus
+
+    // Memuat data ketika token berubah
     LaunchedEffect(token) {
         if (token != "Unknown") {
             tripsViewModel.getAllItineraries(token)
         }
     }
 
+    // Menangani error ketika terjadi kesalahan data
     LaunchedEffect(dataStatus) {
         if (dataStatus is TripDataStatusUIState.Failed) {
-            Toast.makeText(context, "DATA ERROR: ${dataStatus.errorMessage}", Toast.LENGTH_SHORT).show()
+            Toast.makeText(context, "Error: ${dataStatus.errorMessage}", Toast.LENGTH_SHORT).show()
             tripsViewModel.clearDataErrorMessage()
         }
     }
-    Column(modifier = Modifier.fillMaxWidth().padding(start = 15.dp, end = 15.dp, top = 50.dp), horizontalAlignment = Alignment.CenterHorizontally) {
-        Row(
-            modifier = Modifier.align(Alignment.Start).padding(start = 15.dp),
-            verticalAlignment = Alignment.Bottom
+
+    Column(
+        modifier = modifier
+            .fillMaxWidth()
+            .padding(horizontal = 15.dp, vertical = 20.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        // Header dengan judul
+        Column(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 10.dp)
         ) {
             Text(
-                "Your Trips",
+                text = "Your Trips",
                 style = TextStyle(
-                    fontSize = 45.sp,
+                    fontSize = 36.sp,
                     fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                    fontWeight = FontWeight(400),
+                    fontWeight = FontWeight.Bold,
                     color = Color(0xFFEE417D),
-
-                    textAlign = TextAlign.Center,
-                )
+                    textAlign = TextAlign.Start
+                ),
+                modifier = Modifier.align(Alignment.Start)
             )
             Text(
-                "Invited Trips",
-                modifier = Modifier.padding(start = 30.dp),
+                text = "Invited Trips",
                 style = TextStyle(
                     fontSize = 24.sp,
                     fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                    fontWeight = FontWeight(400),
+                    fontWeight = FontWeight.Medium,
                     color = Color(0xFF3E122B),
-
-                    textAlign = TextAlign.Center,
-                )
+                    textAlign = TextAlign.Start
+                ),
+                modifier = Modifier
+                    .padding(top = 5.dp)
+                    .align(Alignment.Start)
             )
         }
+
+        // Handling UI state berdasarkan dataStatus
         when (dataStatus) {
-            is TripDataStatusUIState.Success -> if (dataStatus.data.isNotEmpty()) {
-                LazyColumn(
-                    flingBehavior = ScrollableDefaults.flingBehavior(),
-                    modifier = Modifier
-                        .padding(vertical = 8.dp)
-                        .clip(RoundedCornerShape(10.dp)),
-                    contentPadding = PaddingValues(bottom = 152.dp),
-                    verticalArrangement = Arrangement.spacedBy(16.dp)
-                ) {
-                    items(dataStatus.data) { trip->
+            is TripDataStatusUIState.Loading -> {
+                Text(
+                    text = "Loading trips...",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Medium,
+                    modifier = Modifier.padding(vertical = 20.dp)
+                )
+            }
 
-                        TripCard(
-                            title = trip.name,
-                            travellers = trip.travellers,
-                            startDate = tripsViewModel.formatDate(trip.startDate),
-                            endDate = tripsViewModel.formatDate(trip.endDate),
-                            modifier = Modifier
-                                .padding(bottom = 12.dp),
-                            onCardClick = {
-//                                tripsDetailViewModel.getTodo(token, trip.id, navController, false)
-                            }
-                        )
+            is TripDataStatusUIState.Success -> {
+                if (dataStatus.data.isNotEmpty()) {
+                    LazyColumn(
+                        flingBehavior = ScrollableDefaults.flingBehavior(),
+                        modifier = Modifier
+                            .padding(vertical = 8.dp)
+                            .clip(RoundedCornerShape(10.dp)),
+                        contentPadding = PaddingValues(bottom = 152.dp),
+                        verticalArrangement = Arrangement.spacedBy(16.dp)
+                    ) {
+                        items(dataStatus.data) { trip ->
+                            TripCard(
+                                title = trip.name,
+                                travellers = trip.travellers,
+                                startDate = tripsViewModel.formatDate(trip.startDate),
+                                endDate = tripsViewModel.formatDate(trip.endDate),
+                                modifier = Modifier.padding(bottom = 12.dp),
+                                onCardClick = {
+                                    // TODO: Implementasi aksi klik kartu
+                                }
+                            )
+                        }
                     }
+                } else {
+                    Text(
+                        text = "No trips available.",
+                        fontSize = 16.sp,
+                        fontWeight = FontWeight.Medium,
+                        color = Color.Gray,
+                        modifier = Modifier.padding(vertical = 20.dp)
+                    )
                 }
-            } else {
-        Column(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
-        ) {
-            Text(
-                text = "No Task Found!",
-                fontSize = 21.sp,
-                fontWeight = FontWeight.Bold
-            )
+            }
+
+            is TripDataStatusUIState.Failed -> {
+                Text(
+                    text = "Error loading trips: ${dataStatus.errorMessage}",
+                    fontSize = 16.sp,
+                    fontWeight = FontWeight.Medium,
+                    color = Color.Red,
+                    modifier = Modifier.padding(vertical = 20.dp)
+                )
+            }
+
+            else -> Unit
         }
     }
-
-        }
-
-    }
-
-
-
 }
+
 
 @Preview
     (showBackground = true,

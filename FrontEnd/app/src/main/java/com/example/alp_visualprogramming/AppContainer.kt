@@ -2,13 +2,9 @@ package com.example.alp_visualprogramming
 
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import com.example.alp_visualprogramming.repository.AuthenticationRepository
-import com.example.alp_visualprogramming.repository.ItineraryRepository
-import com.example.alp_visualprogramming.repository.NetworkAuthenticationRepository
-import com.example.alp_visualprogramming.repository.NetworkItineraryRepository
-import com.example.alp_visualprogramming.repository.NetworkUserRepository
-import com.example.alp_visualprogramming.repository.UserRepository
-import com.example.alp_visualprogramming.service.AuthenticationAPIService
+import com.example.alp_visualprogramming.repository.*
+import com.example.alp_visualprogramming.service.AuthenticationService
+import com.example.alp_visualprogramming.service.DestinationAPIService
 import com.example.alp_visualprogramming.service.ItineraryAPIService
 import com.example.alp_visualprogramming.service.UserAPIService
 import okhttp3.OkHttpClient
@@ -20,63 +16,64 @@ interface AppContainer {
     val authenticationRepository: AuthenticationRepository
     val userRepository: UserRepository
     val itineraryRepository: ItineraryRepository
+    val destinationRepository: DestinationRepository
 }
 
 class DefaultAppContainer(
     private val userDataStore: DataStore<Preferences>
-): AppContainer {
-    // change it to your own local ip please
+) : AppContainer {
+
     private val baseUrl = "http://10.0.2.2:3000/"
 
+    private val retrofit by lazy { initRetrofit() }
 
-    // RETROFIT SERVICE
-    // delay object creation until needed using lazy
-    private val authenticationRetrofitService: AuthenticationAPIService by lazy {
-        val retrofit = initRetrofit()
-
-        retrofit.create(AuthenticationAPIService::class.java)
+    // Initialize the Authentication API Service
+    private val authenticationAPIService: AuthenticationService by lazy {
+        retrofit.create(AuthenticationService::class.java)
     }
 
-    private val userRetrofitService: UserAPIService by lazy {
-        val retrofit = initRetrofit()
-
+    private val userAPIService: UserAPIService by lazy {
         retrofit.create(UserAPIService::class.java)
     }
 
-    private val itineraryRetrofitService: ItineraryAPIService by lazy {
-        val retrofit = initRetrofit()
-
+    private val itineraryAPIService: ItineraryAPIService by lazy {
         retrofit.create(ItineraryAPIService::class.java)
     }
 
-    // REPOSITORY INIT
-    // Passing in the required objects is called dependency injection (DI). It is also known as inversion of control.
+    private val destinationAPIService: DestinationAPIService by lazy {
+        retrofit.create(DestinationAPIService::class.java)
+    }
+
+    // Updated: Use the correct constructor for AuthenticationRepository
     override val authenticationRepository: AuthenticationRepository by lazy {
-        NetworkAuthenticationRepository(authenticationRetrofitService)
+        AuthenticationRepository(authenticationAPIService)
     }
 
     override val userRepository: UserRepository by lazy {
-        NetworkUserRepository(userDataStore, userRetrofitService)
+        NetworkUserRepository(userDataStore, userAPIService)
     }
 
     override val itineraryRepository: ItineraryRepository by lazy {
-        NetworkItineraryRepository(itineraryRetrofitService)
+        NetworkItineraryRepository(itineraryAPIService)
+    }
+
+    override val destinationRepository: DestinationRepository by lazy {
+        NetworkDestinationRepository(destinationAPIService)
     }
 
     private fun initRetrofit(): Retrofit {
-        val logging = HttpLoggingInterceptor()
-        logging.level = (HttpLoggingInterceptor.Level.BODY)
+        val loggingInterceptor = HttpLoggingInterceptor().apply {
+            level = HttpLoggingInterceptor.Level.BODY
+        }
 
         val client = OkHttpClient.Builder()
-        client.addInterceptor(logging)
+            .addInterceptor(loggingInterceptor)
+            .build()
 
-        return Retrofit
-            .Builder()
-            .addConverterFactory(
-                GsonConverterFactory.create()
-            )
-            .client(client.build())
+        return Retrofit.Builder()
             .baseUrl(baseUrl)
+            .client(client)
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
     }
 }

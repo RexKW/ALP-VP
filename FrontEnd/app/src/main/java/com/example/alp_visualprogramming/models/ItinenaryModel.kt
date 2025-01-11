@@ -10,9 +10,13 @@ data class ItineraryModel(
     val endDate: String,
 
 
-)
+    )
 
 data class GetAllItineraryResponse(
+    val data: List<ItineraryModel>
+)
+
+data class GetCreatedItineraryResponse(
     val data: List<ItineraryModel>
 )
 
@@ -24,5 +28,8 @@ data class GetItineraryResponse(
 data class ItineraryRequest(
     val name : String,
 
-
     )
+
+data class ExploreItineraryResponse(
+    val data: ItineraryModel
+)
