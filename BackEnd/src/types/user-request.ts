@@ -1,5 +1,5 @@
-import { Request } from "express";
-import { User } from "../model/user-model"; // Adjust the path as necessary
+import { User } from "@prisma/client"
+import { Request } from "express"
 
 export interface UserRequest extends Request {
     user?: User;

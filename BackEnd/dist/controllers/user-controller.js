@@ -31,11 +31,7 @@ class AuthController {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const request = req.body;
-                const userResponse = yield auth_service_1.UserService.login(request);
-                if (!userResponse.token) {
-                    throw new Error("Token is undefined");
-                }
-                const response = { token: userResponse.token };
+                const response = yield auth_service_1.UserService.login(request);
                 res.status(200).json({
                     data: response,
                 });

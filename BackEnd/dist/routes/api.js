@@ -7,11 +7,10 @@ exports.apiRouter = void 0;
 const express_1 = __importDefault(require("express"));
 const itinerary_controller_1 = require("../controllers/itinerary-controller");
 const activity_controller_1 = require("../controllers/activity-controller");
-const auth_middleware_1 = require("../middlware/auth-middleware");
+const auth_middleware_1 = require("../middleware/auth-middleware");
 const destination_controller_1 = require("../controllers/destination-controller");
 const user_controller_1 = require("../controllers/user-controller");
 exports.apiRouter = express_1.default.Router();
-// Apply authMiddleware to all routes below
 exports.apiRouter.use(auth_middleware_1.authMiddleware);
 exports.apiRouter.post("/itinerary/create", itinerary_controller_1.ItineraryController.createNewItinerary);
 exports.apiRouter.get("/itinerary/ownedTrips", itinerary_controller_1.ItineraryController.getAllItinerary);

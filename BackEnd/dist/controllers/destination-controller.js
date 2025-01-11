@@ -55,7 +55,7 @@ class DestinationController {
             }
         });
     }
-    static updateItinenerary(req, res, next) {
+    static updateItinerary(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
                 const request = req.body;
@@ -68,6 +68,9 @@ class DestinationController {
                 next(error);
             }
         });
+    }
+    static selectDestination(req, res) {
+        // Implementation of selectDestination
     }
 }
 exports.DestinationController = DestinationController;

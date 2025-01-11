@@ -1,13 +1,11 @@
-"use strict";
-import { Itinerary } from "@prisma/client";
-import { prismaClient } from "../application/database"
+import { Itinerary, Prisma, PrismaClient } from "@prisma/client";
+import { number } from "zod";
+import { prismaClient } from "../application/database";
 
-export interface ItineraryResponse {
-    id: number;
-    name: string;
-    travellers: number;
-    from: Date;
-    to: Date;
+export interface CreateItineraryRequest {
+  name: string;
+  created_date: Date;
+  updated_date: Date;
 }
 
 export interface ItineraryModel {
@@ -22,9 +20,12 @@ export interface GetItineraryRequest{
   user_id: number;
 }
 
-export interface ItineraryUpdateRequest {
-    id: number;
-    name: string;
+export interface ItineraryResponse {
+  id: number;
+  name: string;
+  travellers : number;
+  from: Date,
+  to: Date
 }
 
 export interface ItineraryExploreResponse{
@@ -33,8 +34,20 @@ export interface ItineraryExploreResponse{
   destinations: number;
 }
 
+export interface ItineraryUpdateRequest {
+  id: number
+  name: string;
+}
 
-
+export function toItineraryResponse(itinerary: Itinerary, travellerNumber: number, start_date: Date, end_date: Date): ItineraryResponse {
+  return {
+    id: itinerary.id,
+    name: itinerary.name,
+    travellers : travellerNumber,
+    from: start_date,
+    to: end_date
+  };
+}
 
 export async function toItineraryExploreResponseList(prismaItinerary: ItineraryModel[]): Promise<ItineraryExploreResponse[]> {
   const result: ItineraryExploreResponse[] = []
@@ -92,5 +105,3 @@ export async function toItineraryResponseList(prismaitinerary: ItineraryResponse
 
   return result;
 }
-
-

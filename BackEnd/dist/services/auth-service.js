@@ -20,7 +20,6 @@ const user_validation_1 = require("../validation/user-validation");
 const validation_1 = require("../validation/validation");
 const uuid_1 = require("uuid");
 const bcrypt_1 = __importDefault(require("bcrypt"));
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 class UserService {
     static register(req) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -74,35 +73,11 @@ class UserService {
             return response;
         });
     }
-    static verifyToken(token) {
-        return __awaiter(this, void 0, void 0, function* () {
-            try {
-                const decoded = jsonwebtoken_1.default.verify(token, process.env.JWT_SECRET);
-                const user = yield database_1.prismaClient.user.findUnique({
-                    where: {
-                        id: decoded.id,
-                    },
-                });
-                if (!user) {
-                    return null;
-                }
-                return (0, user_model_1.toUserResponse)(user);
-            }
-            catch (error) {
-                return null;
-            }
-        })
-    }
-
-
     static getAllUsers() {
         return __awaiter(this, void 0, void 0, function* () {
             const userList = yield database_1.prismaClient.user.findMany();
             return userList;
         });
     }
-    
 }
-
-
 exports.UserService = UserService;

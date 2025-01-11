@@ -10,30 +10,25 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authMiddleware = void 0;
-const auth_service_1 = require("../services/auth-service");
+const database_1 = require("../application/database");
 const authMiddleware = (req, res, next) => __awaiter(void 0, void 0, void 0, function* () {
-    var _a;
-    try {
-        const token = (_a = req.headers.authorization) === null || _a === void 0 ? void 0 : _a.split(' ')[1];
-        if (!token) {
-            res.status(401).json({ message: 'Authentication token is missing' });
-            return;
-        }
-        const user = yield auth_service_1.UserService.verifyToken(token);
-        if (!user) {
-            res.status(401).json({ message: 'Invalid token' });
-        }
+    const token = req.get("X-API-TOKEN");
+    if (token) {
+        const user = yield database_1.prismaClient.user.findFirst({
+            where: {
+                token: token,
+            },
+        });
         if (user) {
             req.user = user;
             next();
+            return;
         }
-        else {
-            res.status(401).json({ message: 'Invalid token' });
-        }
-        next();
     }
-    catch (error) {
-        res.status(500).json({ message: 'Internal server error' });
-    }
+    res.status(401)
+        .json({
+        errors: "Unauthorized",
+    })
+        .end();
 });
 exports.authMiddleware = authMiddleware;

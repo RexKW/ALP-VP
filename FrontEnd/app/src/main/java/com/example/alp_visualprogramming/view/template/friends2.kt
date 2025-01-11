@@ -21,8 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.example.alp_vp.R
-import com.example.alp_vp.ui.theme.ALP_VPTheme
+import com.example.alp_visualprogramming.R
 
 @Composable
 fun friends2(name: String, modifier: Modifier = Modifier, onBackClick: () -> Unit = {}) {
@@ -162,16 +161,16 @@ fun UserProfileBox(userName: String) {
 @Preview(showBackground = true)
 @Composable
 fun friends2Preview() {
-    ALP_VPTheme {
+
         friends2("Android")
-    }
+
 }
 
 // 🌟 Preview untuk UserProfileBox dengan Dummy Data
 @Preview(showBackground = true)
 @Composable
 fun UserProfileBoxPreview() {
-    ALP_VPTheme {
+
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -191,5 +190,5 @@ fun UserProfileBoxPreview() {
                 UserProfileBox(userName = user)
             }
         }
-    }
+
 }

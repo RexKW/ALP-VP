@@ -2,7 +2,7 @@ import { NextFunction, Request, Response } from "express";
 import { CreateItineraryRequest, ItineraryResponse, GetItineraryRequest, ItineraryUpdateRequest } from "../model/itinerary-model";
 import { AddItineraryDestinationRequest, UpdateItineraryDestinationRequest } from "../model/itinerary-destinations-model";
 import { ItineraryService } from "../services/itinerary-service";
-import { UserRequest } from "../type/user-request";
+import { UserRequest } from "../types/user-request";
 import { ItineraryDestinationService } from "../services/itinerary-destinations-service";
 import { AddItineraryUserRequest } from "../model/itinerary-users-model";
 import { ItineraryUserService } from "../services/itinerary-users-service";

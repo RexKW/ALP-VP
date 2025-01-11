@@ -163,6 +163,7 @@ class ItineraryService {
     }
     static createItinerary(req, user) {
         return __awaiter(this, void 0, void 0, function* () {
+            // validate request
             const itinerary_Request = validation_1.Validation.validate(itinerary_validation_1.ItineraryValidation.CREATE, req);
             const itinerary1 = yield database_1.prismaClient.itinerary.create({
                 data: {

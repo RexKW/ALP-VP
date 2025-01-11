@@ -21,8 +21,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.zIndex
-import com.example.alp_vp.R
-import com.example.alp_vp.ui.theme.ALP_VPTheme
+import com.example.alp_visualprogramming.R
 
 // 🔹 Data Class untuk User
 data class User(
@@ -230,7 +229,7 @@ fun UserCard(user: User) {
 @Preview(showBackground = true)
 @Composable
 fun friends1Preview() {
-    ALP_VPTheme {
+
         friends1Page("Android")
-    }
+
 }
