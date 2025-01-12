@@ -1,0 +1,2 @@
+-- AlterTable
+ALTER TABLE "Activity" ALTER COLUMN "type" SET DATA TYPE VARCHAR(50);
