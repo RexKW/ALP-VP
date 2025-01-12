@@ -85,7 +85,7 @@ export class ItineraryController{
     static async deleteItinerary(req: UserRequest, res: Response, next: NextFunction) {
         try {
 			const response = await ItineraryService.deleteItinerary(
-				Number(req.params.todoId)
+				Number(req.params.itineraryId)
 			)
 
 			res.status(200).json({
@@ -102,13 +102,26 @@ export class ItineraryController{
 			request.id = Number(req.params.itineraryId)
 			const response = await ItineraryService.updateItinerary(request)
 
-			res.status(201).json({
+			res.status(200).json({
 				data: response,
 			})
 		} catch (error) {
 			next(error)
 		}
     }
+
+	static async cloneItinerary(req: UserRequest, res: Response, next: NextFunction){
+		try{
+			const id = Number(req.params.itineraryId)
+			const response = await ItineraryService.cloneItinerary(id, req.user!)
+			res.status(200).json({
+				data: response,
+			})
+
+		}catch(error){
+
+		}
+	}
 
 
 	//Destinations 

@@ -4,10 +4,12 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import com.example.alp_visualprogramming.repository.ActivityRepository
 import com.example.alp_visualprogramming.repository.AuthenticationRepository
+import com.example.alp_visualprogramming.repository.BudgetRepository
 import com.example.alp_visualprogramming.repository.DestinationRepository
 import com.example.alp_visualprogramming.repository.ItineraryDestinationRepository
 import com.example.alp_visualprogramming.repository.ItineraryRepository
 import com.example.alp_visualprogramming.repository.NetworkActivityRepository
+import com.example.alp_visualprogramming.repository.NetworkBudgetRepository
 import com.example.alp_visualprogramming.repository.NetworkAuthenticationRepository
 import com.example.alp_visualprogramming.repository.NetworkDestinationRepository
 import com.example.alp_visualprogramming.repository.NetworkItineraryDestinationRepository
@@ -16,6 +18,7 @@ import com.example.alp_visualprogramming.repository.NetworkUserRepository
 import com.example.alp_visualprogramming.repository.UserRepository
 import com.example.alp_visualprogramming.service.ActivityAPIService
 import com.example.alp_visualprogramming.service.AuthenticationAPIService
+import com.example.alp_visualprogramming.service.BudgetAPIService
 import com.example.alp_visualprogramming.service.DestinationAPIService
 import com.example.alp_visualprogramming.service.ItineraryAPIService
 import com.example.alp_visualprogramming.service.ItineraryDestinationAPIService
@@ -32,6 +35,7 @@ interface AppContainer {
     val destinationRepository: DestinationRepository
     val itineraryDestinationRepository: ItineraryDestinationRepository
     val activityRepository: ActivityRepository
+    val budgetRepository: BudgetRepository
 }
 
 class DefaultAppContainer(
@@ -79,6 +83,11 @@ class DefaultAppContainer(
         retrofit.create(ActivityAPIService::class.java)
     }
 
+    private val budgetRetrofitService: BudgetAPIService by lazy {
+        val retrofit = initRetrofit()
+        retrofit.create(BudgetAPIService::class.java)
+    }
+
 
     // REPOSITORY INIT
     // Passing in the required objects is called dependency injection (DI). It is also known as inversion of control.
@@ -105,6 +114,10 @@ class DefaultAppContainer(
 
     override val activityRepository: ActivityRepository by lazy {
         NetworkActivityRepository(activityRetrofitService)
+    }
+
+    override val budgetRepository: BudgetRepository by lazy {
+        NetworkBudgetRepository(budgetRetrofitService)
     }
 
     private fun initRetrofit(): Retrofit {

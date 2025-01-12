@@ -24,6 +24,7 @@ exports.apiRouter.get("/itinerary/explore", itinerary_controller_1.ItineraryCont
 exports.apiRouter.get("/itinerary/journey/:itineraryDestinationId(\\d+)", itinerary_controller_1.ItineraryController.getJourney);
 exports.apiRouter.put("/itinerary/updateJourney/:itineraryDestinationId(\\d+)", itinerary_controller_1.ItineraryController.updateJourney);
 exports.apiRouter.delete("/itinerary/deleteJourney/:itineraryDestinationId(\\d+)", itinerary_controller_1.ItineraryController.deleteJourney);
+exports.apiRouter.post("/itinerary/cloneItinerary/:itineraryId(\\d+)", itinerary_controller_1.ItineraryController.cloneItinerary);
 exports.apiRouter.get("/destinations/all", destination_controller_1.DestinationController.getAllDestinations);
 exports.apiRouter.get("/destinations/:destinationId(\\d+)", destination_controller_1.DestinationController.getDestination);
 exports.apiRouter.get("/activities/allDays/:itineraryDestinationId(\\d+)", activity_controller_1.ActivityController.getAllDays);
@@ -32,7 +33,10 @@ exports.apiRouter.post("/activities/createActivity/:dayId(\\d+)", activity_contr
 exports.apiRouter.get("/activities/getActivity/:activityId(\\d+)", activity_controller_1.ActivityController.getActivity);
 exports.apiRouter.delete("/activities/deleteActivity/:activityId(\\d+)", activity_controller_1.ActivityController.deleteActivity);
 exports.apiRouter.put("/activities/updateActivity/:activityId(\\d+)", activity_controller_1.ActivityController.updateActivity);
+exports.apiRouter.get("/budget/plannedBudget/:itineraryId(\\d+)", budget_controller_1.BudgetController.plannedBudget);
 exports.apiRouter.get("/budget/actualBudget/:itineraryId(\\d+)", budget_controller_1.BudgetController.actualBudget);
+exports.apiRouter.post("/budget/create/:itineraryId(\\d+)", budget_controller_1.BudgetController.createBudget);
+exports.apiRouter.put("/budget/update/:itineraryId(\\d+)", budget_controller_1.BudgetController.updateBudget);
 exports.apiRouter.get("/users/all", user_controller_1.AuthController.allUsers);
 exports.apiRouter.get("/users/role/:itineraryId(\\d+)", user_controller_1.AuthController.userRole);
 exports.apiRouter.get("/location/seed");

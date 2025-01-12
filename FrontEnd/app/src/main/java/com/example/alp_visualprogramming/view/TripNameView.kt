@@ -46,10 +46,11 @@ import androidx.navigation.compose.rememberNavController
 import com.example.alp_visualprogramming.R
 import com.example.alp_visualprogramming.uiStates.StringDataStatusUIState
 import com.example.alp_visualprogramming.view.template.FormTextField
+import com.example.alp_visualprogramming.viewModel.BudgetFormViewModel
 import com.example.alp_visualprogramming.viewModel.TripNameViewModel
 
 @Composable
-fun TripNameView(modifier: Modifier = Modifier, token : String, navController : NavController, tripNameViewModel: TripNameViewModel, context: Context) {
+fun TripNameView(modifier: Modifier = Modifier, token : String, navController : NavController, tripNameViewModel: TripNameViewModel, context: Context, budgetFormViewModel: BudgetFormViewModel) {
     val submissionStatus = tripNameViewModel.submissionStatus
 
     LaunchedEffect(tripNameViewModel.submissionStatus) {
@@ -191,6 +192,7 @@ fun TripNamePreview() {
         navController = rememberNavController(),
         tripNameViewModel = viewModel(factory = TripNameViewModel.Factory),
         context = LocalContext.current,
-        token = ""
+        token = "",
+        budgetFormViewModel = viewModel(factory = BudgetFormViewModel.Factory)
     )
 }

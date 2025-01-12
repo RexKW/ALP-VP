@@ -2,10 +2,13 @@ import { Budget } from "@prisma/client";
 import { Decimal } from "@prisma/client/runtime/library";
 
 export interface CreateBudgetRequest {
-  itinenary_id: number;
-  estimated_budget: number;
-  actual_budget: number;
-  type: string;
+  totalAccommodation: Decimal;
+  totalTransport: Decimal;
+  totalShoppingEntertainment: Decimal;
+  totalCulinary: Decimal;
+  totalSightSeeing: Decimal;
+  totalHealthcare: Decimal;
+  totalSport: Decimal;
 }
 
 export interface BudgetResponse {

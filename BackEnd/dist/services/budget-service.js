@@ -100,8 +100,156 @@ class BudgetService {
             return data;
         });
     }
-    static setBudget() {
+    static setBudget(req, itinerary_id) {
         return __awaiter(this, void 0, void 0, function* () {
+            const accommodationBudget = yield database_1.prismaClient.budget.create({
+                data: {
+                    itinerary_id: itinerary_id,
+                    type: "Accommodation",
+                    actual_budget: 0.0,
+                    estimated_budget: req.totalAccommodation
+                }
+            });
+            const transportBudget = yield database_1.prismaClient.budget.create({
+                data: {
+                    itinerary_id: itinerary_id,
+                    type: "Transport",
+                    actual_budget: 0.0,
+                    estimated_budget: req.totalTransport
+                }
+            });
+            const shoppingEntertainmentBudget = yield database_1.prismaClient.budget.create({
+                data: {
+                    itinerary_id: itinerary_id,
+                    type: "Shopping/Entertainment",
+                    actual_budget: 0.0,
+                    estimated_budget: req.totalTransport
+                }
+            });
+            const sightSeeingBudget = yield database_1.prismaClient.budget.create({
+                data: {
+                    itinerary_id: itinerary_id,
+                    type: "Sightseeing",
+                    actual_budget: 0.0,
+                    estimated_budget: req.totalSightSeeing
+                }
+            });
+            const foodBudget = yield database_1.prismaClient.budget.create({
+                data: {
+                    itinerary_id: itinerary_id,
+                    type: "Food",
+                    actual_budget: 0.0,
+                    estimated_budget: req.totalSightSeeing
+                }
+            });
+            const healthcareBudget = yield database_1.prismaClient.budget.create({
+                data: {
+                    itinerary_id: itinerary_id,
+                    type: "Healthcare",
+                    actual_budget: 0.0,
+                    estimated_budget: req.totalSightSeeing
+                }
+            });
+            const sportBudget = yield database_1.prismaClient.budget.create({
+                data: {
+                    itinerary_id: itinerary_id,
+                    type: "Sport",
+                    actual_budget: 0.0,
+                    estimated_budget: req.totalSightSeeing
+                }
+            });
+            return "Data Created";
+        });
+    }
+    static updateBudget(req, itinerary_id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const allBudget = yield database_1.prismaClient.budget.findMany({
+                where: {
+                    itinerary_id: itinerary_id
+                }
+            });
+            for (const budget of allBudget) {
+                switch (budget.type) {
+                    case "Transport":
+                        const accommodationBudget = yield database_1.prismaClient.budget.update({
+                            where: {
+                                id: budget.id
+                            },
+                            data: {
+                                itinerary_id: itinerary_id,
+                                type: "Accommodation",
+                                actual_budget: 0.0,
+                                estimated_budget: req.totalAccommodation
+                            }
+                        });
+                        break;
+                    case "Shopping/Entertainment":
+                        const shoppingEntertainmentBudget = yield database_1.prismaClient.budget.update({
+                            where: {
+                                id: budget.id
+                            },
+                            data: {
+                                itinerary_id: itinerary_id,
+                                type: "Shopping/Entertainment",
+                                actual_budget: 0.0,
+                                estimated_budget: req.totalShoppingEntertainment
+                            }
+                        });
+                        break;
+                    case "Sightseeing":
+                        const sightSeeingBudget = yield database_1.prismaClient.budget.update({
+                            where: {
+                                id: budget.id
+                            },
+                            data: {
+                                itinerary_id: itinerary_id,
+                                type: "Sightseeing",
+                                actual_budget: 0.0,
+                                estimated_budget: req.totalSightSeeing
+                            }
+                        });
+                        break;
+                    case "Food":
+                        const foodBudget = yield database_1.prismaClient.budget.update({
+                            where: {
+                                id: budget.id
+                            },
+                            data: {
+                                itinerary_id: itinerary_id,
+                                type: "Food",
+                                actual_budget: 0.0,
+                                estimated_budget: req.totalCulinary
+                            }
+                        });
+                        break;
+                    case "Healthcare":
+                        const healthcareBudget = yield database_1.prismaClient.budget.update({
+                            where: {
+                                id: budget.id
+                            },
+                            data: {
+                                itinerary_id: itinerary_id,
+                                type: "Healthcare",
+                                actual_budget: 0.0,
+                                estimated_budget: req.totalHealthcare
+                            }
+                        });
+                        break;
+                    case "Sport":
+                        const sportBudget = yield database_1.prismaClient.budget.update({
+                            where: {
+                                id: budget.id
+                            },
+                            data: {
+                                itinerary_id: itinerary_id,
+                                type: "Sport",
+                                actual_budget: 0.0,
+                                estimated_budget: req.totalSport
+                            }
+                        });
+                        break;
+                }
+            }
         });
     }
 }

@@ -22,9 +22,11 @@ interface ItineraryRepository {
 
     fun updateItinerary(token: String, id: Int, title: String): Call<GeneralResponseModel>
 
-    fun deleteItinerary(token: String, todoId: Int): Call<GeneralResponseModel>
+    fun deleteItinerary(token: String, itineraryId: Int): Call<GeneralResponseModel>
 
     fun exploreItineraries(token: String): Call<ExploreItineraryResponse>
+
+    fun cloneItinerary(token: String, id: Int): Call<GetCreatedItineraryResponse>
 
 
 }
@@ -68,7 +70,11 @@ class NetworkItineraryRepository(
         return itineraryAPIService.updateItinerary(token, id, ItineraryRequest(title))
     }
 
-    override fun deleteItinerary(token: String, todoId: Int): Call<GeneralResponseModel> {
-        return itineraryAPIService.deleteItinerary(token, todoId)
+    override fun deleteItinerary(token: String, itineraryId: Int): Call<GeneralResponseModel> {
+        return itineraryAPIService.deleteItinerary(token, itineraryId)
+    }
+
+    override fun cloneItinerary(token: String, id: Int): Call<GetCreatedItineraryResponse> {
+        return itineraryAPIService.cloneItinerary(token, id)
     }
 }
