@@ -36,6 +36,10 @@ interface ItineraryAPIService {
     @PUT("api/todo-list/{id}")
     fun updateItinerary(@Header("X-API-TOKEN") token: String, @Path("id") id: Int, @Body itineraryModel: ItineraryRequest): Call<GeneralResponseModel>
 
-    @DELETE("api/todo-list/{id}")
+    @DELETE("itinerary/deleteTrip/{id}")
     fun deleteItinerary(@Header("X-API-TOKEN") token: String, @Path("id") todoId: Int): Call<GeneralResponseModel>
+
+    @POST("itinerary/cloneItinerary/{id}")
+    fun cloneItinerary(@Header("X-API-TOKEN") token: String, @Path("id") id: Int): Call<GetCreatedItineraryResponse>
+
 }

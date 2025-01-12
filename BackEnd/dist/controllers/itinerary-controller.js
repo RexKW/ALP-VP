@@ -83,7 +83,7 @@ class ItineraryController {
     static deleteItinerary(req, res, next) {
         return __awaiter(this, void 0, void 0, function* () {
             try {
-                const response = yield itinerary_service_1.ItineraryService.deleteItinerary(Number(req.params.todoId));
+                const response = yield itinerary_service_1.ItineraryService.deleteItinerary(Number(req.params.itineraryId));
                 res.status(200).json({
                     data: response,
                 });
@@ -99,12 +99,25 @@ class ItineraryController {
                 const request = req.body;
                 request.id = Number(req.params.itineraryId);
                 const response = yield itinerary_service_1.ItineraryService.updateItinerary(request);
-                res.status(201).json({
+                res.status(200).json({
                     data: response,
                 });
             }
             catch (error) {
                 next(error);
+            }
+        });
+    }
+    static cloneItinerary(req, res, next) {
+        return __awaiter(this, void 0, void 0, function* () {
+            try {
+                const id = Number(req.params.itineraryId);
+                const response = yield itinerary_service_1.ItineraryService.cloneItinerary(id, req.user);
+                res.status(200).json({
+                    data: response,
+                });
+            }
+            catch (error) {
             }
         });
     }

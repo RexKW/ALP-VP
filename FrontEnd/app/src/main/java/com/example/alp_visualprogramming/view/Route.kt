@@ -3,6 +3,12 @@ package com.example.alp_visualprogramming.view
 import android.os.Build
 import android.util.Log
 import androidx.annotation.RequiresApi
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.slideInHorizontally
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutHorizontally
+import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -25,8 +31,10 @@ import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
@@ -37,6 +45,8 @@ import com.example.alp_visualprogramming.BottomNavigationItem
 import com.example.alp_visualprogramming.viewModel.ActivitiesViewModel
 import com.example.alp_visualprogramming.viewModel.ActivityDetailViewModel
 import com.example.alp_visualprogramming.viewModel.ActivityFormViewModel
+import com.example.alp_visualprogramming.viewModel.BudgetFormViewModel
+import com.example.alp_visualprogramming.viewModel.BudgetViewModel
 import com.example.alp_visualprogramming.viewModel.DestinationViewModel
 import com.example.alp_visualprogramming.viewModel.ExploreViewModel
 import com.example.alp_visualprogramming.viewModel.InvitedTripsViewModel
@@ -58,8 +68,14 @@ fun ItineraryApp (
     activityDetailViewModel: ActivityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory),
     activityFormViewModel: ActivityFormViewModel = viewModel(factory = ActivityFormViewModel.Factory),
     exploreViewModel: ExploreViewModel = viewModel(factory = ExploreViewModel.Factory),
-    invitedTripsViewModel: InvitedTripsViewModel = viewModel(factory = InvitedTripsViewModel.Factory)
+    invitedTripsViewModel: InvitedTripsViewModel = viewModel(factory = InvitedTripsViewModel.Factory),
+    budgetFormViewModel: BudgetFormViewModel = viewModel(factory = BudgetFormViewModel.Factory),
+    budgetViewModel: BudgetViewModel = viewModel(factory = BudgetViewModel.Factory)
 ){
+    val selectedIconColor = Color(0xFFEE417D)
+    val unselectedIconColor = Color.White
+    val selectedBgColor = Color(0xFF1E3A8A)
+    val unselectedBgColor = Color(0XFF94284D)
     val localContext = LocalContext.current
     val bottomNavigationItems = listOf(
         BottomNavigationItem(
@@ -78,12 +94,12 @@ fun ItineraryApp (
             unselectedIcon = Icons.Outlined.Settings,
         ),
     )
-    Surface (modifier = Modifier.fillMaxSize(), color = MaterialTheme.colorScheme.background) {
+    Surface (modifier = Modifier.fillMaxSize(), color = Color(0XFF94284D)) {
 
         var selectedItemIndex by rememberSaveable { mutableIntStateOf(0) }
         Scaffold(modifier = Modifier.fillMaxSize(),
             bottomBar = {
-                NavigationBar {
+                NavigationBar(containerColor = Color(0XFF94284D)) {
                     bottomNavigationItems.forEachIndexed { index, item ->
                         NavigationBarItem(
                             selected = selectedItemIndex == index,
@@ -95,27 +111,51 @@ fun ItineraryApp (
                                 }
                             },
                             label = {
-                                Text(text = item.title)
                             },
                             icon = {
+                                val iconColor = if (selectedItemIndex == index) selectedIconColor else unselectedIconColor
                                 Icon(
-                                    imageVector = if (index == selectedItemIndex) {
-                                        item.icon
-                                    } else item.unselectedIcon,
-                                    contentDescription = item.title
+                                    imageVector = if (selectedItemIndex == index) item.icon else item.unselectedIcon,
+                                    contentDescription = item.title,
+                                    tint = iconColor
                                 )
-                            }
+                            },
+
                         )
                     }
                 }
             }
         ) { innerPadding ->
             NavHost(navController = navController, startDestination = "Home"){
-                composable("Home"){
+                composable("Home",
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { -it },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { -it },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }){
                     YourTripView(modifier = Modifier.padding(innerPadding), navController = navController, token = "f57031c8-1c62-4bea-947b-4239db58e31c", tripsViewModel = tripsViewModel, context = localContext, journeyViewModel = viewModel(factory = JourneyViewModel.Factory))
                 }
 
-                composable("Invited"){
+                composable("Invited",
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { it },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }){
                     InvitedTripView(navController = navController, token = "f57031c8-1c62-4bea-947b-4239db58e31c", invitedTripsViewModel = invitedTripsViewModel, journeyViewModel = journeyViewModel, context = localContext )
                 }
 
@@ -136,7 +176,7 @@ fun ItineraryApp (
                 }
 
                 composable("Create"){
-                    TripNameView(modifier = Modifier.padding(innerPadding), navController = navController,tripNameViewModel = tripNameViewModel, token = "f57031c8-1c62-4bea-947b-4239db58e31c", context = localContext)
+                    TripNameView(modifier = Modifier.padding(innerPadding), navController = navController,tripNameViewModel = tripNameViewModel, token = "f57031c8-1c62-4bea-947b-4239db58e31c", context = localContext, budgetFormViewModel = budgetFormViewModel)
                 }
 
                 composable("FormDestination"){
@@ -144,10 +184,51 @@ fun ItineraryApp (
                    JourneyFormView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, journeyFormViewModel = journeyFormViewModel, destinationViewModel = destinationViewModel, context = localContext)
                 }
 
-                composable("Journey/{itineraryId}"){
+                composable("FormBudget/{itineraryId}"){
+                        backStackEntry ->
+                    BudgetFormView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, budgetFormViewModel = budgetFormViewModel, journeyViewModel = journeyViewModel, context = localContext, itineraryId =backStackEntry.arguments?.getString("itineraryId")?.toIntOrNull() ?: 0)
+                }
 
-                    backStackEntry->
-                    JourneyView(modifier = Modifier.padding(innerPadding), navController = navController, journeyViewModel = journeyViewModel, itineraryId = backStackEntry.arguments?.getString("itineraryId")?.toIntOrNull() ?: 0, context = localContext, token ="f57031c8-1c62-4bea-947b-4239db58e31c", journeyFormViewModel =journeyFormViewModel, activitiesViewModel = activityViewModel)
+                composable("Budget/{itineraryId}"){
+                        backStackEntry ->
+                    BudgetView(
+                        modifier = Modifier.padding(innerPadding),
+                        navController = navController,
+                        journeyViewModel = journeyViewModel,
+                        itineraryId = backStackEntry.arguments?.getString("itineraryId")?.toIntOrNull() ?: 0,
+                        context = localContext,
+                        token = "f57031c8-1c62-4bea-947b-4239db58e31c",
+                        budgetFormViewModel = budgetFormViewModel,
+                        budgetViewModel = budgetViewModel
+                    )
+
+                }
+
+                composable(
+                    "Journey/{itineraryId}",
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { -it },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }
+                ) { backStackEntry ->
+                    JourneyView(
+                        modifier = Modifier.padding(innerPadding),
+                        navController = navController,
+                        journeyViewModel = journeyViewModel,
+                        itineraryId = backStackEntry.arguments?.getString("itineraryId")?.toIntOrNull() ?: 0,
+                        context = localContext,
+                        token = "f57031c8-1c62-4bea-947b-4239db58e31c",
+                        journeyFormViewModel = journeyFormViewModel,
+                        activitiesViewModel = activityViewModel
+                    )
                 }
 
 
@@ -155,7 +236,19 @@ fun ItineraryApp (
 //                    JourneyView(modifier = Modifier.padding(innerPadding), navController = navController, journeyViewModel = viewModel(factory = com.example.alp_visualprogramming.viewModel.JourneyViewModel.Factory), itineraryId = 1, context = localContext, token ="f57031c8-1c62-4bea-947b-4239db58e31c")
                 }
 
-                composable("Activities/{dayId}"){
+                composable("Activities/{dayId}",
+                    enterTransition = {
+                        slideInHorizontally(
+                            initialOffsetX = { it },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    },
+                    exitTransition = {
+                        slideOutHorizontally(
+                            targetOffsetX = { -it },
+                            animationSpec = tween(durationMillis = 500)
+                        )
+                    }){
                         backStackEntry->
                         ActivitiesView(modifier = Modifier.padding(innerPadding), navController = navController,activityViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c",dayId = backStackEntry.arguments?.getString("dayId")?.toIntOrNull() ?: 0, activityDetailViewModel = activityDetailViewModel, activityFormViewModel = activityFormViewModel, canEdit = true)
                 }

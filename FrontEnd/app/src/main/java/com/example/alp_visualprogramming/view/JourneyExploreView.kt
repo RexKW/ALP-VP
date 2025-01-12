@@ -62,7 +62,7 @@ fun JourneyExploreView(modifier: Modifier,journeyViewModel: JourneyViewModel, jo
 
     LaunchedEffect(token) {
         if (token != "Unknown") {
-            journeyViewModel.getAllJourneys(token, itineraryId)
+            journeyViewModel.getAllJourneys(token, itineraryId, true)
         }
     }
     LaunchedEffect(dataStatus) {

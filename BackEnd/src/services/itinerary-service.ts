@@ -123,8 +123,75 @@ export class ItineraryService{
         return toItineraryResponseList(itinerariesWithUserCount)
     }
 
-    static async cloneItinerary(){
-        
+    static async cloneItinerary(itinerary_id: number, user: User): Promise<String>{
+        const itinerary = await this.checkItinerary(itinerary_id);
+        const itinerary1 = await prismaClient.itinerary.create({
+            data: {
+                name: itinerary.name,
+                created_date: new Date().toISOString(),
+                updated_date: new Date().toISOString()
+            },
+        })
+        const owner = await prismaClient.itinerary_Users.create({
+            data:{
+                user_id: user.id,
+                itinerary_id: itinerary1.id,
+                role: "owner"
+            }
+        })
+
+        const itineraryDestinations = await prismaClient.itinerary_Destinations.findMany({
+            where:{
+                itinerary_id: itinerary_id
+            }
+        })
+
+        for (const destination of itineraryDestinations) {
+            const itineraryDestination = await prismaClient.itinerary_Destinations.create({
+                data: {
+                    itinerary_id: itinerary1.id, // Use the new itinerary ID
+                    destination_id: destination.destination_id,
+                    start_date: destination.start_date,
+                    end_date: destination.end_date,
+                },
+            });
+    
+            // Clone days for each destination
+            const days = await prismaClient.schedule_Per_Day.findMany({
+                where: { itinerary_destination_id: destination.id },
+            });
+    
+            for (const day of days) {
+                const daySchedule = await prismaClient.schedule_Per_Day.create({
+                    data: {
+                        itinerary_destination_id: itineraryDestination.id,
+                        date: day.date,
+                    },
+                });
+    
+                // Clone activities for each day
+                const activities = await prismaClient.activity.findMany({
+                    where: { day_id: day.id },
+                });
+    
+                for (const activity of activities) {
+                    await prismaClient.activity.create({
+                        data: {
+                            location_id: activity.location_id,
+                            day_id: daySchedule.id,
+                            description: activity.description,
+                            start_time: activity.start_time,
+                            end_time: activity.end_time,
+                            name: activity.name,
+                            cost: activity.cost,
+                            type: activity.type,
+                        },
+                    });
+                }
+            }
+        }
+    
+        return "Data Cloned";
     }
 
     static async getItinerary(itinerary_id: number): Promise<ItineraryResponse> {
@@ -193,13 +260,19 @@ export class ItineraryService{
                 role: "owner"
             }
         })
+
+        
+
         return itinerary1
     }
 
-    static async updateItinerary(req: ItineraryUpdateRequest): Promise<string> {
-        const itinerary = Validation.validate(ItineraryValidation.UPDATE, req);
 
-        await this.checkItinerary(itinerary.id);
+    static async updateItinerary(
+        req: ItineraryUpdateRequest
+    ): Promise<string> {
+        const itinerary = Validation.validate(ItineraryValidation.UPDATE, req)
+
+        await this.checkItinerary(itinerary.id)
 
         const itineraryUpdate = await prismaClient.itinerary.update({
             where: {

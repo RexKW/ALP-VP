@@ -30,7 +30,8 @@ import java.io.IOException
 
 class TripNameViewModel(
     private val itineraryRepository: ItineraryRepository,
-    private val userRepository: UserRepository
+    private val userRepository: UserRepository,
+    private val budgetFormViewModel: BudgetFormViewModel
 ): ViewModel() {
     var titleInput by mutableStateOf("")
      private set
@@ -40,6 +41,13 @@ class TripNameViewModel(
 
     var submissionStatus: StringDataStatusUIState by mutableStateOf(StringDataStatusUIState.Start)
         private set
+
+    var currItineraryId by mutableStateOf(0)
+    private set
+
+    fun changeCurrItineraryId(newValue: Int) {
+        currItineraryId = newValue
+    }
 
     fun changeTitleInput(title: String) {
         titleInput = title
@@ -71,10 +79,9 @@ class TripNameViewModel(
                             Log.d("json", "JSON RESPONSE: ${res.body()!!.data}")
                             submissionStatus = StringDataStatusUIState.Success(res.body()!!.toString())
                             val itineraryId = res.body()!!.data.id
+                            changeCurrItineraryId(itineraryId)
+                            navController.navigate("FormBudget/$itineraryId")
                             Log.d("itineraryId", "ITINERARY ID: $itineraryId")
-                            navController.navigate("Journey/$itineraryId") {
-                                popUpTo("Create") { inclusive = true }
-                            }
                         } else {
                             val errorMessage = Gson().fromJson(
                                 res.errorBody()!!.charStream(),
@@ -106,7 +113,9 @@ class TripNameViewModel(
                 val application = (this[APPLICATION_KEY] as ItineraryApplication)
                 val itineraryRepository = application.container.itineraryRepository
                 val userRepository = application.container.userRepository
-                TripNameViewModel(itineraryRepository, userRepository)
+                val budgetRepository = application.container.budgetRepository
+                val budgetFormViewModel = BudgetFormViewModel(budgetRepository)
+                TripNameViewModel(itineraryRepository, userRepository, budgetFormViewModel)
             }
         }
     }

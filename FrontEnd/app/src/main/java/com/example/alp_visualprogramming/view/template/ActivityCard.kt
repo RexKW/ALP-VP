@@ -1,5 +1,6 @@
 package com.example.alp_visualprogramming.view.template
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -40,9 +41,10 @@ fun ActivityCardView(
                     onCardClick()
                           },
             colors = CardDefaults.cardColors(
-                containerColor = Color(0xFF5FEEDB),
+                containerColor = Color(0xFFFBF7E7),
             ),
             shape = RoundedCornerShape(20.dp),
+            border = BorderStroke(2.dp, Color(0xFF5FEEDB))
 
 
             ) {

@@ -5,6 +5,7 @@ import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.gestures.ScrollableDefaults
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,6 +23,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -63,7 +65,7 @@ fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFo
 
     LaunchedEffect(token) {
         if (token != "Unknown") {
-            journeyViewModel.getAllJourneys(token, itineraryId)
+            journeyViewModel.getAllJourneys(token, itineraryId, false)
         }
     }
     LaunchedEffect(dataStatus) {
@@ -72,14 +74,18 @@ fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFo
             journeyViewModel.clearDataErrorMessage()
         }
     }
-    Column(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF7E7))) {
+    Column(modifier = Modifier
+        .fillMaxSize()
+        .background(Color(0xFFFBF7E7))) {
         val dataStatus = journeyViewModel.dataStatus
         Box(modifier = Modifier.fillMaxWidth()) {
 
             Image(
                 painter = painterResource(R.drawable.cityheader),
                 contentDescription = "",
-                modifier = Modifier.fillMaxWidth().height(240.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(240.dp),
 
                 alignment = Alignment.TopStart,
             )
@@ -98,12 +104,33 @@ fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFo
                     tint = Color.White
                 )
             }
+            if(journeyViewModel.canEdit){
+                IconButton(
+                    onClick = {
+                        journeyViewModel.deleteJourney(token, itineraryId, navController)
+                    },
+                    modifier = Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(16.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Back",
+                        tint = Color.White
+                    )
+                }
+            }
+
         }
         Box(modifier = Modifier.fillMaxSize()) {
             Image(
                 painter = painterResource(R.drawable.backdrop),
                 contentDescription = "",
-                modifier = Modifier.fillMaxWidth().height(561.dp).align(Alignment.BottomCenter).padding(top = 50.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(561.dp)
+                    .align(Alignment.BottomCenter)
+                    .padding(top = 50.dp),
             )
             Column(modifier = Modifier.padding(start = 32.dp, top = 5.dp, end = 32.dp)) {
                 Row (verticalAlignment = Alignment.Bottom, horizontalArrangement = Arrangement.SpaceBetween, modifier = Modifier.fillMaxWidth()){
@@ -125,7 +152,10 @@ fun JourneyView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFo
                             fontWeight = FontWeight(400),
                             color = Color(0xFF440215),
                             textAlign = TextAlign.Center,
-                        )
+                        ),
+                        modifier = Modifier.clickable {
+                            navController.navigate("Budget/$itineraryId")
+                        }
                     )
                     Text(
                         text = "Travellers",

@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -89,10 +90,8 @@ fun ExploreView(modifier: Modifier, token: String, exploreViewModel: ExploreView
                     LazyColumn(
                         flingBehavior = ScrollableDefaults.flingBehavior(),
                         modifier = Modifier
-                            .padding(vertical = 8.dp)
                             .clip(RoundedCornerShape(10.dp)),
                         contentPadding = PaddingValues(bottom = 152.dp),
-                        verticalArrangement = Arrangement.spacedBy(16.dp)
                     ) {
                         items(dataStatus.data) { trip ->
                             if(trip.destinations != 0) {
@@ -104,6 +103,7 @@ fun ExploreView(modifier: Modifier, token: String, exploreViewModel: ExploreView
                                         journeyViewModel.viewJourney(trip.id, navController)
                                     }
                                 )
+                                Spacer(modifier = Modifier.height(16.dp))
                             }
 
                         }

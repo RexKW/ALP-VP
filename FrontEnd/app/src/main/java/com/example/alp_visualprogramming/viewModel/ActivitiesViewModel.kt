@@ -74,7 +74,7 @@ class ActivitiesViewModel(
                         if (res.isSuccessful) {
                             dayDataStatus = DayDataStatusUIState.Success(res.body()!!.data)
                             getAllActivities(res.body()!!.data[0].id, token, navController)
-
+                            navController.navigate("Activities/${res.body()!!.data[0].id}")
 
                         } else {
                             val errorMessage = Gson().fromJson(
@@ -136,6 +136,44 @@ class ActivitiesViewModel(
 
 
     fun getAllActivities(dayId: Int, token: String, navController: NavController){
+        viewModelScope.launch {
+            updateSelectedDay(dayId)
+            dataStatus = ActivityDataStatusUIState.Loading
+            try {
+                val call =  activityRepository.getAllActivities(token, dayId)
+                call.enqueue(object : Callback<GetAllActivityResponse> {
+                    override fun onResponse(
+                        call: Call<GetAllActivityResponse>,
+                        res: Response<GetAllActivityResponse>
+                    ) {
+                        if (res.isSuccessful) {
+
+                            dataStatus = ActivityDataStatusUIState.Success(res.body()!!.data)
+
+
+                        } else {
+                            val errorMessage = Gson().fromJson(
+                                res.errorBody()!!.charStream(),
+                                ErrorModel::class.java
+                            )
+
+                            dataStatus = ActivityDataStatusUIState.Failed(errorMessage.errors)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<GetAllActivityResponse>, t: Throwable) {
+                        dataStatus = ActivityDataStatusUIState.Failed(t.localizedMessage)
+                    }
+
+                })
+            } catch (error: IOException) {
+                dataStatus = ActivityDataStatusUIState.Failed(error.localizedMessage)
+            }
+
+        }
+    }
+
+    fun getAllActivitiesBack(dayId: Int, token: String, navController: NavController){
         viewModelScope.launch {
             updateSelectedDay(dayId)
             dataStatus = ActivityDataStatusUIState.Loading

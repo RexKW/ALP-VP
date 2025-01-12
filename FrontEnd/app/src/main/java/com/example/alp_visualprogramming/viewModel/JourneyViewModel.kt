@@ -13,11 +13,13 @@ import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.example.alp_visualprogramming.ItineraryApplication
 import com.example.alp_visualprogramming.models.ErrorModel
+import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetAllItineraryDestinationResponse
 import com.example.alp_visualprogramming.models.GetAllItineraryResponse
 import com.example.alp_visualprogramming.models.GetDestinationResponse
 import com.example.alp_visualprogramming.models.UserRoleResponse
 import com.example.alp_visualprogramming.repository.ItineraryDestinationRepository
+import com.example.alp_visualprogramming.repository.ItineraryRepository
 import com.example.alp_visualprogramming.repository.UserRepository
 import com.example.alp_visualprogramming.uiStates.JourneyDataStatusUIState
 import com.example.alp_visualprogramming.uiStates.JourneyUIState
@@ -41,13 +43,20 @@ import kotlin.coroutines.resumeWithException
 
 class JourneyViewModel(
     private val userRepository: UserRepository,
+    private val itineraryRepository: ItineraryRepository,
     private val itineraryDestinationRepository: ItineraryDestinationRepository,
 ): ViewModel() {
 
     var dataStatus: JourneyDataStatusUIState by mutableStateOf(JourneyDataStatusUIState.Start)
         private set
 
-    var canEdit: Boolean = false
+    var canEdit by mutableStateOf(false)
+
+    var owner by mutableStateOf(false)
+
+    fun changeOwner(value: Boolean){
+        owner = value
+    }
 
     fun changeCanEdit(value: Boolean){
         canEdit= value
@@ -60,10 +69,11 @@ class JourneyViewModel(
     }
 
     fun viewJourney(itinerary_Id: Int, navController: NavController){
+        changeCanEdit(false)
         navController.navigate("Explore/$itinerary_Id")
     }
 
-    fun getAllJourneys(token:String, itinerary_Id:Int){
+    fun getAllJourneys(token:String, itinerary_Id:Int, explore:Boolean){
         viewModelScope.launch {
             dataStatus = JourneyDataStatusUIState.Loading
             try {
@@ -87,7 +97,13 @@ class JourneyViewModel(
 
                                         val role = getUserRole(token, itinerary_Id)
                                         if(role != "member"){
-                                            changeCanEdit(true)
+                                            if(!explore){
+                                                changeCanEdit(true)
+                                            }
+                                            if(role == "owner"){
+                                                changeOwner(true)
+                                            }
+
                                         }
 
                                     dataStatus = JourneyDataStatusUIState.Success(itineraryData)
@@ -117,6 +133,35 @@ class JourneyViewModel(
                 dataStatus = JourneyDataStatusUIState.Failed(error.localizedMessage)
             }
 
+        }
+    }
+
+    fun deleteJourney(token:String, itinerary_Id:Int, navController: NavController){
+        viewModelScope.launch {
+            dataStatus = JourneyDataStatusUIState.Loading
+            try {
+                val call = itineraryRepository.deleteItinerary( token, itinerary_Id)
+                call.enqueue(object : Callback<GeneralResponseModel> {
+                    override fun onResponse(
+                        call: Call<GeneralResponseModel>,
+                        res: Response<GeneralResponseModel>
+                    ) {
+                        if (res.isSuccessful) {
+                            navController.navigate("Home")
+
+                        }
+                    }
+
+                    override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
+                        dataStatus = JourneyDataStatusUIState.Failed(t.localizedMessage)
+                    }
+
+                })
+
+
+            } catch (error: IOException) {
+
+            }
         }
     }
 
@@ -190,10 +235,10 @@ class JourneyViewModel(
             initializer {
                 val application = (this[APPLICATION_KEY] as ItineraryApplication)
                 val userRepository = application.container.userRepository
+                val itineraryRepository = application.container.itineraryRepository
                 val itineraryDestinationRepository = application.container.itineraryDestinationRepository
-                JourneyViewModel(userRepository, itineraryDestinationRepository)
+                JourneyViewModel(userRepository, itineraryRepository,itineraryDestinationRepository)
             }
         }
     }
-
 }

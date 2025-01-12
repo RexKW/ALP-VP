@@ -30,9 +30,9 @@ model Budget{
   itinerary_id Int
   estimated_budget Decimal @default(0)
   actual_budget Decimal @default(0)
-  type String @db.VarChar(20)
+  type String @db.VarChar(50)
 
-  itinerary Itinerary @relation(fields: [itinerary_id], references: [id])
+  itinerary Itinerary @relation(fields: [itinerary_id], references: [id], onDelete: Cascade, onUpdate: Cascade)
 }
 
 model Itinerary_Users{
@@ -115,12 +115,12 @@ model Activity{
   description String @db.Text
   start_time DateTime
   end_time DateTime
-  type String @db.VarChar(20)
+  type String @db.VarChar(50)
   cost Decimal
   day_id Int
   location_id Int
 
-  schedulePerDay Schedule_Per_Day @relation(fields: [day_id], references: [id])
+  schedulePerDay Schedule_Per_Day @relation(fields: [day_id], references: [id], onDelete: Cascade)
   location Location @relation(fields: [location_id], references: [id])
 
 }

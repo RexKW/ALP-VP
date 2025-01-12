@@ -20,6 +20,7 @@ apiRouter.get("/itinerary/explore", ItineraryController.exploreItinerary)
 apiRouter.get("/itinerary/journey/:itineraryDestinationId(\\d+)", ItineraryController.getJourney)
 apiRouter.put("/itinerary/updateJourney/:itineraryDestinationId(\\d+)", ItineraryController.updateJourney)
 apiRouter.delete("/itinerary/deleteJourney/:itineraryDestinationId(\\d+)", ItineraryController.deleteJourney)
+apiRouter.post("/itinerary/cloneItinerary/:itineraryId(\\d+)", ItineraryController.cloneItinerary)
 
 apiRouter.get("/destinations/all", DestinationController.getAllDestinations)
 apiRouter.get("/destinations/:destinationId(\\d+)", DestinationController.getDestination)
@@ -31,6 +32,11 @@ apiRouter.post("/activities/createActivity/:dayId(\\d+)", ActivityController.cre
 apiRouter.get("/activities/getActivity/:activityId(\\d+)", ActivityController.getActivity)
 apiRouter.delete("/activities/deleteActivity/:activityId(\\d+)", ActivityController.deleteActivity)
 apiRouter.put("/activities/updateActivity/:activityId(\\d+)", ActivityController.updateActivity)
+
+apiRouter.get("/budget/plannedBudget/:itineraryId(\\d+)", BudgetController.plannedBudget)
+apiRouter.get("/budget/actualBudget/:itineraryId(\\d+)", BudgetController.actualBudget)
+apiRouter.post("/budget/create/:itineraryId(\\d+)", BudgetController.createBudget)
+apiRouter.put("/budget/update/:itineraryId(\\d+)", BudgetController.updateBudget)
 
 
 apiRouter.get("/users/all", AuthController.allUsers)
