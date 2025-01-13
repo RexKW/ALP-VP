@@ -124,42 +124,42 @@ fun ItineraryApp (
         ) { innerPadding ->
             NavHost(navController = navController, startDestination = "Home"){
                 composable("Home"){
-                    YourTripView(modifier = Modifier.padding(innerPadding), navController = navController, token = "7ffe2e10-558b-45ab-b3f6-fb4693051b5f", tripsViewModel = tripsViewModel, context = localContext, journeyViewModel = viewModel(factory = JourneyViewModel.Factory))
+                    YourTripView(modifier = Modifier.padding(innerPadding), navController = navController, token = "f57031c8-1c62-4bea-947b-4239db58e31c", tripsViewModel = tripsViewModel, context = localContext, journeyViewModel = viewModel(factory = JourneyViewModel.Factory))
                 }
 
                 composable("Invited"){
-                    InvitedTripView(navController = navController, token = "7ffe2e10-558b-45ab-b3f6-fb4693051b5f", invitedTripsViewModel = invitedTripsViewModel, journeyViewModel = journeyViewModel, context = localContext )
+                    InvitedTripView(navController = navController, token = "f57031c8-1c62-4bea-947b-4239db58e31c", invitedTripsViewModel = invitedTripsViewModel, journeyViewModel = journeyViewModel, context = localContext )
                 }
 
                 composable("Explore"){
-                    ExploreView(modifier = Modifier.padding(innerPadding), token = "7ffe2e10-558b-45ab-b3f6-fb4693051b5f", navController = navController, exploreViewModel = exploreViewModel, context = localContext, journeyViewModel = journeyViewModel)
+                    ExploreView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, exploreViewModel = exploreViewModel, context = localContext, journeyViewModel = journeyViewModel)
                 }
 
                 composable("Explore/{itineraryId}"){
 
                         backStackEntry->
-                    JourneyExploreView(modifier = Modifier.padding(innerPadding), navController = navController, journeyViewModel = journeyViewModel, itineraryId = backStackEntry.arguments?.getString("itineraryId")?.toIntOrNull() ?: 0, context = localContext, token ="7ffe2e10-558b-45ab-b3f6-fb4693051b5f", journeyFormViewModel =journeyFormViewModel, activitiesViewModel = activityViewModel, locationViewModel = locationViewModel)
+                    JourneyExploreView(modifier = Modifier.padding(innerPadding), navController = navController, journeyViewModel = journeyViewModel, itineraryId = backStackEntry.arguments?.getString("itineraryId")?.toIntOrNull() ?: 0, context = localContext, token ="f57031c8-1c62-4bea-947b-4239db58e31c", journeyFormViewModel =journeyFormViewModel, activitiesViewModel = activityViewModel, locationViewModel = locationViewModel)
                 }
 
 
 
                 composable("Destinations"){
-                    DestinationSearchView(modifier = Modifier.padding(innerPadding), token = "7ffe2e10-558b-45ab-b3f6-fb4693051b5f", navController = navController, destinationViewModel = destinationViewModel, journeyFormViewModel = journeyFormViewModel)
+                    DestinationSearchView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, destinationViewModel = destinationViewModel, journeyFormViewModel = journeyFormViewModel)
                 }
 
                 composable("Create"){
-                    TripNameView(modifier = Modifier.padding(innerPadding), navController = navController,tripNameViewModel = tripNameViewModel, token = "7ffe2e10-558b-45ab-b3f6-fb4693051b5f", context = localContext)
+                    TripNameView(modifier = Modifier.padding(innerPadding), navController = navController,tripNameViewModel = tripNameViewModel, token = "f57031c8-1c62-4bea-947b-4239db58e31c", context = localContext)
                 }
 
                 composable("FormDestination"){
 
-                   JourneyFormView(modifier = Modifier.padding(innerPadding), token = "7ffe2e10-558b-45ab-b3f6-fb4693051b5f", navController = navController, journeyFormViewModel = journeyFormViewModel, destinationViewModel = destinationViewModel, context = localContext)
+                   JourneyFormView(modifier = Modifier.padding(innerPadding), token = "f57031c8-1c62-4bea-947b-4239db58e31c", navController = navController, journeyFormViewModel = journeyFormViewModel, destinationViewModel = destinationViewModel, context = localContext)
                 }
 
                 composable("Journey/{itineraryId}"){
 
                     backStackEntry->
-                    JourneyView(modifier = Modifier.padding(innerPadding), navController = navController, journeyViewModel = journeyViewModel, itineraryId = backStackEntry.arguments?.getString("itineraryId")?.toIntOrNull() ?: 0, context = localContext, token ="7ffe2e10-558b-45ab-b3f6-fb4693051b5f", journeyFormViewModel =journeyFormViewModel, activitiesViewModel = activityViewModel, locationViewModel = locationViewModel)
+                    JourneyView(modifier = Modifier.padding(innerPadding), navController = navController, journeyViewModel = journeyViewModel, itineraryId = backStackEntry.arguments?.getString("itineraryId")?.toIntOrNull() ?: 0, context = localContext, token ="f57031c8-1c62-4bea-947b-4239db58e31c", journeyFormViewModel =journeyFormViewModel, activitiesViewModel = activityViewModel, locationViewModel = locationViewModel)
                 }
 
 
@@ -169,7 +169,7 @@ fun ItineraryApp (
 
                 composable("Activities/{dayId}"){
                         backStackEntry->
-                        ActivitiesView(modifier = Modifier.padding(innerPadding), navController = navController,activityViewModel, context = localContext, token = "7ffe2e10-558b-45ab-b3f6-fb4693051b5f",dayId = backStackEntry.arguments?.getString("dayId")?.toIntOrNull() ?: 0, activityDetailViewModel = activityDetailViewModel, activityFormViewModel = activityFormViewModel, canEdit = true)
+                        ActivitiesView(modifier = Modifier.padding(innerPadding), navController = navController,activityViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c",dayId = backStackEntry.arguments?.getString("dayId")?.toIntOrNull() ?: 0, activityDetailViewModel = activityDetailViewModel, activityFormViewModel = activityFormViewModel, canEdit = true)
                 }
 
                 composable("ActivityDetail"){
@@ -196,7 +196,7 @@ fun ItineraryApp (
 //                }
 
                 composable("FormActivity") {
-                    ActivityFormView(modifier = Modifier.padding(innerPadding), navController = navController, activityFormViewModel = activityFormViewModel, context = localContext, token = "7ffe2e10-558b-45ab-b3f6-fb4693051b5f", activitiesViewModel =  activityViewModel, locationViewModel = locationViewModel,)
+                    ActivityFormView(modifier = Modifier.padding(innerPadding), navController = navController, activityFormViewModel = activityFormViewModel, context = localContext, token = "f57031c8-1c62-4bea-947b-4239db58e31c", activitiesViewModel =  activityViewModel, locationViewModel = locationViewModel,)
                 }
 
                 // Add the Location List route
@@ -296,7 +296,7 @@ fun ItineraryApp (
 
                     // Fetch accommodation details before rendering
                     val accommodation = remember { mutableStateOf<AccommodationResponse?>(null) }
-                    val token = "7ffe2e10-558b-45ab-b3f6-fb4693051b5f" // Replace with dynamic token if applicable
+                    val token = "f57031c8-1c62-4bea-947b-4239db58e31c" // Replace with dynamic token if applicable
 
                     LaunchedEffect(accommodationId) {
                         journeyViewModel.viewModelScope.launch {

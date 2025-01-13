@@ -12,6 +12,10 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.example.alp_visualprogramming.ItineraryApplication
+import com.example.alp_visualprogramming.models.AccommodationIdWrapper
+import com.example.alp_visualprogramming.models.AccommodationRequest
+import com.example.alp_visualprogramming.models.AccommodationResponse
+import com.example.alp_visualprogramming.models.AccommodationWrapper
 import com.example.alp_visualprogramming.models.ErrorModel
 import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetAllItineraryDestinationResponse
@@ -223,6 +227,163 @@ class JourneyViewModel(
             outputFormat.format(date ?: Date())
         } catch (e: Exception) {
             "Invalid Date"
+        }
+    }
+
+    suspend fun updateJourneyAccommodation(
+        token: String,
+        itineraryDestinationId: Int,
+        accommodationRequest: AccommodationRequest
+    ): AccommodationResponse {
+        return suspendCancellableCoroutine { continuation ->
+            val call = itineraryDestinationRepository.updateJourneyAccommodation(
+                token = token,
+                itineraryDestinationId = itineraryDestinationId,
+                accommodationRequest = accommodationRequest
+            )
+
+            call.enqueue(object : Callback<AccommodationWrapper> {
+                override fun onResponse(
+                    call: Call<AccommodationWrapper>,
+                    response: Response<AccommodationWrapper>
+                ) {
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+                        if (responseBody != null) {
+                            continuation.resume(responseBody.data)
+                        } else {
+                            continuation.resumeWithException(
+                                IOException("Response body is null")
+                            )
+                        }
+                    } else {
+                        continuation.resumeWithException(
+                            IOException("Failed to update journey accommodation: ${response.message()}")
+                        )
+                    }
+                }
+
+                override fun onFailure(call: Call<AccommodationWrapper>, t: Throwable) {
+                    continuation.resumeWithException(t)
+                }
+            })
+        }
+    }
+
+    fun getAccommodationIdForJourney(token: String, journeyId: Int, onResult: (Int?) -> Unit) {
+        viewModelScope.launch {
+            try {
+                // Call the repository method to check accommodation
+                val response = itineraryDestinationRepository.checkAccommodation(token, journeyId)
+
+                response.enqueue(object : Callback<AccommodationIdWrapper> {
+                    override fun onResponse(
+                        call: Call<AccommodationIdWrapper>,
+                        res: Response<AccommodationIdWrapper>
+                    ) {
+                        if (res.isSuccessful) {
+//                            val accommodationId = res.body()?.data?.id
+                            val accommodationId = res.body()?.accommodation_id
+                            onResult(accommodationId)
+                        } else {
+                            Log.e("JourneyViewModel", "Failed to fetch accommodation ID: ${res.message()}")
+                            onResult(null)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<AccommodationIdWrapper>, t: Throwable) {
+                        Log.e("JourneyViewModel", "Error fetching accommodation ID: ${t.message}")
+                        onResult(null) // Handle the error gracefully
+                    }
+                })
+            } catch (e: Exception) {
+                Log.e("JourneyViewModel", "Error in getAccommodationIdForJourney: ${e.message}")
+                onResult(null)
+            }
+        }
+    }
+
+    fun getAccommodationDetails(
+        accommodationId: Int,
+        onResult: (AccommodationResponse?) -> Unit
+    ) {
+        viewModelScope.launch {
+            try {
+                val token = "f57031c8-1c62-4bea-947b-4239db58e31c" // Replace with dynamic token
+                val response = itineraryDestinationRepository.getAccommodationDetails(token, accommodationId)
+
+                response.enqueue(object : Callback<AccommodationWrapper> {
+                    override fun onResponse(
+                        call: Call<AccommodationWrapper>,
+                        res: Response<AccommodationWrapper>
+                    ) {
+                        if (res.isSuccessful) {
+                            val accommodation = res.body()?.data
+                            onResult(accommodation)
+                        } else {
+                            Log.e("JourneyViewModel", "Failed to fetch accommodation details: ${res.message()}")
+                            onResult(null)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<AccommodationWrapper>, t: Throwable) {
+                        Log.e("JourneyViewModel", "Error fetching accommodation details: ${t.message}")
+                        onResult(null)
+                    }
+                })
+            } catch (e: Exception) {
+                Log.e("JourneyViewModel", "Error in getAccommodationDetailsById: ${e.message}")
+                onResult(null)
+            }
+        }
+    }
+
+
+    suspend fun getOrCreateAccommodation(
+        token: String,
+        accommodationRequest: AccommodationRequest
+    ): AccommodationResponse {
+        return suspendCancellableCoroutine { continuation ->
+            val call = itineraryDestinationRepository.getOrCreateAccommodation(
+                token = token,
+                placeId = accommodationRequest.place_id,
+                name = accommodationRequest.name,
+                address = accommodationRequest.address,
+                locationImage = accommodationRequest.location_image,
+                placeApi = accommodationRequest.place_api,
+                categories = accommodationRequest.categories.joinToString(","), // Convert to comma-separated
+                cost = accommodationRequest.cost.toString(),
+                people = accommodationRequest.people,
+                openingHours = accommodationRequest.opening_hours,
+                website = accommodationRequest.website,
+                phone = accommodationRequest.phone
+            )
+
+            call.enqueue(object : Callback<AccommodationWrapper> { // Use AccommodationWrapper instead
+                override fun onResponse(
+                    call: Call<AccommodationWrapper>,
+                    response: Response<AccommodationWrapper>
+                ) {
+                    if (response.isSuccessful) {
+                        val responseBody = response.body()
+                        if (responseBody != null) {
+                            continuation.resume(responseBody.data) // `data` is the AccommodationResponse
+                        } else {
+                            continuation.resumeWithException(
+                                IOException("Response body is null")
+                            )
+                        }
+                    } else {
+                        continuation.resumeWithException(
+                            IOException("Failed to fetch/create accommodation: ${response.message()}")
+                        )
+                    }
+                }
+
+                override fun onFailure(call: Call<AccommodationWrapper>, t: Throwable) {
+                    continuation.resumeWithException(t)
+                }
+            })
         }
     }
 

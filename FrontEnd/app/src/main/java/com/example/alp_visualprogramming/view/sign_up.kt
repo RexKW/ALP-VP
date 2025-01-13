@@ -1,5 +1,6 @@
 package com.example.alp_vp.view
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -31,34 +32,39 @@ import androidx.compose.ui.unit.sp
 import androidx.navigation.NavController
 import com.example.alp_visualprogramming.R
 import android.util.Patterns
+import android.widget.Toast
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.navigation.NavHostController
 import androidx.navigation.compose.rememberNavController
+import com.example.alp_visualprogramming.view.template.AuthenticationButton
+import com.example.alp_visualprogramming.view.template.AuthenticationOutlinedTextField
+import com.example.alp_visualprogramming.view.template.AuthenticationQuestion
+import com.example.alp_visualprogramming.view.template.PasswordOutlinedTextField
+import com.example.alp_visualprogramming.viewModel.AuthenticationViewModel
+import com.example.todolistapp.uiStates.AuthenticationStatusUIState
 
 @Composable
-fun SignUp(navController: NavController, initialEmail: String = "") {
-    var email by remember { mutableStateOf(initialEmail) }
-    var username by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var confirmPassword by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
-    var errorMessage by remember { mutableStateOf("") }
+fun SignUp(authenticationViewModel: AuthenticationViewModel,
+           modifier: Modifier = Modifier,
+           navController: NavHostController,
+           context: Context
+) {
+    val registerUIState by authenticationViewModel.authenticationUIState.collectAsState()
+    val focusManager = LocalFocusManager.current
 
-    // Function to validate the form
-    fun validateForm(): Boolean {
-        if (email.isBlank() || username.isBlank() || password.isBlank() || confirmPassword.isBlank()) {
-            errorMessage = "Please fill in all fields."
-            return false
+    LaunchedEffect(authenticationViewModel.dataStatus) {
+        val dataStatus = authenticationViewModel.dataStatus
+        if (dataStatus is AuthenticationStatusUIState.Failed) {
+            Toast.makeText(context, dataStatus.errorMessage, Toast.LENGTH_SHORT).show()
+            authenticationViewModel.clearErrorMessage()
         }
-        if (!Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
-            errorMessage = "Please enter a valid email address."
-            return false
-        }
-        if (password != confirmPassword) {
-            errorMessage = "Passwords do not match."
-            return false
-        }
-        errorMessage = ""
-        return true
     }
+
+
 
     Box(
         modifier = Modifier
@@ -111,107 +117,126 @@ fun SignUp(navController: NavController, initialEmail: String = "") {
             Spacer(modifier = Modifier.height(200.dp))
 
             OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
+                value = authenticationViewModel.emailInput,
+                onValueChange = {
+                    authenticationViewModel.changeEmailInput(it)
+                    authenticationViewModel.checkRegisterForm()
+                },
                 label = { Text("Email") },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth()
             )
 
-            OutlinedTextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") },
-                singleLine = true,
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            painter = painterResource(
-                                id = if (passwordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
-                            ),
-                            contentDescription = "Toggle Password"
-                        )
-                    }
+            AuthenticationOutlinedTextField(
+                inputValue = authenticationViewModel.usernameInput,
+                onInputValueChange = {
+                    authenticationViewModel.changeUsernameInput(it)
+                    authenticationViewModel.checkRegisterForm()
                 },
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            OutlinedTextField(
-                value = confirmPassword,
-                onValueChange = { confirmPassword = it },
-                label = { Text("Confirm Password") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
-                visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            if (errorMessage.isNotEmpty()) {
-                Text(
-                    text = errorMessage,
-                    color = Color.Red,
-                    style = TextStyle(fontSize = 14.sp),
-                    modifier = Modifier.padding(top = 8.dp)
+                labelText = stringResource(id = R.string.usernameText),
+                placeholderText = stringResource(id = R.string.usernameText),
+                leadingIconSrc = painterResource(id = R.drawable.ic_username),
+                modifier = Modifier
+                    .fillMaxWidth(),
+                keyboardType = KeyboardOptions(
+                    keyboardType = KeyboardType.Text,
+                    imeAction = ImeAction.Next
+                ),
+                onKeyboardNext = KeyboardActions(
+                    onNext = {
+                        focusManager.moveFocus(FocusDirection.Down)
+                    }
                 )
-            }
+            )
+
+            PasswordOutlinedTextField(
+                passwordInput = authenticationViewModel.passwordInput,
+                onPasswordInputValueChange = {
+                    authenticationViewModel.changePasswordInput(it)
+                    authenticationViewModel.checkRegisterForm()
+                },
+                passwordVisibilityIcon = painterResource(id = registerUIState.passwordVisibilityIcon),
+                labelText = stringResource(id = R.string.passwordText),
+                placeholderText = stringResource(id = R.string.passwordText),
+                onTrailingIconClick = {
+                    authenticationViewModel.changePasswordVisibility()
+                },
+                passwordVisibility = registerUIState.passwordVisibility,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                keyboardImeAction = ImeAction.Next,
+                onKeyboardNext = KeyboardActions(
+                    onNext = {
+                        focusManager.moveFocus(FocusDirection.Down)
+                    }
+                )
+            )
+            PasswordOutlinedTextField(
+                passwordInput = authenticationViewModel.confirmPasswordInput,
+                onPasswordInputValueChange = {
+                    authenticationViewModel.changeConfirmPasswordInput(it)
+                    authenticationViewModel.checkRegisterForm()
+                },
+                passwordVisibilityIcon = painterResource(id = registerUIState.confirmPasswordVisibilityIcon),
+                labelText = stringResource(id = R.string.confirm_password_text),
+                placeholderText = stringResource(id = R.string.confirm_password_text),
+                onTrailingIconClick = {
+                    authenticationViewModel.changeConfirmPasswordVisibility()
+                },
+                passwordVisibility = registerUIState.confirmPasswordVisibility,
+                modifier = Modifier
+                    .fillMaxWidth(),
+                keyboardImeAction = ImeAction.None,
+                onKeyboardNext = KeyboardActions(
+                    onDone = null
+                )
+            )
+
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Button(
-                onClick = {
-                    if (validateForm()) {
-                        // Handle Sign Up Logic (e.g., call an API)
-                        navController.navigate("signIn") // Navigate to SignIn after successful sign-up
-                    }
+            AuthenticationButton(
+                buttonText = stringResource(id = R.string.registerText),
+                onButtonClick = {
+                    authenticationViewModel.registerUser(navController)
                 },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEE4482)),
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(45.dp)
-            ) {
-                Text("Sign Up", color = Color.White, fontSize = 16.sp)
-            }
+                buttonModifier = Modifier
+                    .padding(top = 30.dp),
+                textModifier = Modifier
+                    .padding(vertical = 5.dp, horizontal = 15.dp),
+                buttonEnabled = registerUIState.buttonEnabled,
+                buttonColor = authenticationViewModel.checkButtonEnabled(registerUIState.buttonEnabled),
+                userDataStatusUIState = authenticationViewModel.dataStatus,
+                loadingBarModifier = Modifier
+                    .padding(top = 30.dp)
+                    .size(40.dp)
+            )
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "Already have an account? ",
-                    fontSize = 14.sp,
-                    color = Color.Black
-                )
-                ClickableText(
-                    text = buildAnnotatedString { append("Sign In") },
-                    onClick = { navController.navigate("signIn") },
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        color = Color(0xFFEE4482),
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
+            AuthenticationQuestion(
+                questionText = stringResource(id = R.string.already_have_an_account_text),
+                actionText = stringResource(id = R.string.sign_in_text),
+                onActionTextClicked = {
+                    authenticationViewModel.resetViewModel()
+                    navController.navigate("Login") {
+                        popUpTo("Register") {
+                            inclusive = true
+                        }
+                    }
+                },
+                rowModifier = Modifier
+                    .align(Alignment.CenterHorizontally)
+            )
         }
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SignUpPreview() {
-
-        SignUp(initialEmail = "test@example.com", navController = rememberNavController())
-
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun SignUpPreview() {
+//
+//        SignUp(initialEmail = "test@example.com", navController = rememberNavController())
+//
+//}

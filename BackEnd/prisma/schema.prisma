@@ -75,17 +75,20 @@ model Itinerary_Destinations{
   Ticket Ticket[]
 }
 
-model Accomodation{
-  id Int @id  @default(autoincrement())
-  name String @db.VarChar(100)
-  address String @db.VarChar(150)
-  description String @db.Text
-  rating Int @db.SmallInt
-  cost Decimal
-  type String @db.VarChar(30) 
-
-
-  Itinerary_Destinations Itinerary_Destinations[]
+model Accomodation {
+  id               Int      @id @default(autoincrement())
+  name             String   @db.VarChar(2083)    // Name of the accommodation
+  address          String   @db.VarChar(2083)    // Address of the accommodation
+  location_image   String   @db.VarChar(2083)    // Image URL
+  place_id         String   @unique @db.VarChar(255) // Unique identifier from the API
+  place_api        String   @db.VarChar(255)     // API source
+  categories       String[] @db.VarChar(2083)    // List of categories
+  opening_hours    String?  @db.VarChar(255)     // Opening hours (optional)
+  website          String?  @db.VarChar(2083)    // Website URL (optional)
+  phone            String?  @db.VarChar(50)      // Phone number (optional)
+  cost             Decimal  @default(0.0)        // Cost of accommodation
+  people           Int      @default(0)          // Number of people/occupants
+  Itinerary_Destinations Itinerary_Destinations[] // Relation to itinerary destinations
 }
 
 model Destination{
@@ -125,14 +128,20 @@ model Activity{
 
 }
 
-model Location{
-  id Int @id @default(autoincrement())
-  name String @db.VarChar(100)
-  address String @db.VarChar(150)
-  description String @db.Text
-  location_image String @db.VarChar(2083)
+model Location {
+  id               Int      @id @default(autoincrement())
+  name             String   @db.VarChar(2083) // Name of the location
+  address          String   @db.VarChar(2083) // Address of the location
+  description      String   @db.Text         // Description of the location
+  location_image   String   @db.VarChar(2083) // Image URL
+  place_id         String   @unique @db.VarChar(100) @default("") // Unique identifier from the API
+  place_api        String   @db.VarChar(255) @default("") // API source
+  categories       String[] @db.VarChar(2083) // List of categories
+  opening_hours    String?  @db.VarChar(255) // Opening hours (optional)
+  website          String?  @db.VarChar(2083) // Website URL (optional)
+  phone            String?  @db.VarChar(50) // Phone number (optional)
 
-  Activity Activity[]
+  Activity         Activity[] // Relation to activities
 }
 
 model Ticket{

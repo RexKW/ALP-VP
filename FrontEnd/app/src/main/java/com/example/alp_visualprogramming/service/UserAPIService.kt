@@ -1,6 +1,7 @@
 package com.example.alp_visualprogramming.service
 
 import com.example.alp_visualprogramming.models.GeneralResponseModel
+import com.example.alp_visualprogramming.models.UserModel
 import com.example.alp_visualprogramming.models.UserRoleResponse
 import retrofit2.Call
 import retrofit2.http.GET
@@ -14,4 +15,10 @@ interface UserAPIService {
 
     @GET("/users/role/{id}")
     fun getUserRole(@Header("X-API-TOKEN") token: String, @Path("id") id: Int): Call<UserRoleResponse>
+
+    @GET("user/{id}")
+    fun getUserById(@Path("id") userId: String): Call<UserModel>
+
+    @GET("user/profile")
+    fun getUserProfile(@Header("Authorization") token: String): Call<UserModel>
 }

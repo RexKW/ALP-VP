@@ -217,5 +217,73 @@ export class ItineraryController{
 		}
 	}
 
+	static async updateAccomodation(req: Request, res: Response, next: NextFunction) {
+		try {
+		  const itineraryDestinationId = Number(req.params.itineraryDestinationId);
+		  const accomodationData = req.body;
+	  
+		  console.log(`API called: updateAccomodation`);
+		  console.log(`Request params: ${JSON.stringify(req.params)}`);
+		  console.log(`Request body: ${JSON.stringify(req.body)}`);
+	  
+		  const response = await ItineraryDestinationService.updateItineraryDestinationAccomodation(
+			itineraryDestinationId,
+			accomodationData
+		  );
+	  
+		  res.status(200).json({
+			data: response,
+		  });
+		} catch (error) {
+		  console.error(`Error in updateAccomodation: ${(error as Error).message}`);
+		  next(error);
+		}
+	  }
+
+	static async checkAccommodation(req: any, res: any, next: NextFunction) {
+		try {
+		  const itineraryDestinationId = parseInt(req.params.itineraryDestinationId, 10);
+	
+		  // Validate the ID
+		  if (isNaN(itineraryDestinationId)) {
+			res.status(400).json({ error: "Invalid itinerary destination ID." });
+			return;
+		  }
+	
+		  // Fetch the accommodation ID
+		  const accommodationId = await ItineraryDestinationService.getAccommodationId(itineraryDestinationId);
+	
+		  res.status(200).json({ accommodation_id: accommodationId });
+		} catch (error) {
+		  console.error("Error in checkAccommodation:", error);
+		  next(error);
+		}
+	  }
+
+	  static async getAccommodationDetails(req: Request, res: Response, next: NextFunction) {
+		try {
+		  const accommodationId = parseInt(req.params.accommodationId, 10);
+	  
+		  // Validate the ID
+		  if (isNaN(accommodationId)) {
+			res.status(400).json({ error: "Invalid accommodation ID." });
+			return;
+		  }
+	  
+		  // Fetch the accommodation details
+		  const accommodation = await ItineraryDestinationService.getAccommodationDetails(accommodationId);
+	  
+		  if (!accommodation) {
+			res.status(404).json({ error: "Accommodation not found." });
+			return;
+		  }
+	  
+		  res.status(200).json({ data: accommodation });
+		} catch (error) {
+		  console.error("Error in getAccommodationDetails:", error);
+		  next(error);
+		}
+	  }
+
 
 }

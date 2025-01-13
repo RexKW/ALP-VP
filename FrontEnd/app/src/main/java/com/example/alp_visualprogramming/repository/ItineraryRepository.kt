@@ -1,5 +1,8 @@
 package com.example.alp_visualprogramming.repository
 
+import com.example.alp_visualprogramming.models.AccommodationIdWrapper
+import com.example.alp_visualprogramming.models.AccommodationRequest
+import com.example.alp_visualprogramming.models.AccommodationWrapper
 import com.example.alp_visualprogramming.models.ExploreItineraryResponse
 import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetAllItineraryResponse
@@ -77,4 +80,8 @@ class NetworkItineraryRepository(
     override fun cloneItinerary(token: String, id: Int): Call<GetCreatedItineraryResponse> {
         return itineraryAPIService.cloneItinerary(token, id)
     }
+
+
+
+
 }

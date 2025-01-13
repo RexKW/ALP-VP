@@ -6,6 +6,8 @@ import { ResponseError } from "../error/response-error"
 import { ItineraryDestinationValidation } from "../validation/itinerary-destination-validation";
 import { logger } from "../application/logging"
 import { DestinationService } from "./destination-service";
+import { AccomodationService } from "./accomodation-service";
+import { Decimal } from "@prisma/client/runtime/library";
 
 export class ItineraryDestinationService{
     static async getAllItinenaryDestination(itinerary_id:number): Promise<ItineraryDestinationResponse[]> {
@@ -265,5 +267,86 @@ export class ItineraryDestinationService{
                 return "Destination Updated"
 
     }
+
+    static async updateItineraryDestinationAccomodation(
+        itineraryDestinationId: number,
+        accomodationData: {
+          place_id: string;
+          name: string;
+          address: string;
+          cost: Decimal;
+          people: number;
+          location_image: string;
+          place_api: string;
+          categories: string[];
+          opening_hours?: string;
+          website?: string;
+          phone?: string;
+        }
+      ): Promise<void> {
+        console.log(`Updating itinerary destination with ID: ${itineraryDestinationId}`);
+        
+        // Step 1: Check if the itinerary destination exists
+        const itineraryDestination = await prismaClient.itinerary_Destinations.findUnique({
+          where: { id: itineraryDestinationId },
+        });
+      
+        if (!itineraryDestination) {
+          console.error(`Itinerary destination not found for ID: ${itineraryDestinationId}`);
+          throw new Error("Itinerary destination not found.");
+        }
+        console.log(`Found itinerary destination: ${JSON.stringify(itineraryDestination)}`);
+      
+        // Step 2: Get or create accommodation
+        const accomodation = await AccomodationService.getOrCreateAccomodation(accomodationData);
+        if (!accomodation || !accomodation.id) {
+          console.error(`Failed to get or create accommodation: ${JSON.stringify(accomodationData)}`);
+          throw new Error("Failed to get or create accommodation.");
+        }
+        console.log(`Accomodation created/found: ${JSON.stringify(accomodation)}`);
+      
+        // Step 3: Update the itinerary destination with the new accommodation ID
+        const updateResult = await prismaClient.itinerary_Destinations.update({
+          where: { id: itineraryDestinationId },
+          data: {
+            accomodation_id: accomodation.id,
+          },
+        });
+        console.log(`Itinerary destination updated successfully: ${JSON.stringify(updateResult)}`);
+      
+      //  return "Accommodation updated for itinerary destination successfully.";
+      }
+
+      static async getAccommodationId(itineraryDestinationId: number): Promise<number | null> {
+        const itineraryDestination = await prismaClient.itinerary_Destinations.findUnique({
+          where: {
+            id: itineraryDestinationId,
+          },
+          select: {
+            accomodation_id: true,
+          },
+        });
+      
+        if (!itineraryDestination) {
+          throw new ResponseError(404, "Itinerary destination not found.");
+        }
+      
+        return itineraryDestination.accomodation_id; // Return the accommodation ID or null
+      }
+
+      static async getAccommodationDetails(accommodationId: number) {
+        // Fetch accommodation details from the database
+        const accommodation = await prismaClient.accomodation.findUnique({
+          where: {
+            id: accommodationId,
+          },
+        });
+      
+        if (!accommodation) {
+          throw new ResponseError(404, "Accommodation not found.");
+        }
+      
+        return accommodation;
+      }
 
 }

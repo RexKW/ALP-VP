@@ -24,6 +24,9 @@ import com.example.alp_visualprogramming.repository.ItineraryRepository
 import com.example.alp_visualprogramming.repository.NetworkItineraryRepository
 import com.example.alp_visualprogramming.repository.NetworkUserRepository
 import com.example.alp_visualprogramming.repository.UserRepository
+import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.stateIn
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale
@@ -34,6 +37,12 @@ class TripsViewModel(
 ): ViewModel() {
     var dataStatus: TripDataStatusUIState by mutableStateOf(TripDataStatusUIState.Start)
         private set
+
+    val token: StateFlow<String> = userRepository.currentUserToken.stateIn(
+        scope = viewModelScope,
+        started = SharingStarted.WhileSubscribed(5000),
+        initialValue = ""
+    )
 
     fun getAllItineraries(token: String) {
         viewModelScope.launch {

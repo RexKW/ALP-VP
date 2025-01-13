@@ -6,6 +6,7 @@ import { BudgetController } from "../controllers/budget-controller"
 import { authMiddleware } from "../middleware/auth-middleware"
 import { DestinationController } from "../controllers/destination-controller"
 import { AuthController } from "../controllers/user-controller"
+import { LocationController } from "../controllers/location-controller";
 
 export const apiRouter = express.Router()
 apiRouter.use(authMiddleware)
@@ -25,6 +26,21 @@ apiRouter.post("/itinerary/cloneItinerary/:itineraryId(\\d+)", ItineraryControll
 apiRouter.get("/destinations/all", DestinationController.getAllDestinations)
 apiRouter.get("/destinations/:destinationId(\\d+)", DestinationController.getDestination)
 
+// Add AccomodationController routes
+apiRouter.get("/accommodations/getOrCreate", AccomodationController.getOrCreateAccomodation); // Fetch or create accommodation
+apiRouter.put(
+  "/itinerary/updateJourneyAccommodation/:itineraryDestinationId(\\d+)", 
+  ItineraryController.updateAccomodation
+); // Update the accommodation for a specific itinerary destination
+apiRouter.get(
+    "/itinerary/checkAccommodation/:itineraryDestinationId",
+    ItineraryController.checkAccommodation
+  );
+  apiRouter.get(
+    "/accommodations/:accommodationId",
+    ItineraryController.getAccommodationDetails
+  );
+
 
 apiRouter.get("/activities/allDays/:itineraryDestinationId(\\d+)", ActivityController.getAllDays)
 apiRouter.get("/activities/allActivities/:dayId(\\d+)", ActivityController.getAllActivities)
@@ -42,5 +58,9 @@ apiRouter.put("/budget/update/:itineraryId(\\d+)", BudgetController.updateBudget
 apiRouter.get("/users/all", AuthController.allUsers)
 apiRouter.get("/users/role/:itineraryId(\\d+)", AuthController.userRole)
 
-
+// Add LocationController routes
+apiRouter.get("/locations", LocationController.getAllLocations); // Fetch all locations
+//apiRouter.post("/locations", LocationController.createLocation); // Create a location
+apiRouter.get("/locations/getOrCreate", LocationController.getOrCreateLocation); // Get or create a location by place_id and categories
+apiRouter.get("/locations/:locationId(\\d+)", LocationController.getLocationById);
 apiRouter.get("/location/seed")

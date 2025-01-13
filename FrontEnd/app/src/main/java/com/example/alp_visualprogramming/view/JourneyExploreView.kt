@@ -55,9 +55,10 @@ import com.example.alp_visualprogramming.view.template.TripCard
 import com.example.alp_visualprogramming.viewModel.ActivitiesViewModel
 import com.example.alp_visualprogramming.viewModel.JourneyFormViewModel
 import com.example.alp_visualprogramming.viewModel.JourneyViewModel
+import com.example.alp_visualprogramming.viewModel.LocationViewModel
 
 @Composable
-fun JourneyExploreView(modifier: Modifier,journeyViewModel: JourneyViewModel, journeyFormViewModel: JourneyFormViewModel,activitiesViewModel: ActivitiesViewModel, token: String, navController: NavController, itineraryId: Int,  context : Context){
+fun JourneyExploreView(modifier: Modifier, journeyViewModel: JourneyViewModel, locationViewModel: LocationViewModel, journeyFormViewModel: JourneyFormViewModel, activitiesViewModel: ActivitiesViewModel, token: String, navController: NavController, itineraryId: Int, context : Context){
     val dataStatus = journeyViewModel.dataStatus
 
     LaunchedEffect(token) {
@@ -160,11 +161,16 @@ fun JourneyExploreView(modifier: Modifier,journeyViewModel: JourneyViewModel, jo
                                     modifier = Modifier
                                         .padding(bottom = 12.dp),
                                     onCardClick = {
-                                        activitiesViewModel.getAllDaysInitial(journey.id, token, navController, itineraryId)
+                                        activitiesViewModel.getAllDaysInitial(journey.id, token, navController, itineraryId, journey.destination_id)
                                     },
                                     onEditClick = {
                                     },
-                                    canEdit = journeyViewModel.canEdit
+                                    canEdit = journeyViewModel.canEdit,
+                                    cityName = journey.name, // Pass cityName
+                                    navController = navController, // Pass navController
+                                    locationViewModel = locationViewModel, // Pass LocationViewModel
+                                    journeyViewModel = journeyViewModel, // Pass JourneyViewModel
+                                    journeyId = journey.id, // Pass the journey ID here
                                 )
                             }
 
@@ -201,10 +207,10 @@ fun JourneyExploreView(modifier: Modifier,journeyViewModel: JourneyViewModel, jo
     }
 }
 
-@Preview
-    (showBackground = true,
-            showSystemUi = true)
-@Composable
-fun JourneyExplorePreview() {
-    JourneyView(navController = rememberNavController(), modifier = Modifier, journeyViewModel = viewModel(factory = JourneyViewModel.Factory), activitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory),journeyFormViewModel = viewModel(factory = JourneyFormViewModel.Factory), itineraryId = 1, context = LocalContext.current , token = "")
-}
+//@Preview
+//    (showBackground = true,
+//            showSystemUi = true)
+//@Composable
+//fun JourneyExplorePreview() {
+//    JourneyView(navController = rememberNavController(), modifier = Modifier, journeyViewModel = viewModel(factory = JourneyViewModel.Factory), activitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory),journeyFormViewModel = viewModel(factory = JourneyFormViewModel.Factory), itineraryId = 1, context = LocalContext.current , token = "")
+//}

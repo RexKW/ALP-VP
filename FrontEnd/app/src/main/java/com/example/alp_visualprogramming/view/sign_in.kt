@@ -1,5 +1,6 @@
 package com.example.alp_vp.view
 
+import android.content.Context
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
@@ -20,17 +21,32 @@ import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.foundation.text.ClickableText
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.tooling.preview.Preview
-    import com.example.alp_visualprogramming.R
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
+import com.example.alp_visualprogramming.R
 import com.example.alp_visualprogramming.ui.theme.ALP_VisualProgrammingTheme
+import com.example.alp_visualprogramming.view.template.AuthenticationButton
+import com.example.alp_visualprogramming.view.template.AuthenticationOutlinedTextField
+import com.example.alp_visualprogramming.view.template.AuthenticationQuestion
+import com.example.alp_visualprogramming.view.template.PasswordOutlinedTextField
+import com.example.alp_visualprogramming.viewModel.AuthenticationViewModel
 
 @Composable
-fun SignIn(onNavigateToSignUp: () -> Unit) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
-    var passwordVisible by remember { mutableStateOf(false) }
+fun SignIn(authenticationViewModel: AuthenticationViewModel,
+           modifier: Modifier = Modifier,
+           navController: NavHostController,
+           context: Context
+) {
+    val loginUIState by authenticationViewModel.authenticationUIState.collectAsState()
+    val focusManager = LocalFocusManager.current
 
     Column(
         modifier = Modifier
@@ -92,79 +108,94 @@ fun SignIn(onNavigateToSignUp: () -> Unit) {
                 .padding(horizontal = 36.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            OutlinedTextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Email),
-                modifier = Modifier.fillMaxWidth()
-            )
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            OutlinedTextField(
-                value = password,
-                onValueChange = { password = it },
-                label = { Text("Password") },
-                singleLine = true,
-                keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Password),
-                visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                trailingIcon = {
-                    IconButton(onClick = { passwordVisible = !passwordVisible }) {
-                        Icon(
-                            painter = painterResource(
-                                id = if (passwordVisible) R.drawable.ic_visibility_off else R.drawable.ic_visibility
-                            ),
-                            contentDescription = "Toggle Password"
-                        )
-                    }
+            AuthenticationOutlinedTextField(
+                inputValue = authenticationViewModel.emailInput,
+                onInputValueChange = {
+                    authenticationViewModel.changeEmailInput(it)
+                    authenticationViewModel.checkLoginForm()
                 },
-                modifier = Modifier.fillMaxWidth()
+                labelText = stringResource(id = R.string.emailText),
+                placeholderText = stringResource(id = R.string.emailText),
+                leadingIconSrc = painterResource(id = R.drawable.ic_email),
+                modifier = Modifier
+                    .fillMaxWidth(),
+                keyboardType = KeyboardOptions(
+                    keyboardType = KeyboardType.Email,
+                    imeAction = ImeAction.Next
+                ),
+                onKeyboardNext = KeyboardActions(
+                    onNext = {
+                        focusManager.moveFocus(FocusDirection.Down)
+                    }
+                )
             )
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.padding(5.dp))
 
-            Button(
-                onClick = { /* TODO: Handle Sign In */ },
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFEE4482)),
+            PasswordOutlinedTextField(
+                passwordInput = authenticationViewModel.passwordInput,
+                onPasswordInputValueChange = {
+                    authenticationViewModel.changePasswordInput(it)
+                    authenticationViewModel.checkLoginForm()
+                },
+                passwordVisibilityIcon = painterResource(id = loginUIState.passwordVisibilityIcon),
+                labelText = stringResource(id = R.string.passwordText),
+                placeholderText = stringResource(id = R.string.passwordText),
+                onTrailingIconClick = {
+                    authenticationViewModel.changePasswordVisibility()
+                },
+                passwordVisibility = loginUIState.passwordVisibility,
                 modifier = Modifier
-                    .fillMaxWidth()
-                    .height(45.dp)
-            ) {
-                Text("Sign In", color = Color.White, fontSize = 16.sp)
-            }
+                    .fillMaxWidth(),
+                keyboardImeAction = ImeAction.None,
+                onKeyboardNext = KeyboardActions(
+                    onDone = null
+                )
+            )
+
+            AuthenticationButton(
+                buttonText = stringResource(id = R.string.loginText),
+                onButtonClick = {
+                    authenticationViewModel.loginUser(navController = navController)
+                },
+                buttonModifier = Modifier
+                    .padding(top = 30.dp),
+                textModifier = Modifier
+                    .padding(vertical = 5.dp, horizontal = 15.dp),
+                buttonEnabled = loginUIState.buttonEnabled,
+                buttonColor = authenticationViewModel.checkButtonEnabled(loginUIState.buttonEnabled),
+                userDataStatusUIState = authenticationViewModel.dataStatus,
+                loadingBarModifier = Modifier
+                    .padding(top = 30.dp)
+                    .size(40.dp)
+            )
+        }
 
             Spacer(modifier = Modifier.height(16.dp))
 
             // Navigasi ke Sign Up
-            Row(
-                modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.Center
-            ) {
-                Text(
-                    text = "Don't have an account? ",
-                    fontSize = 14.sp,
-                    color = Color.Black
-                )
-                ClickableText(
-                    text = buildAnnotatedString { append("Sign Up") },
-                    onClick = { onNavigateToSignUp() },
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        color = Color(0xFFEE4482),
-                        fontWeight = FontWeight.Bold
-                    )
-                )
-            }
-        }
+        AuthenticationQuestion(
+            questionText = stringResource(id = R.string.don_t_have_an_account_yet_text),
+            actionText = stringResource(id = R.string.sign_up_text),
+            onActionTextClicked = {
+                authenticationViewModel.resetViewModel()
+                navController.navigate("Register") {
+                    popUpTo("Login") {
+                        inclusive = true
+                    }
+                }
+            },
+            rowModifier = Modifier
+                .align(Alignment.CenterHorizontally),
+        )
+
     }
 }
 
-@Preview(showBackground = true)
-@Composable
-fun SignInPreview() {
-
-        SignIn(onNavigateToSignUp = {})
-
-}
+//@Preview(showBackground = true)
+//@Composable
+//fun SignInPreview() {
+//
+//        SignIn(onNavigateToSignUp = {})
+//
+//}

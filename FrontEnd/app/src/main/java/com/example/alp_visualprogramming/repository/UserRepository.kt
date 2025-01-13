@@ -5,6 +5,7 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.alp_visualprogramming.models.GeneralResponseModel
+import com.example.alp_visualprogramming.models.UserModel
 import com.example.alp_visualprogramming.models.UserRoleResponse
 import com.example.alp_visualprogramming.service.UserAPIService
 import kotlinx.coroutines.flow.Flow
@@ -22,6 +23,11 @@ interface UserRepository {
     suspend fun saveUsername(username: String)
 
     fun getUserRole(token: String, id: Int): Call<UserRoleResponse>
+
+    fun getUserById(userId: String): Call<UserModel>
+
+    // Fungsi untuk mendapatkan profil pengguna
+    fun getUserProfile(token: String): Call<UserModel>
 }
 
 class NetworkUserRepository(
@@ -59,5 +65,13 @@ class NetworkUserRepository(
 
     override fun getUserRole(token: String, id: Int): Call<UserRoleResponse> {
         return userAPIService.getUserRole(token, id)
+    }
+
+    override fun getUserById(userId: String): Call<UserModel> {
+        return userAPIService.getUserById(userId)
+    }
+
+    override fun getUserProfile(token: String): Call<UserModel> {
+        return userAPIService.getUserProfile(token)
     }
 }

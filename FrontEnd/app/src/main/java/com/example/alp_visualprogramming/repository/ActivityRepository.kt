@@ -5,6 +5,7 @@ import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetActivityResponse
 import com.example.alp_visualprogramming.models.GetAllActivityResponse
 import com.example.alp_visualprogramming.models.GetAllDayResponse
+import com.example.alp_visualprogramming.models.LocationWrapper
 import com.example.alp_visualprogramming.models.UpdateActivityRequest
 import com.example.alp_visualprogramming.service.ActivityAPIService
 import retrofit2.Call
@@ -16,6 +17,17 @@ interface ActivityRepository {
     fun getAllDays(token: String, itinerary_destination_Id: Int): Call<GetAllDayResponse>
     fun deleteActivity(token: String, activityId: Int): Call<GeneralResponseModel>
     fun updateActivity(token: String, activityId: Int, name: String, description: String, start_time: String, end_time: String, type: String, cost: Double, location_id: Int, dayId: Int): Call<GeneralResponseModel>
+    fun getOrCreateLocation(
+        token: String,
+        placeId: String,
+        categories: String,
+        name: String,
+        address: String,
+        openingHours: String?,
+        website: String?,
+        phone: String?
+    ): Call<LocationWrapper>
+    fun getLocationById(token: String, locationId: Int): Call<LocationWrapper>
 }
 
 class NetworkActivityRepository(
@@ -47,5 +59,31 @@ class NetworkActivityRepository(
 
     }
 
+    override fun getOrCreateLocation(
+        token: String,
+        placeId: String,
+        categories: String,
+        name: String,
+        address: String,
+        openingHours: String?,
+        website: String?,
+        phone: String?
+    ): Call<LocationWrapper> {
+        return activityAPIService.getOrCreateLocation(
+            token,
+            placeId,
+            categories,
+            name,
+            address,
+            openingHours,
+            website,
+            phone
+        )
+    }
 
+    override fun getLocationById(token: String, locationId: Int): Call<LocationWrapper> {
+        return activityAPIService.getLocationById(token, locationId)
+    }
 }
+
+

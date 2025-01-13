@@ -18,10 +18,16 @@ import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import androidx.navigation.NavController
 import com.example.alp_visualprogramming.ItineraryApplication
+import com.example.alp_visualprogramming.api.ApiClient
+import com.example.alp_visualprogramming.api.ApiClient.locationAPIService
 import com.example.alp_visualprogramming.models.ActivityModel
 import com.example.alp_visualprogramming.models.ErrorModel
 import com.example.alp_visualprogramming.models.GeneralResponseModel
+import com.example.alp_visualprogramming.models.GetDestinationResponse
+import com.example.alp_visualprogramming.models.Location
+import com.example.alp_visualprogramming.models.LocationWrapper
 import com.example.alp_visualprogramming.repository.ActivityRepository
+import com.example.alp_visualprogramming.repository.ItineraryDestinationRepository
 import com.example.alp_visualprogramming.repository.UserRepository
 import com.example.alp_visualprogramming.uiStates.ActivityFormUIState
 import com.example.alp_visualprogramming.uiStates.StringDataStatusUIState
@@ -31,17 +37,22 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.suspendCancellableCoroutine
 import retrofit2.Call
 import retrofit2.Callback
+import retrofit2.Response
 import java.io.IOException
 import java.time.ZonedDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Calendar
 import java.util.Date
+import kotlin.coroutines.resume
+import kotlin.coroutines.resumeWithException
 
 class ActivityFormViewModel(
     private val userRepository: UserRepository,
     private val activityRepository: ActivityRepository,
+    private val itineraryDestinationRepository: ItineraryDestinationRepository
 ): ViewModel() {
     private val _activityFormUIState = MutableStateFlow(ActivityFormUIState())
     val activityFormUIState: StateFlow<ActivityFormUIState>
@@ -92,18 +103,29 @@ class ActivityFormViewModel(
     var currDayId by mutableStateOf<Int>(0)
         private set
 
+    var currDestination by mutableStateOf<String>("")
+        private set
+
     var activityId by mutableStateOf<Int>(0)
         private set
 
     var locationId by mutableStateOf<Int>(0)
         private set
 
+    var currDestinationId by mutableStateOf<Int?>(null)
+
+    fun changeCurrDestinationId(destinationId: Int){
+        currDestinationId = destinationId
+    }
+
     var costInput by mutableStateOf<Double>(0.0)
     fun changeCostInput(cost: Double) {
         costInput = cost
     }
 
-
+    fun currDestinationName(destinationName: String){
+        currDestination = destinationName
+    }
 
     var descriptionInput by mutableStateOf("")
 
@@ -183,7 +205,10 @@ class ActivityFormViewModel(
 
     fun changeActivityId(activityId: Int){
         this.activityId = activityId
+    }
 
+    fun resetSelectedLocation() {
+        _selectedLocation.value = null
     }
 
     companion object {
@@ -192,14 +217,21 @@ class ActivityFormViewModel(
                 val application = (this[APPLICATION_KEY] as ItineraryApplication)
                 val userRepository = application.container.userRepository
                 val activityRepository = application.container.activityRepository
-                ActivityFormViewModel(userRepository, activityRepository)
+                val itineraryDestinationRepository = application.container.itineraryDestinationRepository
+                ActivityFormViewModel(userRepository, activityRepository, itineraryDestinationRepository)
             }
         }
     }
 
-    fun initializeCreate(dayId: Int, navController: NavController){
-        changeCurrDayId(dayId)
-        navController.navigate("FormActivity")
+    fun initializeCreate(dayId: Int, navController: NavController, destinationId: Int, token: String){
+        viewModelScope.launch{
+            changeCurrDayId(dayId)
+            changeCurrDestinationId(destinationId)
+            val destinationName = getDestinationName(destinationId, token)
+            currDestinationName(destinationName)
+            navController.navigate("FormActivity")
+        }
+
     }
 
     @RequiresApi(Build.VERSION_CODES.O)
@@ -215,38 +247,121 @@ class ActivityFormViewModel(
         navController.navigate("FormActivity")
     }
 
+    suspend fun getDestinationName(destinationId: Int, token: String): String{
 
-    fun createActivity(navController: NavController, token: String){
+        return suspendCancellableCoroutine { continuation ->
+            val call = itineraryDestinationRepository.getDestinationById(destinationId, token)
+
+            call.enqueue(object : Callback<GetDestinationResponse> {
+                override fun onResponse(
+                    call: Call<GetDestinationResponse>,
+                    res: Response<GetDestinationResponse>
+                ) {
+                    if (res.isSuccessful) {
+                        val destinationData = res.body()?.data
+                        Log.d("DestinationResponse", "Response: $destinationData")
+                        continuation.resume(destinationData?.name ?: "Unknown")
+                    } else {
+                        continuation.resume("Unknown")
+                    }
+                }
+
+                override fun onFailure(call: Call<GetDestinationResponse>, t: Throwable) {
+                    continuation.resumeWithException(t)
+                }
+            })
+        }
+
+    }
+
+    fun createActivity(navController: NavController, token: String, placeId: String, categories: String, name: String, address: String, openingHours: String?, website: String?, phone: String?) {
         viewModelScope.launch {
             submissionStatus = StringDataStatusUIState.Loading
-            try{
-                val call = activityRepository.createActivity(token, name = titleInput, start_time = startTimeInput, end_time = endTimeInput, type = typeInput, cost = costInput, description = descriptionInput, location_id = 1, dayId = currDayId)
-                call.enqueue(object: Callback<GeneralResponseModel> {
-                    override fun onResponse(
-                        call: retrofit2.Call<GeneralResponseModel>,
-                        res: retrofit2.Response<GeneralResponseModel>
-                    ) {
-                        if (res.isSuccessful) {
-                            submissionStatus = StringDataStatusUIState.Success(res.body()!!.data)
-                            Log.d("API Response", "Success: ${res.body()}")
-                            resetViewModel()
-                        }else{
-                            val errorMessage = Gson().fromJson(
-                                res.errorBody()!!.charStream(),
-                                ErrorModel::class.java
+            try {
+                Log.d("createActivity", "Headers: X-API-TOKEN=$token") // Add this here
+                Log.d("createActivity", "Calling backend with token=$token, placeId=$placeId, categories=$categories")
+
+                // Call the backend to get or create the location
+                val locationCall = activityRepository.getOrCreateLocation(
+                    token = token,
+                    placeId = placeId,
+                    categories = categories,
+                    name = name,
+                    address = address,
+                    openingHours = openingHours,
+                    website = website,
+                    phone = phone
+                )
+                locationCall.enqueue(object : Callback<LocationWrapper> {
+                    override fun onResponse(call: Call<LocationWrapper>, response: Response<LocationWrapper>) {
+                        Log.d("createActivity", "Location API Response: ${response.code()} ${response.message()}")
+
+                        if (response.isSuccessful && response.body() != null) {
+                            // 1) Grab the wrapper
+                            val locationWrapper = response.body()!!
+                            // 2) Extract the actual location from `locationWrapper.data`
+                            val location = locationWrapper.data
+                            Log.d("createActivity", "Location fetched or created successfully: $location")
+                            // Validate location ID
+                            val locationId = location.id
+                            if (locationId == 0) {
+                                Log.e("createActivity", "Invalid location_id: $locationId")
+                                submissionStatus = StringDataStatusUIState.Failed("Invalid location_id received from backend.")
+                                return
+                            }
+
+                            // Proceed to create the activity
+                            val activityCall = activityRepository.createActivity(
+                                token,
+                                dayId = currDayId,
+                                name = titleInput,
+                                description = descriptionInput,
+                                start_time = startTimeInput,
+                                end_time = endTimeInput,
+                                type = typeInput,
+                                cost = costInput,
+                                location_id = locationId
                             )
-                            Log.e("API Response", "Error: ${res.errorBody()}")
-                            submissionStatus = StringDataStatusUIState.Failed(errorMessage.errors)
+                            activityCall.enqueue(object : Callback<GeneralResponseModel> {
+                                override fun onResponse(
+                                    call: Call<GeneralResponseModel>,
+                                    res: Response<GeneralResponseModel>
+                                ) {
+                                    Log.d("createActivity", "Activity API Response: ${res.code()} ${res.message()}")
+                                    if (res.isSuccessful) {
+                                        submissionStatus = StringDataStatusUIState.Success(res.body()!!.data)
+                                        Log.d("createActivity", "Activity created successfully: ${res.body()}")
+
+                                    } else {
+                                        val errorMessage = Gson().fromJson(
+                                            res.errorBody()!!.charStream(),
+                                            ErrorModel::class.java
+                                        )
+                                        Log.e("createActivity", "Error creating activity: ${errorMessage.errors}")
+                                        submissionStatus = StringDataStatusUIState.Failed(errorMessage.errors)
+                                    }
+                                }
+
+                                override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
+                                    Log.e("createActivity", "Activity creation failed: ${t.localizedMessage}")
+                                    submissionStatus = StringDataStatusUIState.Failed(t.localizedMessage)
+                                }
+                            })
+                        } else {
+                            val errorBody = response.errorBody()?.string()
+                            Log.e("createActivity", "Failed to fetch location. Response Code: ${response.code()}, Error: $errorBody")
+                            submissionStatus = StringDataStatusUIState.Failed("Failed to fetch location.")
                         }
                     }
 
-                    override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
-                        Log.e("API Response", "Failure: ${t.message}")
+                    override fun onFailure(call: Call<LocationWrapper>, t: Throwable) {
+                        Log.e("createActivity", "Error calling location API: ${t.localizedMessage}")
                         submissionStatus = StringDataStatusUIState.Failed(t.localizedMessage)
                     }
                 })
-            }catch (e: IOException){
-
+            } catch (e: Exception) {
+                Log.e("createActivity", "Exception in createActivity: ${e.message}")
+                submissionStatus = StringDataStatusUIState.Failed(e.message ?: "Unknown error")
             }
         }
     }
@@ -264,7 +379,7 @@ class ActivityFormViewModel(
                     ) {
                         if (res.isSuccessful) {
                             submissionStatus = StringDataStatusUIState.Success(res.body()!!.data)
-                            resetViewModel()
+
                         }
 
                     }
@@ -287,20 +402,20 @@ class ActivityFormViewModel(
         viewModelScope.launch {
             submissionStatus = StringDataStatusUIState.Loading
             try{
-            val call = activityRepository.deleteActivity(token = token, activityId = activityId)
-            call.enqueue(object: Callback<GeneralResponseModel>{
-                override fun onResponse(
-                    call: retrofit2.Call<GeneralResponseModel>,
-                    res: retrofit2.Response<GeneralResponseModel>
-                ) {
+                val call = activityRepository.deleteActivity(token = token, activityId = activityId)
+                call.enqueue(object: Callback<GeneralResponseModel>{
+                    override fun onResponse(
+                        call: retrofit2.Call<GeneralResponseModel>,
+                        res: retrofit2.Response<GeneralResponseModel>
+                    ) {
 
-                }
+                    }
 
-                override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
+                    override fun onFailure(call: Call<GeneralResponseModel>, t: Throwable) {
 
-                }
+                    }
 
-            })
+                })
 
             }catch (e: IOException){
 
@@ -339,6 +454,45 @@ class ActivityFormViewModel(
         submissionStatus = StringDataStatusUIState.Start
 
     }
+
+    private val _selectedLocation = MutableStateFlow<Location?>(null)
+    val selectedLocation: StateFlow<Location?> = _selectedLocation
+
+    fun updateSelectedLocation(location: Location) {
+        _selectedLocation.value = location
+    }
+
+    private val typeToCategoriesMap = mapOf(
+        "Transport" to "airport,public_transport",
+        "Shopping/Entertainment" to "entertainment,commercial,adult",
+        "Sightseeing" to "tourism,leisure",
+        "Food" to "catering",
+        "Healthcare" to "healthcare",
+        "Sport" to "sport"
+    )
+
+    private val _currentCategories = MutableStateFlow("")
+    val currentCategories: StateFlow<String> get() = _currentCategories
+
+    fun updateCategoriesBasedOnType(type: String) {
+        _currentCategories.value = typeToCategoriesMap[type] ?: ""
+    }
+
+//    fun fetchOrCreateLocation(placeId: String, categories: String, onSuccess: (Int) -> Unit, onFailure: (String) -> Unit) {
+//        viewModelScope.launch {
+//            try {
+//                val response = locationAPIService.getOrCreateLocation(placeId, categories)
+//                if (response.isSuccessful && response.body() != null) {
+//                    val location = response.body()!!
+//                    onSuccess(location.id) // Pass the location_id to the success callback
+//                } else {
+//                    onFailure(response.message() ?: "Failed to fetch or create location.")
+//                }
+//            } catch (e: Exception) {
+//                onFailure(e.message ?: "An error occurred while fetching location.")
+//            }
+//        }
+//    }
 
     @RequiresApi(Build.VERSION_CODES.O)
     fun convertIsoToCustomFormat(isoString: String, customFormat: String = "HH:mm"): String? {

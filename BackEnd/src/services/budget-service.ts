@@ -21,13 +21,13 @@ export class BudgetService{
         return toBudgetResponseList(plannedBudget)
     }
 
-    static async getSpendings(itinenary_id: number): Promise<ActualBudgetResponse>{
+    static async getSpendings(itinerary_id: number): Promise<ActualBudgetResponse> {
         const allItineraryDestination = await prismaClient.itinerary_Destinations.findMany({
-            where:{
-                itinerary_id : itinenary_id
-            }
-        })
-
+            where: {
+                itinerary_id: itinerary_id,
+            },
+        });
+    
         let totalAccomodation = new Decimal(0);
         let totalTransport = new Decimal(0);
         let totalShoppingEntertainment = new Decimal(0);
@@ -35,69 +35,62 @@ export class BudgetService{
         let totalSightSeeing = new Decimal(0);
         let totalHealthcare = new Decimal(0);
         let totalSport = new Decimal(0);
-
-        const accommodations = await Promise.all(
-            allItineraryDestination.map(async (destination) => {
-                if (destination.accomodation_id === null || destination.accomodation_id === undefined) {
-                    return null; 
-                }
-
+    
+        // Calculate accommodations
+        for (const destination of allItineraryDestination) {
+            if (destination.accomodation_id !== null && destination.accomodation_id !== undefined) {
                 const accomodation = await prismaClient.accomodation.findUnique({
                     where: {
                         id: destination.accomodation_id,
                     },
                 });
-        
+    
                 if (accomodation && accomodation.cost) {
-                    totalAccomodation = totalAccomodation.plus(accomodation.cost);
+                    totalAccomodation = totalAccomodation.plus(new Decimal(accomodation.cost));
                 }
-        
-                return accomodation;
-            })
-        );
-
-        const rest = await Promise.all(
-            allItineraryDestination.map(async (destinations) =>{
-                const days = await prismaClient.schedule_Per_Day.findMany({
-                    where:{
-                        itinerary_destination_id: destinations.id
+            }
+        }
+    
+        // Calculate spendings for each destination
+        for (const destination of allItineraryDestination) {
+            const days = await prismaClient.schedule_Per_Day.findMany({
+                where: {
+                    itinerary_destination_id: destination.id,
+                },
+            });
+    
+            for (const day of days) {
+                const activities = await prismaClient.activity.findMany({
+                    where: {
+                        day_id: day.id,
+                    },
+                });
+    
+                for (const activity of activities) {
+                    switch (activity.type) {
+                        case "Transport":
+                            totalTransport = totalTransport.plus(new Decimal(activity.cost));
+                            break;
+                        case "Shopping/Entertainment":
+                            totalShoppingEntertainment = totalShoppingEntertainment.plus(new Decimal(activity.cost));
+                            break;
+                        case "Sightseeing":
+                            totalSightSeeing = totalSightSeeing.plus(new Decimal(activity.cost));
+                            break;
+                        case "Food":
+                            totalCulinary = totalCulinary.plus(new Decimal(activity.cost));
+                            break;
+                        case "Healthcare":
+                            totalHealthcare = totalHealthcare.plus(new Decimal(activity.cost));
+                            break;
+                        case "Sport":
+                            totalSport = totalSport.plus(new Decimal(activity.cost));
+                            break;
                     }
-                })
-
-                days.map(async (days) =>{
-                    const activities = await prismaClient.activity.findMany({
-                        where:{
-                            day_id: days.id
-                        }
-                    })
-
-                    activities.map( async (activity)=>{
-                        switch(activity.type){
-                            case "Transport":
-                                totalTransport = totalTransport.plus(activity.cost)
-                                break;
-                            case "Shopping/Entertainment":
-                                totalShoppingEntertainment = totalShoppingEntertainment.plus(activity.cost)
-                                break;
-                            case "Sightseeing":
-                                totalSightSeeing = totalSightSeeing.plus(activity.cost)
-                                break;
-                            case "Food":
-                                totalCulinary = totalCulinary.plus(activity.cost)
-                                break;
-                            case "Healthcare":
-                                totalHealthcare = totalHealthcare.plus(activity.cost)
-                                break;
-                            case "Sport":
-                                totalSport = totalSport.plus(activity.cost)
-                                break;
-                        }
-                    })
-                })
-            })
-        );
-        
-
+                }
+            }
+        }
+    
         const data = {
             totalAccomodation,
             totalTransport,
@@ -105,11 +98,10 @@ export class BudgetService{
             totalCulinary,
             totalSightSeeing,
             totalHealthcare,
-            totalSport
-        }
-
-        return data
-
+            totalSport,
+        };
+    
+        return data;
     }
 
     static async setBudget(req: CreateBudgetRequest, itinerary_id: number): Promise<String>{

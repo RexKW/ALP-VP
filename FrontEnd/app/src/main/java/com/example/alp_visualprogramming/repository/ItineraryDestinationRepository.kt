@@ -2,6 +2,9 @@ package com.example.alp_visualprogramming.repository
 
 import android.os.Build
 import androidx.annotation.RequiresApi
+import com.example.alp_visualprogramming.models.AccommodationIdWrapper
+import com.example.alp_visualprogramming.models.AccommodationRequest
+import com.example.alp_visualprogramming.models.AccommodationWrapper
 import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetAllItineraryDestinationResponse
 import com.example.alp_visualprogramming.models.GetDestinationResponse
@@ -27,6 +30,28 @@ interface ItineraryDestinationRepository{
     fun getDestinationById(destinationId: Int, token: String): Call<GetDestinationResponse>
     fun createItineraryDestination(token: String, startDate: String, endDate: String, locationId: Int, accomodationId: Int?, itineraryId: Int): Call<GeneralResponseModel>
     fun updateItineraryDestination(token: String,itineraryDestinationId: Int, startDate: String, endDate: String, locationId: Int, accomodationId: Int?, itineraryId: Int): Call<GeneralResponseModel>
+
+    fun updateJourneyAccommodation(
+        token: String,
+        itineraryDestinationId: Int,
+        accommodationRequest: AccommodationRequest
+    ): Call<AccommodationWrapper>
+    fun getOrCreateAccommodation(
+        token: String,
+        placeId: String,
+        name: String,
+        address: String,
+        locationImage: String,
+        placeApi: String,
+        categories: String,
+        cost: String,
+        people: Int,
+        openingHours: String?,
+        website: String?,
+        phone: String?
+    ): Call<AccommodationWrapper>
+    fun checkAccommodation(token: String, itineraryDestinationId: Int): Call<AccommodationIdWrapper>
+    fun getAccommodationDetails(token: String, accommodationId: Int): Call<AccommodationWrapper>
 
 }
 
@@ -58,6 +83,56 @@ class NetworkItineraryDestinationRepository(private val itineraryDestinationAPIS
         val startDateT = convertIsoToCustomFormat(startDate)
         val endDateT = convertIsoToCustomFormat(endDate)
         return itineraryDestinationAPIService.updateItineraryDestination(token, itineraryDestinationId, ItineraryDestinationUpdateRequest( accomodation_id =  accomodationId, start_date =  startDateT, end_date =  endDateT, destination_id = locationId))
+    }
+
+    override fun getOrCreateAccommodation(
+        token: String,
+        placeId: String,
+        name: String,
+        address: String,
+        locationImage: String,
+        placeApi: String,
+        categories: String,
+        cost: String,
+        people: Int,
+        openingHours: String?,
+        website: String?,
+        phone: String?
+    ): Call<AccommodationWrapper> {
+        return itineraryDestinationAPIService.getOrCreateAccommodation(
+            token = token,
+            placeId = placeId,
+            name = name,
+            address = address,
+            locationImage = locationImage,
+            placeApi = placeApi,
+            categories = categories,
+            cost = cost,
+            people = people,
+            openingHours = openingHours,
+            website = website,
+            phone = phone
+        )
+    }
+
+    override fun updateJourneyAccommodation(
+        token: String,
+        itineraryDestinationId: Int,
+        accommodationRequest: AccommodationRequest
+    ): Call<AccommodationWrapper> {
+        return itineraryDestinationAPIService.updateJourneyAccommodation(
+            token = token,
+            itineraryDestinationId = itineraryDestinationId,
+            accommodationRequest = accommodationRequest // Pass the request body directly
+        )
+    }
+
+    override fun checkAccommodation(token: String, itineraryDestinationId: Int): Call<AccommodationIdWrapper> {
+        return itineraryDestinationAPIService.checkAccommodation(token, itineraryDestinationId)
+    }
+
+    override fun getAccommodationDetails(token: String, accommodationId: Int): Call<AccommodationWrapper> {
+        return itineraryDestinationAPIService.getAccommodationDetails(token, accommodationId)
     }
 
 

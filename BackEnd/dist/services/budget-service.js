@@ -24,12 +24,12 @@ class BudgetService {
             return (0, budget_model_1.toBudgetResponseList)(plannedBudget);
         });
     }
-    static getSpendings(itinenary_id) {
+    static getSpendings(itinerary_id) {
         return __awaiter(this, void 0, void 0, function* () {
             const allItineraryDestination = yield database_1.prismaClient.itinerary_Destinations.findMany({
                 where: {
-                    itinerary_id: itinenary_id
-                }
+                    itinerary_id: itinerary_id,
+                },
             });
             let totalAccomodation = new library_1.Decimal(0);
             let totalTransport = new library_1.Decimal(0);
@@ -38,56 +38,56 @@ class BudgetService {
             let totalSightSeeing = new library_1.Decimal(0);
             let totalHealthcare = new library_1.Decimal(0);
             let totalSport = new library_1.Decimal(0);
-            const accommodations = yield Promise.all(allItineraryDestination.map((destination) => __awaiter(this, void 0, void 0, function* () {
-                if (destination.accomodation_id === null || destination.accomodation_id === undefined) {
-                    return null;
+            // Calculate accommodations
+            for (const destination of allItineraryDestination) {
+                if (destination.accomodation_id !== null && destination.accomodation_id !== undefined) {
+                    const accomodation = yield database_1.prismaClient.accomodation.findUnique({
+                        where: {
+                            id: destination.accomodation_id,
+                        },
+                    });
+                    if (accomodation && accomodation.cost) {
+                        totalAccomodation = totalAccomodation.plus(new library_1.Decimal(accomodation.cost));
+                    }
                 }
-                const accomodation = yield database_1.prismaClient.accomodation.findUnique({
-                    where: {
-                        id: destination.accomodation_id,
-                    },
-                });
-                if (accomodation && accomodation.cost) {
-                    totalAccomodation = totalAccomodation.plus(accomodation.cost);
-                }
-                return accomodation;
-            })));
-            const rest = yield Promise.all(allItineraryDestination.map((destinations) => __awaiter(this, void 0, void 0, function* () {
+            }
+            // Calculate spendings for each destination
+            for (const destination of allItineraryDestination) {
                 const days = yield database_1.prismaClient.schedule_Per_Day.findMany({
                     where: {
-                        itinerary_destination_id: destinations.id
-                    }
+                        itinerary_destination_id: destination.id,
+                    },
                 });
-                days.map((days) => __awaiter(this, void 0, void 0, function* () {
+                for (const day of days) {
                     const activities = yield database_1.prismaClient.activity.findMany({
                         where: {
-                            day_id: days.id
-                        }
+                            day_id: day.id,
+                        },
                     });
-                    activities.map((activity) => __awaiter(this, void 0, void 0, function* () {
+                    for (const activity of activities) {
                         switch (activity.type) {
                             case "Transport":
-                                totalTransport = totalTransport.plus(activity.cost);
+                                totalTransport = totalTransport.plus(new library_1.Decimal(activity.cost));
                                 break;
                             case "Shopping/Entertainment":
-                                totalShoppingEntertainment = totalShoppingEntertainment.plus(activity.cost);
+                                totalShoppingEntertainment = totalShoppingEntertainment.plus(new library_1.Decimal(activity.cost));
                                 break;
                             case "Sightseeing":
-                                totalSightSeeing = totalSightSeeing.plus(activity.cost);
+                                totalSightSeeing = totalSightSeeing.plus(new library_1.Decimal(activity.cost));
                                 break;
                             case "Food":
-                                totalCulinary = totalCulinary.plus(activity.cost);
+                                totalCulinary = totalCulinary.plus(new library_1.Decimal(activity.cost));
                                 break;
                             case "Healthcare":
-                                totalHealthcare = totalHealthcare.plus(activity.cost);
+                                totalHealthcare = totalHealthcare.plus(new library_1.Decimal(activity.cost));
                                 break;
                             case "Sport":
-                                totalSport = totalSport.plus(activity.cost);
+                                totalSport = totalSport.plus(new library_1.Decimal(activity.cost));
                                 break;
                         }
-                    }));
-                }));
-            })));
+                    }
+                }
+            }
             const data = {
                 totalAccomodation,
                 totalTransport,
@@ -95,7 +95,7 @@ class BudgetService {
                 totalCulinary,
                 totalSightSeeing,
                 totalHealthcare,
-                totalSport
+                totalSport,
             };
             return data;
         });

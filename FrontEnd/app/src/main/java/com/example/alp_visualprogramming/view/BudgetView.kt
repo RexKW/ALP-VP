@@ -47,6 +47,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.alp_visualprogramming.R
+import com.example.alp_visualprogramming.uiStates.BudgetDataStatusUIState
 import com.example.alp_visualprogramming.uiStates.JourneyDataStatusUIState
 import com.example.alp_visualprogramming.view.template.JourneyCardView
 import com.example.alp_visualprogramming.view.template.NewDestinationCard
@@ -60,7 +61,7 @@ import com.example.alp_visualprogramming.viewModel.JourneyViewModel
 
 @Composable
 fun BudgetView(modifier: Modifier, journeyViewModel: JourneyViewModel, budgetFormViewModel: BudgetFormViewModel, budgetViewModel: BudgetViewModel, token: String, navController: NavController, itineraryId: Int, context : Context){
-    val dataStatus = journeyViewModel.dataStatus
+    val dataStatus = budgetViewModel.dataStatus
 
     LaunchedEffect(token) {
         if (token != "Unknown") {
@@ -68,13 +69,13 @@ fun BudgetView(modifier: Modifier, journeyViewModel: JourneyViewModel, budgetFor
         }
     }
     LaunchedEffect(dataStatus) {
-        if (dataStatus is JourneyDataStatusUIState.Failed) {
+        if (dataStatus is BudgetDataStatusUIState.Failed) {
             Toast.makeText(context, "DATA ERROR: ${dataStatus.errorMessage}", Toast.LENGTH_SHORT).show()
             journeyViewModel.clearDataErrorMessage()
         }
     }
     Column(modifier = Modifier.fillMaxSize().background(Color(0xFFFBF7E7))) {
-        val dataStatus = journeyViewModel.dataStatus
+        val dataStatus = budgetViewModel.dataStatus
         Box(modifier = Modifier.fillMaxWidth()) {
 
             Image(
@@ -145,25 +146,8 @@ fun BudgetView(modifier: Modifier, journeyViewModel: JourneyViewModel, budgetFor
 
 
 
-                Row() {
-                    val values = listOf(30f, 40f, 30f) // Percentage values for each segment
-                    val colors = listOf(Color(0xFFEE417D), Color(0xFF440215), Color(0xFFFBF7E7))
+                Row(modifier = Modifier.padding(top = 20.dp)) {
 
-                    Canvas(modifier = Modifier.width(150.dp).height(150.dp)) {
-                        val total = values.sum()
-                        var startAngle = 0f
-
-                        values.forEachIndexed { index, value ->
-                            val sweepAngle = (value / total) * 360f
-                            drawArc(
-                                color = colors[index],
-                                startAngle = startAngle,
-                                sweepAngle = sweepAngle,
-                                useCenter = true
-                            )
-                            startAngle += sweepAngle
-                        }
-                    }
 
 
                     Column(modifier= Modifier.padding(start = 16.dp)) {
@@ -203,7 +187,7 @@ fun BudgetView(modifier: Modifier, journeyViewModel: JourneyViewModel, budgetFor
                                     )
                             )
                             Text(
-                                "",
+                                "Rp " + budgetViewModel.actual.toString(),
                                 style = TextStyle(
                                     fontSize = 40.sp,
                                     fontFamily = FontFamily(Font(R.font.oswald_regular)),

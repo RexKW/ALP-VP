@@ -34,7 +34,10 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.navigation.NavController
 import com.example.alp_visualprogramming.R
+import com.example.alp_visualprogramming.viewModel.JourneyViewModel
+import com.example.alp_visualprogramming.viewModel.LocationViewModel
 
 @Composable
 fun JourneyCardView(
@@ -42,8 +45,13 @@ fun JourneyCardView(
     name: String?,
     startDate: String,
     endDate: String,
+    cityName: String?,
     onCardClick: () -> Unit = {},
     onEditClick: () -> Unit = {},
+    navController: NavController,
+    locationViewModel: LocationViewModel,
+    journeyViewModel: JourneyViewModel,
+    journeyId: Int,
     canEdit:Boolean
     ){
     Column(modifier = Modifier.width(342.dp)) {
@@ -131,7 +139,9 @@ fun JourneyCardView(
             }
             Card (colors = CardDefaults.cardColors(
                 containerColor = Color(0xFFEE417D),
-            ), shape = RoundedCornerShape(size = 10.dp)) {
+            ), shape = RoundedCornerShape(size = 10.dp),
+
+            ) {
                 Icon(
                     imageVector = Icons.Default.Face,
                     modifier = Modifier.padding(20.dp),
@@ -141,7 +151,22 @@ fun JourneyCardView(
             }
             Card (colors = CardDefaults.cardColors(
                 containerColor = Color(0xFFEE417D),
-            ), shape = RoundedCornerShape(size = 10.dp)) {
+            ), shape = RoundedCornerShape(size = 10.dp),
+                modifier = Modifier.clickable {
+                    journeyViewModel.getAccommodationIdForJourney(
+                        token = "f57031c8-1c62-4bea-947b-4239db58e31c", // Replace with dynamic token if applicable
+                        journeyId = journeyId
+                    ) { accommodationId ->
+                        if (accommodationId == null) {
+                            // Navigate to HotelListView if no accommodation is set
+                            locationViewModel.clearLocations()
+                            navController.navigate("HotelList/$cityName/$journeyId")
+                        } else {
+                            // Navigate to SelectedHotelDetailView if accommodation is set
+                            navController.navigate("SelectedHotelDetailView/$accommodationId/$cityName")
+                        }
+                    }
+                }) {
                 Icon(
                     imageVector = Icons.Default.Home,
                     modifier = Modifier.padding(20.dp),
@@ -173,8 +198,8 @@ fun JourneyCardView(
     }
 }
 
-@Preview
-@Composable
-fun DestinationsTripCardPreview(){
-    JourneyCardView(modifier = Modifier,"Aceh Singkil", "22 Sep 2024", "24 Sep 2024", onCardClick = {}, onEditClick = {}, true)
-}
+//@Preview
+//@Composable
+//fun DestinationsTripCardPreview(){
+//    JourneyCardView(modifier = Modifier,"Aceh Singkil", "22 Sep 2024", "24 Sep 2024", onCardClick = {}, onEditClick = {}, true)
+//}

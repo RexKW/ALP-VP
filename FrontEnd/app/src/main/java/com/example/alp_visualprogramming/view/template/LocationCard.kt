@@ -2,83 +2,87 @@ package com.example.alp_visualprogramming.view.template
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.* // Import layout components
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.alp_visualprogramming.models.Location
 import com.example.alp_visualprogramming.R
 
 @Composable
-fun LocationCard(
-    onCardClick: () -> Unit = {}
-){
-    Card (modifier = Modifier
-        .width(180.75716.dp)
-        .height(112.04829.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = Color(0xFF5FEEDB),
-        ),
-        shape = RoundedCornerShape(20.dp),
-
-        ){
+fun LocationCard(location: Location, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier
+            .padding(8.dp)
+            .width(180.76.dp)
+            .height(112.05.dp)
+            .clickable(onClick = onClick), // Add clickable modifier here
+        shape = RoundedCornerShape(21.145.dp)
+    ) {
         Box(
             modifier = Modifier
-                .fillMaxSize(),
-            contentAlignment = Alignment.CenterStart
+                .fillMaxSize()
+                .background(Color(0xFF5FEEDB)) // Background color 5FEEDB
         ) {
+            // Fixed background image
             Image(
-                painter = painterResource(R.drawable.bglocation),
-                contentDescription = "contentDescription",
-                contentScale = ContentScale.Crop,
+                painter = painterResource(id = R.drawable.bglocation), // Use placeholder image
+                contentDescription = "Background Image",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .align(Alignment.BottomCenter)
+                    .height(71.88.dp)
+                    .align(Alignment.BottomCenter) // Align the image at the bottom center
             )
-            Column(modifier = Modifier.padding(bottom = 25.dp)) {
-                Text(
-                    text = "Bali",
-                    modifier = Modifier.padding(start = 20.dp),
-                    style = TextStyle(
-                        fontSize = 21.14.sp,
-                        fontFamily = FontFamily(Font(R.font.oswald_regular)),
-                        fontWeight = FontWeight(400),
-                        color = Color(0xFFFBF7E7),
 
-                        textAlign = TextAlign.Center,
+            // Overlay text
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(16.dp),
+                horizontalAlignment = Alignment.Start,
+                verticalArrangement = Arrangement.Top
+            ) {
+                Spacer(modifier = Modifier.height(8.dp)) // Small spacing at the top
+
+                // Location Name
+                location.name?.let {
+                    Text(
+                        text = it,
+                        style = TextStyle(
+                            fontSize = 21.14.sp,
+                            fontFamily = FontFamily(Font(R.font.oswald_regular)),
+                            fontWeight = FontWeight(400),
+                            color = Color(0xFFFBF7E7),
+                        )
                     )
-                )
-                Text(text = "Jl Street Address",
-                    modifier = Modifier.padding(start = 20.dp),
+                }
+
+                // Location Address directly below the name
+                Spacer(modifier = Modifier.height(4.dp)) // Small spacing between the texts
+
+                Text(
+                    text = location.address ?: "No Address Provided", // Use fallback text
                     style = TextStyle(
                         fontSize = 10.57.sp,
                         fontFamily = FontFamily(Font(R.font.tajawal_regular)),
                         fontWeight = FontWeight(500),
                         color = Color(0xFF440215),
-
-                        ))
+                    )
+                )
             }
-
         }
     }
 }
@@ -86,5 +90,17 @@ fun LocationCard(
 @Preview(showBackground = true)
 @Composable
 fun LocationCardPreview() {
-    LocationCard()
+    LocationCard(
+        location = Location(
+            id = 1,
+            name = "Pakuwon Mall",
+            address = "Jl. Mayjend. Jonosewojo, Surabaya",
+            categories = listOf("Mall", "Shopping"),
+            website = "https://pakuwonmall.com",
+            phone = "+62 811 331 8811",
+            openingHours = "10:00 AM - 10:00 PM",
+            place_id = "example_place_id"
+        ),
+        onClick = {}
+    )
 }

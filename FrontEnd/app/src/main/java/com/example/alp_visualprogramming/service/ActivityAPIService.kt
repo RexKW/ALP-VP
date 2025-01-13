@@ -5,6 +5,7 @@ import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetActivityResponse
 import com.example.alp_visualprogramming.models.GetAllActivityResponse
 import com.example.alp_visualprogramming.models.GetAllDayResponse
+import com.example.alp_visualprogramming.models.LocationWrapper
 import com.example.alp_visualprogramming.models.UpdateActivityRequest
 import retrofit2.Call
 import retrofit2.http.Body
@@ -14,6 +15,7 @@ import retrofit2.http.Header
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
+import retrofit2.http.Query
 
 interface ActivityAPIService{
     @GET("activities/allActivities/{dayId}")
@@ -36,5 +38,28 @@ interface ActivityAPIService{
     @PUT("activities/updateActivity/{activityId}")
     fun updateActivity(@Header("X-API-TOKEN") token: String, @Path("activityId") activityId: Int, @Body activityRequest: UpdateActivityRequest): Call<GeneralResponseModel>
 
+    @GET("locations/getOrCreate")
+    fun getOrCreateLocation(
+        @Header("X-API-TOKEN") token: String,
+        @Query("place_id") placeId: String,
+        @Query("categories") categories: String,
+        @Query("name") name: String,
+        @Query("address") address: String,
+        @Query("openingHours") openingHours: String?,
+        @Query("website") website: String?,
+        @Query("phone") phone: String?
+//        @Query("place_id") placeId: String,
+//        @Query("categories") categories: String,
+//        @Query("name") name: String,
+//        @Query("address") address: String,
+//        @Query("openingHours") openingHours: String?,
+//        @Query("website") website: String?,
+//        @Query("phone") phone: String?
+    ): Call<LocationWrapper>
 
+    @GET("locations/{locationId}")
+    fun getLocationById(
+        @Header("X-API-TOKEN") token: String,
+        @Path("locationId") locationId: Int
+    ): Call<LocationWrapper>
 }

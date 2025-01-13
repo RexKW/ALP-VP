@@ -1,5 +1,8 @@
 package com.example.alp_visualprogramming.service
 
+import com.example.alp_visualprogramming.models.AccommodationIdWrapper
+import com.example.alp_visualprogramming.models.AccommodationRequest
+import com.example.alp_visualprogramming.models.AccommodationWrapper
 import com.example.alp_visualprogramming.models.GeneralResponseModel
 import com.example.alp_visualprogramming.models.GetAllItineraryDestinationResponse
 import com.example.alp_visualprogramming.models.GetDestinationResponse
@@ -38,4 +41,38 @@ interface ItineraryDestinationAPIService {
     fun deleteItineraryDestination(@Header("X-API-TOKEN")token: String,@Path("itineraryDestinationId")itineraryDestinationId: Int): Call<GeneralResponseModel>
 
 
+    @GET("accommodations/getOrCreate")
+    fun getOrCreateAccommodation(
+        @Header("X-API-TOKEN") token: String,
+        @Query("place_id") placeId: String,
+        @Query("name") name: String,
+        @Query("address") address: String,
+        @Query("location_image") locationImage: String,
+        @Query("place_api") placeApi: String,
+        @Query("categories") categories: String,
+        @Query("cost") cost: String,
+        @Query("people") people: Int,
+        @Query("opening_hours") openingHours: String?,
+        @Query("website") website: String?,
+        @Query("phone") phone: String?
+    ): Call<AccommodationWrapper>
+
+    @PUT("itinerary/updateJourneyAccommodation/{itineraryDestinationId}")
+    fun updateJourneyAccommodation(
+        @Header("X-API-TOKEN") token: String,
+        @Path("itineraryDestinationId") itineraryDestinationId: Int,
+        @Body accommodationRequest: AccommodationRequest
+    ): Call<AccommodationWrapper>
+
+    @GET("itinerary/checkAccommodation/{itineraryDestinationId}")
+    fun checkAccommodation(
+        @Header("X-API-TOKEN") token: String,
+        @Path("itineraryDestinationId") itineraryDestinationId: Int
+    ): Call<AccommodationIdWrapper>
+
+    @GET("accommodations/{accommodationId}")
+    fun getAccommodationDetails(
+        @Header("X-API-TOKEN") token: String,
+        @Path("accommodationId") accommodationId: Int
+    ): Call<AccommodationWrapper>
 }

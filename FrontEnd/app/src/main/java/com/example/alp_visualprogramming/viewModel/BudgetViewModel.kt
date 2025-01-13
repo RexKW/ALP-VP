@@ -11,6 +11,7 @@ import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.initializer
 import androidx.lifecycle.viewmodel.viewModelFactory
 import com.example.alp_visualprogramming.ItineraryApplication
+import com.example.alp_visualprogramming.models.ActualBudgetResponse
 import com.example.alp_visualprogramming.models.ErrorModel
 import com.example.alp_visualprogramming.models.GetAllItineraryDestinationResponse
 import com.example.alp_visualprogramming.models.GetAllPlannedBudgetResponse
@@ -20,10 +21,12 @@ import com.example.alp_visualprogramming.repository.UserRepository
 import com.example.alp_visualprogramming.uiStates.BudgetDataStatusUIState
 import com.example.alp_visualprogramming.uiStates.JourneyDataStatusUIState
 import com.google.gson.Gson
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.suspendCancellableCoroutine
+import kotlinx.coroutines.withContext
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -40,8 +43,15 @@ class BudgetViewModel (
 
     var planned by mutableStateOf(0.0)
         private set
+
     fun changePlan(newValue: Double) {
         planned = newValue
+    }
+
+    var actual by mutableStateOf(0.0)
+        private set
+    fun changeActual(newValue: Double) {
+        actual = newValue
     }
     var canEdit by mutableStateOf(false)
 
@@ -55,60 +65,87 @@ class BudgetViewModel (
         canEdit= value
     }
 
-    fun getAllBudget(token: String, itineraryId: Int){
+    fun getAllBudget(token: String, itineraryId: Int) {
         viewModelScope.launch {
             dataStatus = BudgetDataStatusUIState.Loading
             try {
-                val call =  budgetRepository.getPlannedBudget(token = token, itineraryId = itineraryId)
+                val call = budgetRepository.getPlannedBudget(token = token, itineraryId = itineraryId)
                 call.enqueue(object : Callback<GetAllPlannedBudgetResponse> {
                     override fun onResponse(
                         call: Call<GetAllPlannedBudgetResponse>,
                         res: Response<GetAllPlannedBudgetResponse>
                     ) {
                         if (res.isSuccessful) {
-                            val budgetData = res.body()!!.data
-
-                                viewModelScope.launch {
-                                    val role = getUserRole(token, itineraryId)
-                                    if(role != "member"){
-                                        changeCanEdit(true)
-                                        if(role == "owner"){
-
-                                        }
-                                    }
-                                    var totalBudget = 0.0
-                                    for (budget in budgetData) {
-                                        totalBudget += budget.estimatedBudget
-                                    }
-                                    changePlan(totalBudget)
-
+                            val budgetData = res.body()?.data ?: emptyList()
+                            viewModelScope.launch {
+                                // Get user role
+                                val role = getUserRole(token, itineraryId)
+                                if (role != "member") {
+                                    changeCanEdit(true)
                                 }
 
+                                // Calculate total planned budget
+                                val totalBudget = budgetData.sumOf { it.estimated_budget }
+                                changePlan(totalBudget)
+
+                                // Get actual budget (secondary call)
+                                try {
 
 
-                                Log.d("data-result", "TODO LIST DATA: ${dataStatus}")
 
+
+
+                                    val actualBudgetResponse = withContext(Dispatchers.IO) {
+                                        budgetRepository.getActualBudget(token, itineraryId).execute()
+                                    }
+
+                                    if (actualBudgetResponse.isSuccessful) {
+                                        val actualData = actualBudgetResponse.body()
+                                        if (actualData != null) {
+                                            // Calculate the total actual budget
+                                            val totalActual = actualData.totalSport +
+                                                    actualData.totalCulinary +
+                                                    actualData.totalShoppingEntertainment +
+                                                    actualData.totalTransport +
+                                                    actualData.totalHealthcare +
+                                                    actualData.totalAccommodation +
+                                                    actualData.totalSightSeeing
+
+                                            // Update the actual budget in the UI
+                                            changeActual(totalActual)
+                                            Log.d("budget", "Calculated Total Actual Budget: $totalActual")
+                                        } else {
+                                            Log.e("budget", "No data field in the response")
+                                        }
+                                    } else {
+                                        val errorBody = actualBudgetResponse.errorBody()?.string()
+                                        Log.e("budget", "Failed Response: $errorBody")
+                                    }
+
+
+                                } catch (e: Exception) {
+                                    dataStatus = BudgetDataStatusUIState.Failed(e.localizedMessage ?: "Unknown error")
+                                }
+                            }
                         } else {
                             val errorMessage = Gson().fromJson(
-                                res.errorBody()!!.charStream(),
+                                res.errorBody()?.charStream(),
                                 ErrorModel::class.java
                             )
-
                             dataStatus = BudgetDataStatusUIState.Failed(errorMessage.errors)
                         }
                     }
 
                     override fun onFailure(call: Call<GetAllPlannedBudgetResponse>, t: Throwable) {
-                        dataStatus = BudgetDataStatusUIState.Failed(t.localizedMessage)
+                        dataStatus = BudgetDataStatusUIState.Failed(t.localizedMessage ?: "Unknown error")
                     }
-
                 })
             } catch (error: IOException) {
-                dataStatus = BudgetDataStatusUIState.Failed(error.localizedMessage)
+                dataStatus = BudgetDataStatusUIState.Failed(error.localizedMessage ?: "Unknown error")
             }
-
         }
     }
+
     suspend fun getUserRole(token:String, itineraryId: Int): String{
         return suspendCancellableCoroutine { continuation ->
             val call = userRepository.getUserRole(token = token, id = itineraryId)

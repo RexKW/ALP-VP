@@ -226,7 +226,7 @@ fun ActivitiesView(modifier: Modifier = Modifier,
                             ) {
                                 Button(
                                     onClick = {
-                                        activityFormViewModel.initializeCreate(dayId, navController)
+                                        activityFormViewModel.initializeCreate(dayId, navController, activitiesViewModel.currDestinationId!!, token)
                                     },
 
 
@@ -262,16 +262,16 @@ fun ActivitiesView(modifier: Modifier = Modifier,
     }
 }
 
-@Preview(showSystemUi = true, showBackground = true)
-@Composable
-fun ActivitiesPreview(){
-    ActivitiesView(
-        context = LocalContext.current,
-        activitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory),
-        token = "",
-        dayId = 1,
-        activityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory),
-        activityFormViewModel = viewModel(factory = ActivityFormViewModel.Factory),
-        canEdit = true
-    )
-}
+//@Preview(showSystemUi = true, showBackground = true)
+//@Composable
+//fun ActivitiesPreview(){
+//    ActivitiesView(
+//        context = LocalContext.current,
+//        activitiesViewModel = viewModel(factory = ActivitiesViewModel.Factory),
+//        token = "",
+//        dayId = 1,
+//        activityDetailViewModel = viewModel(factory = ActivityDetailViewModel.Factory),
+//        activityFormViewModel = viewModel(factory = ActivityFormViewModel.Factory),
+//        canEdit = true
+//    )
+//}

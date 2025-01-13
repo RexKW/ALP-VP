@@ -59,10 +59,17 @@ class ActivitiesViewModel(
         selectedDay = dayId
     }
 
+    var currDestinationId by mutableStateOf<Int?>(null)
 
-    fun getAllDaysInitial(itineraryDestinationId: Int, token: String, navController: NavController, itineraryId: Int){
+    fun changeCurrDestinationId(destinationId: Int){
+        currDestinationId = destinationId
+    }
+
+
+    fun getAllDaysInitial(itineraryDestinationId: Int, token: String, navController: NavController, itineraryId: Int, destinationId: Int){
         viewModelScope.launch {
             changeCurrItineraryId(itineraryId)
+            changeCurrDestinationId(destinationId)
             dayDataStatus = DayDataStatusUIState.Loading
             try {
                 val call =  activityRepository.getAllDays(token, itineraryDestinationId)
@@ -149,7 +156,7 @@ class ActivitiesViewModel(
                         if (res.isSuccessful) {
 
                             dataStatus = ActivityDataStatusUIState.Success(res.body()!!.data)
-
+                            navController.navigate("Activities/$dayId")
 
                         } else {
                             val errorMessage = Gson().fromJson(

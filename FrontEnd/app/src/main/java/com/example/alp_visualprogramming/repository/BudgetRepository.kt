@@ -14,8 +14,8 @@ import com.example.alp_visualprogramming.service.BudgetAPIService
 import retrofit2.Call
 
 interface BudgetRepository {
-    fun getPlannedBudget(token: String, itineraryId: Int): Call<GetAllPlannedBudgetResponse>
-    fun getActualBudget(token: String, itineraryId: Int): Call<ActualBudgetResponse>
+     fun getPlannedBudget(token: String, itineraryId: Int): Call<GetAllPlannedBudgetResponse>
+     fun getActualBudget(token: String, itineraryId: Int): Call<ActualBudgetResponse>
     fun createBudget(token: String, itineraryId: Int, accommodation:Double, transport:Double, shoppingEntertainment:Double, culinary:Double, healthcare:Double, sightSeeing:Double, sport:Double ): Call<GeneralResponseModel>
     fun updateBudget(token: String, id: Int, accommodation:Double, transport:Double, shoppingEntertainment:Double, culinary:Double, healthcare:Double, sightSeeing:Double, sport:Double ): Call<GeneralResponseModel>
 }
@@ -24,12 +24,12 @@ class NetworkBudgetRepository(
     private val budgetAPIService: BudgetAPIService
 ): BudgetRepository {
 
-    override fun getPlannedBudget(token: String, itineraryId: Int): Call<GetAllPlannedBudgetResponse> {
+    override  fun getPlannedBudget(token: String, itineraryId: Int): Call<GetAllPlannedBudgetResponse> {
         return budgetAPIService.getPlannedBudget(token, itineraryId)
 
     }
 
-    override fun getActualBudget(token: String, itineraryId: Int): Call<ActualBudgetResponse> {
+    override  fun getActualBudget(token: String, itineraryId: Int): Call<ActualBudgetResponse> {
         return budgetAPIService.getActualBudget(token, itineraryId)
     }
 
